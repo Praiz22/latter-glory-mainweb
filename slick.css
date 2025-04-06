@@ -1,0 +1,15 @@
+/* slick.css */
+
+/* Original slick.css content restored */
+
+.slick-track {
+  display: flex;
+}
+
+.slick-slide {
+  height: inherit;
+}
+
+.slick-prev, .slick-next {
+  background: #ff99cc;
+}
