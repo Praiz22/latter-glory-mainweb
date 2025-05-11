@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Explore upcoming and past events at Latter Glory School. Discover our vibrant educational atmosphere with interactive and animated experiences." />
+  <title>Latter Glory School Events</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #fefefe;
+      color: #333;
+      overflow-x: hidden;
+    }
+    header {
+      position: relative;
+      padding: 2rem;
+      text-align: center;
+      background: linear-gradient(135deg, #f06292, #6a1b9a);
+      color: white;
+      overflow: hidden;
+    }
+    header h1 {
+      font-size: 2.8rem;
+      margin-bottom: 0.5rem;
+    }
+    header p {
+      font-size: 1.2rem;
+    }
+    .floating-shapes div {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.3;
+      animation: float 15s linear infinite;
+    }
+    .floating-shapes .circle {
+      width: 80px;
+      height: 80px;
+      background: #fff;
+      top: 10%;
+      left: 20%;
+    }
+    .floating-shapes .rectangle {
+      width: 120px;
+      height: 40px;
+      background: #e1bee7;
+      top: 30%;
+      left: 70%;
+    }
+    @keyframes float {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-30px); }
+      100% { transform: translateY(0); }
+    }
+    nav {
+      background: white;
+      padding: 1rem;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    nav a {
+      margin: 0 1rem;
+      text-decoration: none;
+      color: #6a1b9a;
+      font-weight: 600;
+    }
+    section {
+      padding: 4rem 2rem;
+    }
+    .events {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+    .event-card {
+      background: #fff;
+      border-radius: 1rem;
+      padding: 1rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease;
+    }
+    .event-card:hover {
+      transform: scale(1.03);
+    }
+    .event-card img {
+      width: 100%;
+      border-radius: 0.5rem;
+    }
+    .event-card h3 {
+      margin: 1rem 0 0.5rem;
+    }
+    .share-btn {
+      display: inline-block;
+      margin-top: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: #6a1b9a;
+      color: white;
+      border-radius: 2rem;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    footer {
+      background: #f3e5f5;
+      padding: 2rem;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #555;
+      position: relative;
+    }
+    footer .social-icons i {
+      margin: 0 0.5rem;
+      color: #6a1b9a;
+      font-size: 1.3rem;
+    }
+    footer small {
+      display: block;
+      margin-top: 1rem;
+    }
+    .watermark {
+      position: fixed;
+      bottom: 5px;
+      right: 10px;
+      font-size: 0.75rem;
+      color: rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="floating-shapes">
+      <div class="circle"></div>
+      <div class="rectangle"></div>
+    </div>
+    <h1>Discover the Excitement at Latter Glory School!</h1>
+    <p>Explore our upcoming and past events</p>
+  </header>
+
+  <nav>
+    <a href="#upcoming">Upcoming Events</a>
+    <a href="#past">Past Events</a>
+    <a href="https://praiz22.github.io/latter-glory-mainweb/">Back to Main Site</a>
+  </nav>
+
+  <section id="upcoming">
+    <h2>Upcoming Events</h2>
+    <div class="events">
+      <div class="event-card">
+        <img src="https://via.placeholder.com/400x200" alt="Excursion" />
+        <h3>Excursion to Ibadan Zoo</h3>
+        <p><strong>Date:</strong> June 15, 2025<br><strong>Time:</strong> 10:00 AM</p>
+        <p>A day of fun, exploration, and learning at the Ibadan Zoological Garden.</p>
+        <span class="share-btn" onclick="shareEvent('Excursion to Ibadan Zoo', 'https://via.placeholder.com/400x200')">Share</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="past">
+    <h2>Past Events</h2>
+    <div class="events">
+      <div class="event-card">
+        <img src="https://via.placeholder.com/400x200" alt="Cultural Day" />
+        <h3>Cultural Day 2024</h3>
+        <p><strong>Date:</strong> March 10, 2024</p>
+        <p>A vibrant celebration of our diverse cultural heritage.</p>
+        <span class="share-btn" onclick="shareEvent('Cultural Day 2024', 'https://via.placeholder.com/400x200')">Share</span>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p><strong>Latter Glory Academy</strong><br>Opp. Operation Burst Station, Baptist High School Area, Ogbomoso, Oyo State, Nigeria<br>Hotline: 08162873036, 09045048954, 08141218224<br>Email: thelattergloryacademy@gmail.com</p>
+    <div class="social-icons">
+      <a href="#"><i class="fab fa-facebook"></i></a>
+      <a href="#"><i class="fab fa-whatsapp"></i></a>
+      <a href="#"><i class="fab fa-instagram"></i></a>
+      <a href="#"><i class="fab fa-tiktok"></i></a>
+    </div>
+    <small>© 2025 Latter Glory Academy. All rights reserved.</small>
+    <div class="watermark">www.latterglory.com.ng</div>
+  </footer>
+
+  <script>
+    function shareEvent(title, imgUrl) {
+      const text = `Join the exciting ${title} at Latter Glory School! Learn more at www.latterglory.com.ng`;
+      if (navigator.share) {
+        navigator.share({
+          title: title,
+          text: text,
+          url: imgUrl
+        }).then(() => {
+          console.log('Thanks for sharing!');
+        }).catch(console.error);
+      } else {
+        alert('Sharing not supported on this browser. Copy and share manually: ' + text);
+      }
+    }
+  </script>
+</body>
+</html>
