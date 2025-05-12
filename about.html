@@ -135,48 +135,86 @@
                 </div>
             </section>
 
-            <!-- Slick CSS (add this to your <head>) -->
-<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
-<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css"/>
+           <!-- Link to Slick Carousel CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css"/>
 
 <!-- Testimonials Section -->
 <section id="testimonials" class="py-5 bg-light">
   <div class="container">
-    <div class="row mb-4 text-center">
+    <div class="text-center mb-5">
       <h2 class="fw-bold">What Parents Say</h2>
-      <p class="text-muted">Testimonials from our proud parents</p>
+      <p class="text-muted">Hear directly from our happy parents</p>
     </div>
 
-    <!-- Slick Carousel Container -->
     <div class="slick-testimonial">
       <!-- Testimonial 1 -->
-      <div class="slick-testimonial-caption">
-        <p class="lead">"Latter Glory Academy has transformed my child's learning experience. The teachers are supportive and the curriculum is challenging yet engaging."</p>
-        <div class="slick-testimonial-client d-flex align-items-center mt-4">
-          <img src="mum.webp" class="img-fluid custom-circle-image me-3" alt="Parent">
-          <span>Mrs. Adebayo, <strong class="text-muted">Parent</strong></span>
+      <div class="p-4 bg-white rounded shadow-sm testimonial-card">
+        <div class="quote-icon text-primary mb-3" style="font-size: 30px;">❝</div>
+        <p class="lead">Latter Glory Academy has transformed my child's learning experience. The teachers are supportive and the curriculum is engaging.</p>
+        <div class="d-flex align-items-center mt-4">
+          <img src="mum.webp" class="img-fluid custom-circle-image me-3" alt="Parent" width="60" height="60">
+          <div>
+            <strong>Mrs. Adebayo</strong><br><span class="text-muted">Parent</span>
+          </div>
         </div>
       </div>
 
-      <!-- Testimonial 2 -->
-      <div class="slick-testimonial-caption">
-        <p class="lead">"We’ve seen great improvements in our son since joining Latter Glory. The learning environment is top-notch and the staff is very friendly."</p>
-        <div class="slick-testimonial-client d-flex align-items-center mt-4">
-          <img src="dad.webp" class="img-fluid custom-circle-image me-3" alt="Parent">
-          <span>Mr. Ojo, <strong class="text-muted">Parent</strong></span>
+      <!-- Testimonial 2 (replaced image) -->
+      <div class="p-4 bg-white rounded shadow-sm testimonial-card">
+        <div class="quote-icon text-primary mb-3" style="font-size: 30px;">❝</div>
+        <p class="lead">We’ve seen great improvements in our son. The learning environment is top-notch and the staff is very friendly.</p>
+        <div class="d-flex align-items-center mt-4">
+          <img src="parent4.webp" class="img-fluid custom-circle-image me-3" alt="Parent" width="60" height="60">
+          <div>
+            <strong>Mr. Ojo</strong><br><span class="text-muted">Parent</span>
+          </div>
         </div>
       </div>
 
-      <!-- Add more testimonials as needed -->
+      <!-- Testimonial 3 -->
+      <div class="p-4 bg-white rounded shadow-sm testimonial-card">
+        <div class="quote-icon text-primary mb-3" style="font-size: 30px;">❝</div>
+        <p class="lead">The spiritual and academic growth of my daughter since enrolling has been truly remarkable. Latter Glory is indeed a blessing.</p>
+        <div class="d-flex align-items-center mt-4">
+          <img src="parent1.webp" class="img-fluid custom-circle-image me-3" alt="Parent" width="60" height="60">
+          <div>
+            <strong>Mrs. Kolapo</strong><br><span class="text-muted">Parent</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Testimonial 4 -->
+      <div class="p-4 bg-white rounded shadow-sm testimonial-card">
+        <div class="quote-icon text-primary mb-3" style="font-size: 30px;">❝</div>
+        <p class="lead">My children wake up excited to go to school each day. That speaks volumes about the teachers and learning experience.</p>
+        <div class="d-flex align-items-center mt-4">
+          <img src="parent2.webp" class="img-fluid custom-circle-image me-3" alt="Parent" width="60" height="60">
+          <div>
+            <strong>Mr. Akinwale</strong><br><span class="text-muted">Parent</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Testimonial 5 -->
+      <div class="p-4 bg-white rounded shadow-sm testimonial-card">
+        <div class="quote-icon text-primary mb-3" style="font-size: 30px;">❝</div>
+        <p class="lead">From values to academics, Latter Glory does it excellently. I proudly recommend it to every parent.</p>
+        <div class="d-flex align-items-center mt-4">
+          <img src="parent3.webp" class="img-fluid custom-circle-image me-3" alt="Parent" width="60" height="60">
+          <div>
+            <strong>Mrs. Lawal</strong><br><span class="text-muted">Parent</span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- jQuery and Slick JS (add before </body>) -->
+<!-- Slick Carousel Scripts -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
 
-<!-- Initialize Slick -->
 <script>
   $(document).ready(function(){
     $('.slick-testimonial').slick({
@@ -186,10 +224,32 @@
       dots: true,
       arrows: false,
       autoplay: true,
-      autoplaySpeed: 5000
+      autoplaySpeed: 3000, // 3 seconds
+      fade: true, // fade animation
+      cssEase: 'linear',
+      adaptiveHeight: true
     });
   });
 </script>
+
+<!-- Optional custom style -->
+<style>
+  .custom-circle-image {
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .slick-dots li button:before {
+    color: #dc3545; /* pinkish or red dot */
+    font-size: 12px;
+  }
+
+  .testimonial-card:hover {
+    transform: scale(1.01);
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+  }
+</style>
 
         </main>
 
