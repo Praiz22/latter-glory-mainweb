@@ -135,40 +135,62 @@
                 </div>
             </section>
 
-            <section class="testimonial section-padding">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-lg-9 mx-auto col-11">
-                            <h2 class="text-center">What Our <span>Parents</span> Say</h2>
-                            <div class="slick-testimonial">
-                                <div class="slick-testimonial-caption">
-                                    <p class="lead">"Latter Glory Academy has transformed my child's learning experience. The teachers are supportive and the curriculum is challenging yet engaging."</p>
-                                    <div class="slick-testimonial-client d-flex align-items-center mt-4">
-                                        <img src="mum.webp" class="img-fluid custom-circle-image me-3" alt="Parent">
-                                        <span>Mrs. Adebayo, <strong class="text-muted">Parent</strong></span>
-                                    </div>
-                                </div>
+            <!-- Slick CSS (add this to your <head>) -->
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css"/>
 
-                                <div class="slick-testimonial-caption">
-                                    <p class="lead">"The school's dedication to academic excellence and character building is truly commendable. My children are thriving here."</p>
-                                    <div class="slick-testimonial-client d-flex align-items-center mt-4">
-                                        <img src="mum.webp" class="img-fluid custom-circle-image me-3" alt="Parent">
-                                        <span>Mr. Olatunde, <strong class="text-muted">Parent</strong></span>
-                                    </div>
-                                </div>
+<!-- Testimonials Section -->
+<section id="testimonials" class="py-5 bg-light">
+  <div class="container">
+    <div class="row mb-4 text-center">
+      <h2 class="fw-bold">What Parents Say</h2>
+      <p class="text-muted">Testimonials from our proud parents</p>
+    </div>
 
-                                <div class="slick-testimonial-caption">
-                                    <p class="lead">"The personalized attention given to each student at Latter Glory Academy sets it apart from other schools."</p>
-                                    <div class="slick-testimonial-client d-flex align-items-center mt-4">
-                                        <img src="mum.webp" class="img-fluid custom-circle-image me-3" alt="Parent">
-                                        <span>Mrs. Okonkwo, <strong class="text-muted">Parent</strong></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+    <!-- Slick Carousel Container -->
+    <div class="slick-testimonial">
+      <!-- Testimonial 1 -->
+      <div class="slick-testimonial-caption">
+        <p class="lead">"Latter Glory Academy has transformed my child's learning experience. The teachers are supportive and the curriculum is challenging yet engaging."</p>
+        <div class="slick-testimonial-client d-flex align-items-center mt-4">
+          <img src="mum.webp" class="img-fluid custom-circle-image me-3" alt="Parent">
+          <span>Mrs. Adebayo, <strong class="text-muted">Parent</strong></span>
+        </div>
+      </div>
+
+      <!-- Testimonial 2 -->
+      <div class="slick-testimonial-caption">
+        <p class="lead">"We’ve seen great improvements in our son since joining Latter Glory. The learning environment is top-notch and the staff is very friendly."</p>
+        <div class="slick-testimonial-client d-flex align-items-center mt-4">
+          <img src="dad.webp" class="img-fluid custom-circle-image me-3" alt="Parent">
+          <span>Mr. Ojo, <strong class="text-muted">Parent</strong></span>
+        </div>
+      </div>
+
+      <!-- Add more testimonials as needed -->
+    </div>
+  </div>
+</section>
+
+<!-- jQuery and Slick JS (add before </body>) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+
+<!-- Initialize Slick -->
+<script>
+  $(document).ready(function(){
+    $('.slick-testimonial').slick({
+      infinite: true,
+      slidesToShow: 1,
+      slidesToScroll: 1,
+      dots: true,
+      arrows: false,
+      autoplay: true,
+      autoplaySpeed: 5000
+    });
+  });
+</script>
+
         </main>
 
        
