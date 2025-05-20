@@ -3,24 +3,74 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="Latter Glory Academy Assignment Submission Portal. Submit your assignments with ease. Learn how to use the portal with our interactive guide." />
   <meta name="keywords" content="assignment submission, latter glory, student portal, educational form, academic upload" />
   <meta name="author" content="Praix Tech" />
   <title>Assignment Submission | Latter Glory Academy</title>
+
+  <!-- Google Fonts from Praiz22 repo (assuming Poppins and Inter) -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+
+  <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+  <!-- Animate.css for animations -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
   <style>
+    /* Color theme from lattergloryacademy.netlify.app */
+    :root {
+      --primary-color: #b71c1c;
+      --secondary-color: #f8f9fa;
+      --accent-color: #e91e63;
+      --dark-color: #2c2c2c;
+      --light-color: #ffffff;
+    }
+
     body {
-      background: linear-gradient(to right, #fff0f5, #ffe4e1);
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #fff0f5 0%, #ffe4e1 100%);
+      font-family: 'Poppins', 'Inter', sans-serif;
+      color: var(--dark-color);
+      overflow-x: hidden;
+      position: relative;
+      min-height: 100vh;
+      padding-bottom: 100px; /* footer space */
     }
-    .carousel-item img {
-      max-height: 400px;
-      object-fit: contain;
-    }
-    .vector {
+
+    /* Floating SVG shapes */
+    .floating-shape {
+      position: absolute;
       animation: float 6s ease-in-out infinite;
+      opacity: 0.3;
+      z-index: 0;
     }
+
+    .floating-shape:nth-child(1) {
+      top: 10%;
+      left: 5%;
+      width: 80px;
+      animation-delay: 0s;
+    }
+
+    .floating-shape:nth-child(2) {
+      top: 30%;
+      right: 10%;
+      width: 100px;
+      animation-delay: 2s;
+    }
+
+    .floating-shape:nth-child(3) {
+      bottom: 20%;
+      left: 15%;
+      width: 60px;
+      animation-delay: 4s;
+    }
+
     @keyframes float {
       0%, 100% {
         transform: translateY(0);
@@ -29,97 +79,301 @@
         transform: translateY(-20px);
       }
     }
-    footer {
-      background: #750f3c;
-      color: white;
-      padding: 1rem;
+
+    /* Header */
+    header {
       text-align: center;
+      margin-bottom: 3rem;
+      position: relative;
+      z-index: 10;
+    }
+
+    header h1 {
+      font-weight: 700;
+      font-size: 3rem;
+      color: var(--primary-color);
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      animation: fadeInDown 1s ease forwards;
+    }
+
+    header p.lead {
+      font-size: 1.25rem;
+      color: var(--dark-color);
+      animation: fadeInUp 1s ease forwards;
+      animation-delay: 0.5s;
+    }
+
+    /* Carousel */
+    .carousel {
+      max-width: 900px;
+      margin: 0 auto 4rem auto;
+      position: relative;
+      z-index: 10;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(183, 28, 28, 0.3);
+      overflow: hidden;
+    }
+
+    .carousel .carousel-item img {
+      max-height: 400px;
+      object-fit: contain;
+      filter: drop-shadow(0 0 5px var(--accent-color));
+    }
+
+    .carousel-caption {
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 10px;
+      padding: 1rem 1.5rem;
+      color: var(--primary-color);
+      font-weight: 600;
+      text-shadow: none;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      max-width: 80%;
+    }
+
+    /* Form */
+    form {
+      max-width: 700px;
+      margin: 0 auto 5rem auto;
+      background: var(--light-color);
+      padding: 2rem 2.5rem;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(183, 28, 28, 0.2);
+      position: relative;
+      z-index: 10;
+    }
+
+    form h4 {
+      color: var(--primary-color);
+      font-weight: 700;
+      margin-bottom: 2rem;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+
+    .form-label {
+      font-weight: 600;
+      color: var(--dark-color);
+    }
+
+    .form-control {
+      border-radius: 10px;
+      border: 2px solid var(--primary-color);
+      transition: border-color 0.3s ease;
+    }
+
+    .form-control:focus {
+      border-color: var(--accent-color);
+      box-shadow: 0 0 8px var(--accent-color);
+      outline: none;
+    }
+
+    /* Submit button */
+    .btn-primary {
+      background-color: var(--primary-color);
+      border: none;
+      font-weight: 700;
+      padding: 0.75rem 2rem;
+      border-radius: 50px;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 6px 15px rgba(183, 28, 28, 0.4);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--accent-color);
+      box-shadow: 0 8px 20px rgba(233, 30, 99, 0.6);
+    }
+
+    /* Toast container */
+    #toast-container {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      z-index: 1050;
+    }
+
+    /* Footer */
+    footer {
+      background: var(--primary-color);
+      color: var(--light-color);
+      padding: 1.5rem 1rem;
+      text-align: center;
+      font-weight: 600;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      z-index: 10;
+      box-shadow: 0 -3px 10px rgba(183, 28, 28, 0.5);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      header h1 {
+        font-size: 2.25rem;
+      }
+      form {
+        padding: 1.5rem 1.5rem;
+      }
     }
   </style>
 </head>
 
 <body>
-  <div class="container py-5">
-    <div class="text-center mb-5">
-      <h1 class="fw-bold text-primary">Latter Glory Assignment Portal</h1>
-      <p class="lead">Submit assignments with ease. Learn. Upload. Succeed.</p>
+  <!-- Floating SVG shapes -->
+  <img src="https://undraw.co/api/illustrations/abstract-shapes.svg" alt="Floating shapes" class="floating-shape" style="top: 10%; left: 5%;" />
+  <img src="https://undraw.co/api/illustrations/abstract-shapes-2.svg" alt="Floating shapes" class="floating-shape" style="top: 30%; right: 10%;" />
+  <img src="https://undraw.co/api/illustrations/abstract-shapes-3.svg" alt="Floating shapes" class="floating-shape" style="bottom: 20%; left: 15%;" />
+
+  <header>
+    <h1 class="animate__animated animate__fadeInDown">Latter Glory Assignment Portal</h1>
+    <p class="lead animate__animated animate__fadeInUp">Submit assignments with ease. Learn. Upload. Succeed.</p>
+  </header>
+
+  <!-- Carousel -->
+  <div id="educationCarousel" class="carousel slide animate__animated animate__fadeIn" data-bs-ride="carousel" data-bs-interval="5000">
+    <div class="carousel-inner">
+      <div class="carousel-item active">
+        <img src="https://undraw.co/api/illustrations/assignment.svg" class="d-block w-100" alt="Learn how to use" />
+        <div class="carousel-caption d-none d-md-block">
+          <h5>Step 1: Fill Your Details</h5>
+          <p>Enter your full name, class, and registration number accurately.</p>
+        </div>
+      </div>
+      <div class="carousel-item">
+        <img src="https://undraw.co/api/illustrations/study.svg" class="d-block w-100" alt="Provide Assignment" />
+        <div class="carousel-caption d-none d-md-block">
+          <h5>Step 2: Upload Your Work</h5>
+          <p>Submit assignment title, your solution, and extra notes.</p>
+        </div>
+      </div>
+      <div class="carousel-item">
+        <img src="https://undraw.co/api/illustrations/submit.svg" class="d-block w-100" alt="Submission" />
+        <div class="carousel-caption d-none d-md-block">
+          <h5>Step 3: Submit</h5>
+          <p>Click the submit button and get a confirmation instantly.</p>
+        </div>
+      </div>
     </div>
-
-    <!-- Educational Carousel -->
-    <div id="educationCarousel" class="carousel slide mb-5" data-bs-ride="carousel">
-      <div class="carousel-inner">
-        <div class="carousel-item active">
-          <img src="https://undraw.co/api/illustrations/assignment.svg" class="d-block w-100 vector" alt="Learn how to use" />
-          <div class="carousel-caption d-none d-md-block">
-            <h5>Step 1: Fill Your Details</h5>
-            <p>Enter your full name, class, and registration number accurately.</p>
-          </div>
-        </div>
-        <div class="carousel-item">
-          <img src="https://undraw.co/api/illustrations/study.svg" class="d-block w-100 vector" alt="Provide Assignment" />
-          <div class="carousel-caption d-none d-md-block">
-            <h5>Step 2: Upload Your Work</h5>
-            <p>Submit assignment title, your solution, and extra notes.</p>
-          </div>
-        </div>
-        <div class="carousel-item">
-          <img src="https://undraw.co/api/illustrations/submit.svg" class="d-block w-100 vector" alt="Submission" />
-          <div class="carousel-caption d-none d-md-block">
-            <h5>Step 3: Submit</h5>
-            <p>Click the submit button and get a confirmation instantly.</p>
-          </div>
-        </div>
-      </div>
-      <button class="carousel-control-prev" type="button" data-bs-target="#educationCarousel" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Previous</span>
-      </button>
-      <button class="carousel-control-next" type="button" data-bs-target="#educationCarousel" data-bs-slide="next">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Next</span>
-      </button>
-    </div>
-
-    <!-- Assignment Form -->
-    <form action="https://formspree.io/f/xoqgqadw" method="POST" class="bg-white p-4 rounded shadow">
-      <h4 class="mb-4 text-center text-primary">Submit Your Assignment</h4>
-
-      <div class="mb-3">
-        <label for="name" class="form-label">Student Name</label>
-        <input type="text" name="name" id="name" required class="form-control" />
-      </div>
-      <div class="mb-3">
-        <label for="class" class="form-label">Class</label>
-        <input type="text" name="class" id="class" required class="form-control" />
-      </div>
-      <div class="mb-3">
-        <label for="reg" class="form-label">Registration Number</label>
-        <input type="text" name="reg" id="reg" required class="form-control" />
-      </div>
-      <div class="mb-3">
-        <label for="subject" class="form-label">Assignment Subject/Title</label>
-        <input type="text" name="subject" id="subject" required class="form-control" />
-      </div>
-      <div class="mb-3">
-        <label for="solution" class="form-label">Assignment Solution</label>
-        <textarea name="solution" id="solution" required class="form-control" rows="5"></textarea>
-      </div>
-      <div class="mb-3">
-        <label for="notes" class="form-label">Additional Notes</label>
-        <textarea name="notes" id="notes" class="form-control" rows="3"></textarea>
-      </div>
-
-      <div class="text-center">
-        <button type="submit" class="btn btn-primary">Submit Assignment</button>
-      </div>
-    </form>
+    <button class="carousel-control-prev" type="button" data-bs-target="#educationCarousel" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#educationCarousel" data-bs-slide="next">
+      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Next</span>
+    </button>
   </div>
+
+  <!-- Assignment Form -->
+  <form id="assignmentForm" action="https://formspree.io/f/xoqgqadw" method="POST" class="bg-white p-4 rounded shadow animate__animated animate__fadeInUp">
+    <h4 class="mb-4 text-center text-primary">Submit Your Assignment</h4>
+
+    <div class="mb-3">
+      <label for="name" class="form-label">Student Name</label>
+      <input type="text" name="name" id="name" required class="form-control" />
+    </div>
+    <div class="mb-3">
+      <label for="class" class="form-label">Class</label>
+      <input type="text" name="class" id="class" required class="form-control" />
+    </div>
+    <div class="mb-3">
+      <label for="reg" class="form-label">Registration Number</label>
+      <input type="text" name="reg" id="reg" required class="form-control" />
+    </div>
+    <div class="mb-3">
+      <label for="subject" class="form-label">Assignment Subject/Title</label>
+      <input type="text" name="subject" id="subject" required class="form-control" />
+    </div>
+    <div class="mb-3">
+      <label for="solution" class="form-label">Assignment Solution</label>
+      <textarea name="solution" id="solution" required class="form-control" rows="5"></textarea>
+    </div>
+    <div class="mb-3">
+      <label for="notes" class="form-label">Additional Notes</label>
+      <textarea name="notes" id="notes" class="form-control" rows="3"></textarea>
+    </div>
+
+    <div class="text-center">
+      <button type="submit" id="submitBtn" class="btn btn-primary position-relative">
+        <span id="btnText">Submit Assignment</span>
+        <span id="btnSpinner" class="spinner-border spinner-border-sm ms-2 d-none" role="status" aria-hidden="true"></span>
+      </button>
+    </div>
+  </form>
+
+  <!-- Toast container -->
+  <div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 1080;"></div>
 
   <footer>
     <p>&copy; 2025 Latter Glory Academy | Powered by Praix Tech</p>
   </footer>
 
+  <!-- Bootstrap JS Bundle -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Toast and form submission script -->
+  <script>
+    const form = document.getElementById('assignmentForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = document.getElementById('btnText');
+    const btnSpinner = document.getElementById('btnSpinner');
+    const toastContainer = document.getElementById('toast-container');
+
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.className = \`toast align-items-center text-bg-\${type} border-0 show mb-2\`;
+      toast.setAttribute('role', 'alert');
+      toast.setAttribute('aria-live', 'assertive');
+      toast.setAttribute('aria-atomic', 'true');
+      toast.innerHTML = \`
+        <div class="d-flex">
+          <div class="toast-body">\${message}</div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+      \`;
+      toastContainer.appendChild(toast);
+      setTimeout(() => {
+        toast.classList.remove('show');
+        toast.classList.add('hide');
+        setTimeout(() => toast.remove(), 500);
+      }, 4000);
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      btnText.textContent = 'Submitting...';
+      btnSpinner.classList.remove('d-none');
+      submitBtn.disabled = true;
+
+      const formData = new FormData(form);
+      try {
+        const response = await fetch(form.action, {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'Accept': 'application/json'
+          }
+        });
+        if (response.ok) {
+          showToast('Assignment submitted successfully!', 'success');
+          form.reset();
+        } else {
+          showToast('Submission failed. Please try again.', 'danger');
+        }
+      } catch (error) {
+        showToast('Network error. Please try again.', 'danger');
+      } finally {
+        btnText.textContent = 'Submit Assignment';
+        btnSpinner.classList.add('d-none');
+        submitBtn.disabled = false;
+      }
+    });
+  </script>
 </body>
 
 </html>
