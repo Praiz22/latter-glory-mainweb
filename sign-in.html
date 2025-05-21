@@ -23,17 +23,17 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
 
   <style>
-    /* Color theme from lattergloryacademy.netlify.app */
+    /* Color theme: pink and wine on white bg, black footer, white header */
     :root {
-      --primary-color: #b71c1c;
-      --secondary-color: #f8f9fa;
-      --accent-color: #e91e63;
-      --dark-color: #2c2c2c;
-      --light-color: #ffffff;
+      --primary-color: #b71c1c; /* wine */
+      --secondary-color: #ffe4e1; /* light pink */
+      --accent-color: #e91e63; /* pink */
+      --dark-color: #000000; /* black */
+      --light-color: #ffffff; /* white */
     }
 
     body {
-      background: linear-gradient(135deg, #fff0f5 0%, #ffe4e1 100%);
+      background: var(--light-color);
       font-family: 'Poppins', 'Inter', sans-serif;
       color: var(--dark-color);
       overflow-x: hidden;
@@ -42,63 +42,34 @@
       padding-bottom: 100px; /* footer space */
     }
 
-    /* Floating SVG shapes */
-    .floating-shape {
+    /* Floating SVG shapes wrapper */
+    .floating-shape-wrapper {
       position: absolute;
-      animation: float 6s ease-in-out infinite;
-      opacity: 0.3;
-      z-index: 0;
-    }
-
-    .floating-shape:nth-child(1) {
-      top: 10%;
-      left: 5%;
       width: 80px;
-      animation-delay: 0s;
-    }
-
-    .floating-shape:nth-child(2) {
-      top: 30%;
-      right: 10%;
-      width: 100px;
-      animation-delay: 2s;
-    }
-
-    .floating-shape:nth-child(3) {
-      bottom: 20%;
-      left: 15%;
-      width: 60px;
-      animation-delay: 4s;
-    }
-
-    @keyframes float {
-      0%, 100% {
-        transform: translateY(0);
-      }
-      50% {
-        transform: translateY(-20px);
-      }
-    }
-      .floating-shape-wrapper {
-      position: absolute;
-      width: 80px;  /* Adjust this to make the SVG smaller */
       height: 80px;
       z-index: 1;
+      cursor: pointer;
+      animation: float 6s ease-in-out infinite;
+      transition: transform 0.3s ease;
     }
-    
+    .floating-shape-wrapper:hover {
+      transform: translateY(-15px) scale(1.1);
+      animation-play-state: paused;
+      z-index: 10;
+    }
+
     .floating-shape {
       width: 100%;
       height: 100%;
       object-fit: contain;
-      opacity: 0.3; /* Optional: for a light floating feel */
-      animation: float 6s ease-in-out infinite;
-    }
-    
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
+      opacity: 0.5;
+      pointer-events: none;
     }
 
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
 
     /* Header */
     header {
@@ -106,6 +77,10 @@
       margin-bottom: 3rem;
       position: relative;
       z-index: 10;
+      background: var(--light-color);
+      padding: 1rem 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      color: var(--dark-color);
     }
 
     header h1 {
@@ -139,7 +114,7 @@
     .carousel .carousel-item img {
       max-height: 400px;
       object-fit: contain;
-      filter: drop-shadow(0 0 5px var(--accent-color));
+      filter: none; /* removed outer glow */
     }
 
     .carousel-caption {
@@ -154,20 +129,6 @@
       transform: translateX(-50%);
       max-width: 80%;
     }
-      .carousel-inner img.vector {
-      max-height: 250px;  /* Adjust height as needed */
-      max-width: 100%;
-      margin: 0 auto;
-      object-fit: contain;
-    }
-  .carousel-inner img.vector {
-    max-height: 250px;
-    max-width: 100%;
-    margin: 0 auto;
-    object-fit: contain;
-  }
-
-
 
     /* Form */
     form {
@@ -179,6 +140,7 @@
       box-shadow: 0 10px 30px rgba(183, 28, 28, 0.2);
       position: relative;
       z-index: 10;
+      animation: bounceIn 1s;
     }
 
     form h4 {
@@ -207,6 +169,17 @@
       outline: none;
     }
 
+    /* Dropdown specific */
+    select.form-control {
+      appearance: none;
+      background-image: url("data:image/svg+xml;charset=US-ASCII,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23b71c1c'%3e%3cpath d='M4 6l4 4 4-4z'/%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      background-size: 1rem;
+      padding-right: 2.5rem;
+      cursor: pointer;
+    }
+
     /* Submit button */
     .btn-primary {
       background-color: var(--primary-color);
@@ -216,11 +189,24 @@
       border-radius: 50px;
       transition: background-color 0.3s ease, box-shadow 0.3s ease;
       box-shadow: 0 6px 15px rgba(183, 28, 28, 0.4);
+      position: relative;
     }
 
     .btn-primary:hover {
       background-color: var(--accent-color);
       box-shadow: 0 8px 20px rgba(233, 30, 99, 0.6);
+    }
+
+    /* Spinner inside button */
+    .btn-spinner {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      display: none;
+    }
+    .btn-spinner.show {
+      display: inline-block;
     }
 
     /* Toast container */
@@ -233,7 +219,7 @@
 
     /* Footer */
     footer {
-      background: var(--primary-color);
+      background: var(--dark-color);
       color: var(--light-color);
       padding: 1.5rem 1rem;
       text-align: center;
@@ -260,16 +246,16 @@
 <body>
   <!-- Floating SVG shapes -->
   <div class="floating-shape-wrapper" style="top: 10%; left: 5%;">
-  <img src="gene.svg" alt="Floating shapes" class="floating-shape" />
-</div>
+    <img src="gene.svg" alt="Floating shapes" class="floating-shape" />
+  </div>
 
-<div class="floating-shape-wrapper" style="top: 30%; right: 10%;">
-  <img src="snowflake.svg" alt="Floating shapes" class="floating-shape" />
-</div>
+  <div class="floating-shape-wrapper" style="top: 30%; right: 10%;">
+    <img src="snowflake.svg" alt="Floating shapes" class="floating-shape" />
+  </div>
 
-<div class="floating-shape-wrapper" style="bottom: 20%; left: 15%;">
-  <img src="stars.svg" alt="Floating shapes" class="floating-shape" />
-</div>
+  <div class="floating-shape-wrapper" style="bottom: 20%; left: 15%;">
+    <img src="stars.svg" alt="Floating shapes" class="floating-shape" />
+  </div>
 
   <header>
     <h1 class="animate__animated animate__fadeInDown">Latter Glory Assignment Portal</h1>
@@ -277,54 +263,55 @@
   </header>
 
   <!-- Carousel -->
- <!-- Carousel -->
   <div id="assignmentCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="4000">
-  <div class="carousel-inner">
-    <div class="carousel-item active">
-      <img src="learning.svg" class="d-block w-100 vector" alt="Learn how to use" />
-      <div class="carousel-caption d-none d-md-block">
-        <h5>Step 1: Fill Your Details</h5>
-        <p>Enter your full name, class, and registration number accurately.</p>
+    <div class="carousel-inner">
+      <div class="carousel-item active">
+        <img src="learning.svg" class="d-block w-100 vector" alt="Learn how to use" />
+        <div class="carousel-caption d-none d-md-block">
+          <h5>Step 1: Fill Your Details</h5>
+          <p>Enter your full name, class, and registration number accurately.</p>
+        </div>
+      </div>
+      <div class="carousel-item">
+        <img src="studying.svg" class="d-block w-100 vector" alt="Provide Assignment" />
+        <div class="carousel-caption d-none d-md-block">
+          <h5>Step 2: Provide Details</h5>
+          <p>Fill in your assignment title, write your solution, and share additional notes.</p>
+        </div>
+      </div>
+      <div class="carousel-item">
+        <img src="working.svg" class="d-block w-100 vector" alt="Submission" />
+        <div class="carousel-caption d-none d-md-block">
+          <h5>Step 3: Submit</h5>
+          <p>Submit your assignment and receive confirmation instantly.</p>
+        </div>
+      </div>
+      <div class="carousel-item">
+        <img src="submission.svg" class="d-block w-100 vector" alt="Working From Home" />
+        <div class="carousel-caption d-none d-md-block">
+          <h5>Step 4: Done</h5>
+          <p>Your assignment is now with your teacher. Stay updated!</p>
+        </div>
       </div>
     </div>
-    <div class="carousel-item">
-      <img src="studying.svg" class="d-block w-100 vector" alt="Provide Assignment" />
-      <div class="carousel-caption d-none d-md-block">
-        <h5>Step 2: Provide Details</h5>
-        <p>Fill in your assignment title, write your solution, and share additional notes.</p>
-      </div>
-    </div>
-    <div class="carousel-item">
-      <img src="working.svg" class="d-block w-100 vector" alt="Submission" />
-      <div class="carousel-caption d-none d-md-block">
-        <h5>Step 3: Submit</h5>
-        <p>Submit your assignment and receive confirmation instantly.</p>
-      </div>
-    </div>
-    <div class="carousel-item">
-      <img src="submission.svg" class="d-block w-100 vector" alt="Working From Home" />
-      <div class="carousel-caption d-none d-md-block">
-        <h5>Step 4: Done</h5>
-        <p>Your assignment is now with your teacher. Stay updated!</p>
-      </div>
-    </div>
+
+    <!-- Carousel Controls -->
+    <button class="carousel-control-prev" type="button" data-bs-target="#assignmentCarousel" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#assignmentCarousel" data-bs-slide="next">
+      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Next</span>
+    </button>
   </div>
 
-  <!-- Carousel Controls -->
-  <button class="carousel-control-prev" type="button" data-bs-target="#assignmentCarousel" data-bs-slide="prev">
-    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-    <span class="visually-hidden">Previous</span>
-  </button>
-  <button class="carousel-control-next" type="button" data-bs-target="#assignmentCarousel" data-bs-slide="next">
-    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-    <span class="visually-hidden">Next</span>
-  </button>
-</div>
-
-
   <!-- Assignment Form -->
-  <form id="assignmentForm" action="https://formspree.io/f/xoqgqadw" method="POST" class="bg-white p-4 rounded shadow animate__animated animate__fadeInUp">
+  <form id="assignmentForm" action="https://formsubmit.co/thelattergloryacademy@gmail.com" method="POST" class="bg-white p-4 rounded shadow animate__animated animate__bounceIn">
     <h4 class="mb-4 text-center text-primary">Submit Your Assignment</h4>
+
+    <input type="hidden" name="_autoresponse" value="Your assignment has been submitted successfully." />
+    <input type="hidden" name="_captcha" value="false" />
 
     <div class="mb-3">
       <label for="name" class="form-label">Student Name</label>
@@ -332,7 +319,15 @@
     </div>
     <div class="mb-3">
       <label for="class" class="form-label">Class</label>
-      <input type="text" name="class" id="class" required class="form-control" />
+      <select name="class" id="class" required class="form-control">
+        <option value="" disabled selected>Select your class</option>
+        <option value="JSS1">JSS1</option>
+        <option value="JSS2">JSS2</option>
+        <option value="JSS3">JSS3</option>
+        <option value="SS1">SS1</option>
+        <option value="SS2">SS2</option>
+        <option value="SS3">SS3</option>
+      </select>
     </div>
     <div class="mb-3">
       <label for="reg" class="form-label">Registration Number</label>
@@ -340,7 +335,24 @@
     </div>
     <div class="mb-3">
       <label for="subject" class="form-label">Assignment Subject/Title</label>
-      <input type="text" name="subject" id="subject" required class="form-control" />
+      <select name="subject" id="subject" required class="form-control">
+        <option value="" disabled selected>Select subject</option>
+        <option value="English Language">English Language</option>
+        <option value="Mathematics">Mathematics</option>
+        <option value="Physics">Physics</option>
+        <option value="Chemistry">Chemistry</option>
+        <option value="Biology">Biology</option>
+        <option value="Geography">Geography</option>
+        <option value="History">History</option>
+        <option value="Economics">Economics</option>
+        <option value="Government">Government</option>
+        <option value="Literature">Literature</option>
+        <option value="Agricultural Science">Agricultural Science</option>
+        <option value="Computer Science">Computer Science</option>
+        <option value="Civic Education">Civic Education</option>
+        <option value="French">French</option>
+        <option value="Others">Others</option>
+      </select>
     </div>
     <div class="mb-3">
       <label for="solution" class="form-label">Assignment Solution</label>
@@ -351,10 +363,10 @@
       <textarea name="notes" id="notes" class="form-control" rows="3"></textarea>
     </div>
 
-    <div class="text-center">
-      <button type="submit" id="submitBtn" class="btn btn-primary position-relative">
-        <span id="btnText">Submit Assignment</span>
-        <span id="btnSpinner" class="spinner-border spinner-border-sm ms-2 d-none" role="status" aria-hidden="true"></span>
+    <div class="text-center position-relative">
+      <button type="submit" id="submitBtn" class="btn btn-primary">
+        Submit Assignment
+        <span class="spinner-border spinner-border-sm btn-spinner" role="status" aria-hidden="true"></span>
       </button>
     </div>
   </form>
@@ -373,8 +385,7 @@
   <script>
     const form = document.getElementById('assignmentForm');
     const submitBtn = document.getElementById('submitBtn');
-    const btnText = document.getElementById('btnText');
-    const btnSpinner = document.getElementById('btnSpinner');
+    const btnSpinner = submitBtn.querySelector('.btn-spinner');
     const toastContainer = document.getElementById('toast-container');
 
     function showToast(message, type = 'success') {
@@ -399,9 +410,8 @@
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      btnText.textContent = 'Submitting...';
-      btnSpinner.classList.remove('d-none');
       submitBtn.disabled = true;
+      btnSpinner.classList.add('show');
 
       const formData = new FormData(form);
       try {
@@ -413,7 +423,7 @@
           }
         });
         if (response.ok) {
-          showToast('Assignment submitted successfully!', 'success');
+          showToast('Your assignment has been submitted successfully!', 'success');
           form.reset();
         } else {
           showToast('Submission failed. Please try again.', 'danger');
@@ -421,14 +431,11 @@
       } catch (error) {
         showToast('Network error. Please try again.', 'danger');
       } finally {
-        btnText.textContent = 'Submit Assignment';
-        btnSpinner.classList.add('d-none');
         submitBtn.disabled = false;
+        btnSpinner.classList.remove('show');
       }
     });
   </script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
 </body>
 
 </html>
