@@ -276,9 +276,9 @@
   </footer>
 
   <!-- Fixed Toast Logo (bottom right) -->
-  <a href="https://lattergloryacademy.netlify.app" 
-     class="logo-toast" 
-     target="_blank" 
+  <a href="https://lattergloryacademy.netlify.app"
+     class="logo-toast"
+     target="_blank"
      rel="noopener noreferrer"
      aria-label="Go to main Latter Glory Academy site">
     <img src="latter-glory logo.png" alt="Latter Glory Academy Logo" />
@@ -322,7 +322,6 @@
     const loginForm = document.getElementById('loginForm');
     const loginError = document.getElementById('loginError');
     const mainContent = document.getElementById('mainContent');
-    const loginBtnMain = document.getElementById('loginBtnMain');
     const loginBtnMainDiv = document.getElementById('loginBtnMainDiv');
     const loginBtnNav = document.getElementById('loginBtnNav');
     const logoutBtnNav = document.getElementById('logoutBtnNav');
@@ -440,11 +439,6 @@
     // Show/hide UI based on auth state
     function updateUI(user) {
       if (user) {
-        // If admin, redirect!
-        if (allowedAdmins.includes(user.email)) {
-          window.location.href = "admin.html";
-          return;
-        }
         mainContent.style.display = 'block';
         loginBtnMainDiv.style.display = 'none';
         loginBtnNav.style.display = 'none';
@@ -461,6 +455,11 @@
 
     // Auth state observer
     onAuthStateChanged(auth, (user) => {
+      if (user && allowedAdmins.includes(user.email)) {
+        // Only redirect if logged in AND is admin
+        window.location.href = "admin.html";
+        return;
+      }
       updateUI(user);
     });
 
@@ -495,7 +494,7 @@
     });
 
     // Blur background when modal opens/closes
-    const bgElements = [document.getElementById('header'), mainContent, document.getElementById('loginBtnMainDiv'), document.querySelector('footer')];
+    const bgElements = [document.getElementById('header'), mainContent, loginBtnMainDiv, document.querySelector('footer')];
     const loginModal = document.getElementById('loginModal');
     loginModal.addEventListener('show.bs.modal', () => {
       bgElements.forEach(el => el && el.classList.add('blurred'));
@@ -503,6 +502,16 @@
     loginModal.addEventListener('hidden.bs.modal', () => {
       bgElements.forEach(el => el && el.classList.remove('blurred'));
     });
+
+    // Toast notification function
+    window.showNotification = function(message, type = 'primary', timeout = 4000) {
+      const toastEl = document.getElementById('mainToast');
+      const toastBody = document.getElementById('mainToastBody');
+      toastBody.textContent = message;
+      toastEl.className = `toast align-items-center text-bg-${type} border-0`;
+      const toast = new bootstrap.Toast(toastEl, { delay: timeout });
+      toast.show();
+    }
   </script>
 
   <!-- Bootstrap, AOS, and Other Logic -->
@@ -526,16 +535,6 @@
         }
       });
     });
-
-    // Toast notification function
-    function showNotification(message, type = 'primary', timeout = 4000) {
-      const toastEl = document.getElementById('mainToast');
-      const toastBody = document.getElementById('mainToastBody');
-      toastBody.textContent = message;
-      toastEl.className = `toast align-items-center text-bg-${type} border-0`;
-      const toast = new bootstrap.Toast(toastEl, { delay: timeout });
-      toast.show();
-    }
   </script>
 </body>
 </html>
