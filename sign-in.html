@@ -211,12 +211,100 @@
       box-shadow: 0 -3px 10px rgba(183, 28, 28, 0.5);
     }
 
+    /* MODAL TUTORIAL STYLES */
+    .modal .carousel-inner {
+      background: var(--secondary-color);
+      border-radius: 0 0 10px 10px;
+      padding: 0.5rem 0 1.5rem 0;
+    }
+    .modal .carousel-item {
+      text-align: center;
+      padding: 2rem 1rem 0.5rem 1rem;
+      min-height: 370px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      /* Animate fadeIn for every slide */
+      animation: fadeIn 0.7s;
+    }
+    .modal .carousel-item img.vector {
+      width: 180px;
+      max-width: 60%;
+      margin: 0 auto 1.5rem auto;
+      display: block;
+      border-radius: 16px;
+      box-shadow: 0 4px 22px 0 rgba(233, 30, 99, 0.09);
+      opacity: 0.82;
+      animation: bounceIn 1.6s;
+      /* Animate image in every slide */
+    }
+    .modal .carousel-caption {
+      position: static;
+      padding: 0;
+      background: none !important;
+      color: var(--dark-color);
+      text-shadow: none;
+    }
+    .modal .carousel-caption h5 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--primary-color);
+      margin-bottom: 0.5rem;
+      /* Animate text: fade in down */
+      animation: fadeInDown 1.1s;
+      text-shadow: 0 2px 16px #fff8, 0 1px 0 #fff;
+    }
+    .modal .carousel-caption p {
+      font-size: 1.08rem;
+      font-weight: 600;
+      color: #222;
+      opacity: 0.9;
+      /* Animate text: fade in up */
+      animation: fadeInUp 1.3s;
+      margin-bottom: 0;
+      text-shadow: 0 1px 6px #fff6;
+    }
+
+    /* Make text more readable on modal bg */
+    .modal .carousel-caption h5,
+    .modal .carousel-caption p {
+      text-shadow:
+        0 2px 8px #fff7,
+        0 1px 0 #fff;
+    }
+
     @media (max-width: 768px) {
       header h1 {
         font-size: 2.25rem;
       }
       form {
         padding: 1.5rem 1.5rem;
+      }
+      .modal .carousel-item img.vector {
+        width: 100px;
+        min-width: 70px;
+        max-width: 65vw;
+      }
+      .modal .carousel-caption h5 {
+        font-size: 1.04rem;
+      }
+      .modal .carousel-caption p {
+        font-size: 0.96rem;
+      }
+      .modal .carousel-item {
+        min-height: 220px;
+        padding: 1.4rem 0.2rem 0.4rem 0.2rem;
+      }
+    }
+    @media (max-width: 480px) {
+      .modal .carousel-item img.vector {
+        width: 70px;
+        max-width: 80vw;
+      }
+      .modal .carousel-item {
+        min-height: 140px;
+        padding: 1rem 0.1rem 0.3rem 0.1rem;
       }
     }
   </style>
@@ -255,31 +343,31 @@
           <div id="assignmentCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="4000">
             <div class="carousel-inner">
               <div class="carousel-item active">
-                <img src="learning.svg" class="d-block w-100 vector" alt="Learn how to use" />
+                <img src="learning.svg" class="d-block vector animate__animated animate__bounceIn" alt="Learn how to use" />
                 <div class="carousel-caption d-none d-md-block">
-                  <h5>Step 1: Fill Your Details</h5>
-                  <p>Enter your full name, class, and registration number accurately.</p>
+                  <h5 class="animate__animated animate__fadeInDown">Step 1: Fill Your Details</h5>
+                  <p class="animate__animated animate__fadeInUp">Enter your full name, class, and registration number accurately.</p>
                 </div>
               </div>
               <div class="carousel-item">
-                <img src="studying.svg" class="d-block w-100 vector" alt="Provide Assignment" />
+                <img src="studying.svg" class="d-block vector animate__animated animate__bounceIn" alt="Provide Assignment" />
                 <div class="carousel-caption d-none d-md-block">
-                  <h5>Step 2: Provide Details</h5>
-                  <p>Fill in your assignment title, write your solution, and share additional notes.</p>
+                  <h5 class="animate__animated animate__fadeInDown">Step 2: Provide Details</h5>
+                  <p class="animate__animated animate__fadeInUp">Fill in your assignment title, write your solution, and share additional notes.</p>
                 </div>
               </div>
               <div class="carousel-item">
-                <img src="working.svg" class="d-block w-100 vector" alt="Submission" />
+                <img src="working.svg" class="d-block vector animate__animated animate__bounceIn" alt="Submission" />
                 <div class="carousel-caption d-none d-md-block">
-                  <h5>Step 3: Submit</h5>
-                  <p>Submit your assignment and receive confirmation instantly.</p>
+                  <h5 class="animate__animated animate__fadeInDown">Step 3: Submit</h5>
+                  <p class="animate__animated animate__fadeInUp">Submit your assignment and receive confirmation instantly.</p>
                 </div>
               </div>
               <div class="carousel-item">
-                <img src="submission.svg" class="d-block w-100 vector" alt="Working From Home" />
+                <img src="submission.svg" class="d-block vector animate__animated animate__bounceIn" alt="Working From Home" />
                 <div class="carousel-caption d-none d-md-block">
-                  <h5>Step 4: Done</h5>
-                  <p>Your assignment is now with your teacher. Stay updated!</p>
+                  <h5 class="animate__animated animate__fadeInDown">Step 4: Done</h5>
+                  <p class="animate__animated animate__fadeInUp">Your assignment is now with your teacher. Stay updated!</p>
                 </div>
               </div>
             </div>
