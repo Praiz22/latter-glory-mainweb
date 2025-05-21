@@ -9,7 +9,7 @@
   <meta name="author" content="Praix Tech" />
   <title>Assignment Submission | Latter Glory Academy</title>
 
-  <!-- Google Fonts from Praiz22 repo (assuming Poppins and Inter) -->
+  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
 
@@ -23,13 +23,12 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
 
   <style>
-    /* Color theme: pink and wine on white bg, black footer, white header */
     :root {
-      --primary-color: #b71c1c; /* wine */
-      --secondary-color: #ffe4e1; /* light pink */
-      --accent-color: #e91e63; /* pink */
-      --dark-color: #000000; /* black */
-      --light-color: #ffffff; /* white */
+      --primary-color: #b71c1c;
+      --secondary-color: #ffe4e1;
+      --accent-color: #e91e63;
+      --dark-color: #000000;
+      --light-color: #ffffff;
     }
 
     body {
@@ -39,10 +38,9 @@
       overflow-x: hidden;
       position: relative;
       min-height: 100vh;
-      padding-bottom: 100px; /* footer space */
+      padding-bottom: 100px;
     }
 
-    /* Floating SVG shapes wrapper */
     .floating-shape-wrapper {
       position: absolute;
       width: 80px;
@@ -71,14 +69,13 @@
       50% { transform: translateY(-20px); }
     }
 
-    /* Header */
     header {
       text-align: center;
-      margin-bottom: 3rem;
+      margin-bottom: 2rem;
       position: relative;
       z-index: 10;
       background: var(--light-color);
-      padding: 1rem 0;
+      padding: 1rem 0 0.5rem 0;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       color: var(--dark-color);
     }
@@ -100,37 +97,25 @@
       animation-delay: 0.5s;
     }
 
-    /* Carousel */
-    .carousel {
-      max-width: 900px;
-      margin: 0 auto 4rem auto;
-      position: relative;
-      z-index: 10;
-      border-radius: 20px;
-      box-shadow: 0 10px 30px rgba(183, 28, 28, 0.3);
-      overflow: hidden;
-    }
-
-    .carousel .carousel-item img {
-      max-height: 400px;
-      object-fit: contain;
-      filter: none; /* removed outer glow */
-    }
-
-    .carousel-caption {
-      background: rgba(255, 255, 255, 0.85);
-      border-radius: 10px;
-      padding: 1rem 1.5rem;
-      color: var(--primary-color);
+    .how-to-btn {
+      margin-top: 0.75rem;
+      margin-bottom: 1.5rem;
       font-weight: 600;
-      text-shadow: none;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      max-width: 80%;
+      background-color: var(--accent-color);
+      color: #fff;
+      border-radius: 50px;
+      padding: 0.5rem 1.5rem;
+      border: none;
+      box-shadow: 0 3px 10px rgba(233, 30, 99, 0.15);
+      transition: background 0.2s;
+    }
+    .how-to-btn:hover, .how-to-btn:focus {
+      background: var(--primary-color);
+      color: #fff;
     }
 
-    /* Form */
+    /* Hide the carousel on the page, it's now inside the modal */
+
     form {
       max-width: 700px;
       margin: 0 auto 5rem auto;
@@ -169,7 +154,6 @@
       outline: none;
     }
 
-    /* Dropdown specific */
     select.form-control {
       appearance: none;
       background-image: url("data:image/svg+xml;charset=US-ASCII,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23b71c1c'%3e%3cpath d='M4 6l4 4 4-4z'/%3e%3c/svg%3e");
@@ -180,7 +164,6 @@
       cursor: pointer;
     }
 
-    /* Submit button */
     .btn-primary {
       background-color: var(--primary-color);
       border: none;
@@ -197,7 +180,6 @@
       box-shadow: 0 8px 20px rgba(233, 30, 99, 0.6);
     }
 
-    /* Spinner inside button */
     .btn-spinner {
       position: absolute;
       right: 1rem;
@@ -209,7 +191,6 @@
       display: inline-block;
     }
 
-    /* Toast container */
     #toast-container {
       position: fixed;
       top: 1rem;
@@ -217,7 +198,6 @@
       z-index: 1050;
     }
 
-    /* Footer */
     footer {
       background: var(--dark-color);
       color: var(--light-color);
@@ -231,7 +211,6 @@
       box-shadow: 0 -3px 10px rgba(183, 28, 28, 0.5);
     }
 
-    /* Responsive */
     @media (max-width: 768px) {
       header h1 {
         font-size: 2.25rem;
@@ -248,11 +227,9 @@
   <div class="floating-shape-wrapper" style="top: 10%; left: 5%;">
     <img src="gene.svg" alt="Floating shapes" class="floating-shape" />
   </div>
-
   <div class="floating-shape-wrapper" style="top: 30%; right: 10%;">
     <img src="snowflake.svg" alt="Floating shapes" class="floating-shape" />
   </div>
-
   <div class="floating-shape-wrapper" style="bottom: 20%; left: 15%;">
     <img src="stars.svg" alt="Floating shapes" class="floating-shape" />
   </div>
@@ -260,56 +237,69 @@
   <header>
     <h1 class="animate__animated animate__fadeInDown">Latter Glory Assignment Portal</h1>
     <p class="lead animate__animated animate__fadeInUp">Submit assignments with ease. Learn. Upload. Succeed.</p>
+    <!-- Modal Trigger Button -->
+    <button class="how-to-btn" data-bs-toggle="modal" data-bs-target="#tutorialModal">
+      <i class="fas fa-graduation-cap me-2"></i>How to Use Portal
+    </button>
   </header>
 
-  <!-- Carousel -->
-  <div id="assignmentCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="4000">
-    <div class="carousel-inner">
-      <div class="carousel-item active">
-        <img src="learning.svg" class="d-block w-100 vector" alt="Learn how to use" />
-        <div class="carousel-caption d-none d-md-block">
-          <h5>Step 1: Fill Your Details</h5>
-          <p>Enter your full name, class, and registration number accurately.</p>
+  <!-- Modal with Carousel Tutorial -->
+  <div class="modal fade" id="tutorialModal" tabindex="-1" aria-labelledby="tutorialModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="tutorialModalLabel"><i class="fas fa-info-circle text-primary me-2"></i>How to Use the Assignment Portal</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-      </div>
-      <div class="carousel-item">
-        <img src="studying.svg" class="d-block w-100 vector" alt="Provide Assignment" />
-        <div class="carousel-caption d-none d-md-block">
-          <h5>Step 2: Provide Details</h5>
-          <p>Fill in your assignment title, write your solution, and share additional notes.</p>
-        </div>
-      </div>
-      <div class="carousel-item">
-        <img src="working.svg" class="d-block w-100 vector" alt="Submission" />
-        <div class="carousel-caption d-none d-md-block">
-          <h5>Step 3: Submit</h5>
-          <p>Submit your assignment and receive confirmation instantly.</p>
-        </div>
-      </div>
-      <div class="carousel-item">
-        <img src="submission.svg" class="d-block w-100 vector" alt="Working From Home" />
-        <div class="carousel-caption d-none d-md-block">
-          <h5>Step 4: Done</h5>
-          <p>Your assignment is now with your teacher. Stay updated!</p>
+        <div class="modal-body p-0">
+          <div id="assignmentCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="4000">
+            <div class="carousel-inner">
+              <div class="carousel-item active">
+                <img src="learning.svg" class="d-block w-100 vector" alt="Learn how to use" />
+                <div class="carousel-caption d-none d-md-block">
+                  <h5>Step 1: Fill Your Details</h5>
+                  <p>Enter your full name, class, and registration number accurately.</p>
+                </div>
+              </div>
+              <div class="carousel-item">
+                <img src="studying.svg" class="d-block w-100 vector" alt="Provide Assignment" />
+                <div class="carousel-caption d-none d-md-block">
+                  <h5>Step 2: Provide Details</h5>
+                  <p>Fill in your assignment title, write your solution, and share additional notes.</p>
+                </div>
+              </div>
+              <div class="carousel-item">
+                <img src="working.svg" class="d-block w-100 vector" alt="Submission" />
+                <div class="carousel-caption d-none d-md-block">
+                  <h5>Step 3: Submit</h5>
+                  <p>Submit your assignment and receive confirmation instantly.</p>
+                </div>
+              </div>
+              <div class="carousel-item">
+                <img src="submission.svg" class="d-block w-100 vector" alt="Working From Home" />
+                <div class="carousel-caption d-none d-md-block">
+                  <h5>Step 4: Done</h5>
+                  <p>Your assignment is now with your teacher. Stay updated!</p>
+                </div>
+              </div>
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#assignmentCarousel" data-bs-slide="prev">
+              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#assignmentCarousel" data-bs-slide="next">
+              <span class="carousel-control-next-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Next</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
-
-    <!-- Carousel Controls -->
-    <button class="carousel-control-prev" type="button" data-bs-target="#assignmentCarousel" data-bs-slide="prev">
-      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-      <span class="visually-hidden">Previous</span>
-    </button>
-    <button class="carousel-control-next" type="button" data-bs-target="#assignmentCarousel" data-bs-slide="next">
-      <span class="carousel-control-next-icon" aria-hidden="true"></span>
-      <span class="visually-hidden">Next</span>
-    </button>
   </div>
 
   <!-- Assignment Form -->
   <form id="assignmentForm" action="https://formsubmit.co/thelattergloryacademy@gmail.com" method="POST" class="bg-white p-4 rounded shadow animate__animated animate__bounceIn">
     <h4 class="mb-4 text-center text-primary">Submit Your Assignment</h4>
-
     <input type="hidden" name="_autoresponse" value="Your assignment has been submitted successfully." />
     <input type="hidden" name="_captcha" value="false" />
 
@@ -344,24 +334,25 @@
         <option value="Biology">Biology</option>
         <option value="Geography">Geography</option>
         <option value="History">History</option>
-        <option value="Economics">Economics</option>
+        <option value="Economics">Yoruba</option>
         <option value="Government">Government</option>
         <option value="Literature">Literature</option>
         <option value="Agricultural Science">Agricultural Science</option>
-        <option value="Computer Science">Computer Science</option>
+        <option value="Computer Science">Computer Practical</option>
         <option value="Civic Education">Civic Education</option>
-        <option value="French">French</option>
+        <option value="National Value">National Values</option>
         <option value="Others">Others</option>
       </select>
+    </div>
+     <div class="mb-3">
+      <label for="notes" class="form-label">Assignmment Question</label>
+      <textarea name="notes" id="notes" class="form-control" rows="2"></textarea>
     </div>
     <div class="mb-3">
       <label for="solution" class="form-label">Assignment Solution</label>
       <textarea name="solution" id="solution" required class="form-control" rows="5"></textarea>
     </div>
-    <div class="mb-3">
-      <label for="notes" class="form-label">Additional Notes</label>
-      <textarea name="notes" id="notes" class="form-control" rows="3"></textarea>
-    </div>
+   
 
     <div class="text-center position-relative">
       <button type="submit" id="submitBtn" class="btn btn-primary">
@@ -371,7 +362,6 @@
     </div>
   </form>
 
-  <!-- Toast container -->
   <div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 1080;"></div>
 
   <footer>
@@ -380,7 +370,6 @@
 
   <!-- Bootstrap JS Bundle -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
   <!-- Toast and form submission script -->
   <script>
     const form = document.getElementById('assignmentForm');
@@ -390,16 +379,16 @@
 
     function showToast(message, type = 'success') {
       const toast = document.createElement('div');
-      toast.className = \`toast align-items-center text-bg-\${type} border-0 show mb-2\`;
+      toast.className = `toast align-items-center text-bg-${type} border-0 show mb-2`;
       toast.setAttribute('role', 'alert');
       toast.setAttribute('aria-live', 'assertive');
       toast.setAttribute('aria-atomic', 'true');
-      toast.innerHTML = \`
+      toast.innerHTML = `
         <div class="d-flex">
-          <div class="toast-body">\${message}</div>
+          <div class="toast-body">${message}</div>
           <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
-      \`;
+      `;
       toastContainer.appendChild(toast);
       setTimeout(() => {
         toast.classList.remove('show');
