@@ -32,19 +32,17 @@
     header, footer {
       background: var(--light);
       box-shadow: 0 2px 10px #00000011;
-      position: sticky;
-      top: 0;
-      z-index: 1030;
     }
     .brand-title {
       font-size: 2rem;
+      font-weight: 700;
       display: flex;
       align-items: center;
-      gap: 0.35em;
-      letter-spacing: 0.07em;
+      gap: .35em;
+      letter-spacing: .07em;
     }
-    .brand-latter-glory { color: var(--accent); font-weight: 600; }
-    .brand-academy { color: var(--text-dark); font-weight: 800; letter-spacing: 0.02em; }
+    .brand-latter-glory { color: var(--accent); }
+    .brand-academy { color: var(--text-dark); letter-spacing:.02em;}
     .main-site-link {
       color: var(--primary)!important;
       font-weight: 600;
@@ -190,11 +188,16 @@
   <!-- Header -->
   <header class="py-3 mb-4 border-bottom" id="header">
     <div class="container d-flex flex-wrap justify-content-between align-items-center">
-      <span class="brand-title">
-        <span class="brand-latter-glory">Latter Glory</span>
-        <span class="brand-academy">Academy</span>
-      </span>
-      <nav class="nav">
+      <!-- Left: Logo + Brand -->
+      <div class="d-flex align-items-center gap-2">
+        <img src="latter-glory logo.png" alt="Latter Glory Logo" style="height:48px;">
+        <span class="brand-title">
+          <span class="brand-latter-glory">Latter Glory</span>
+          <span class="brand-academy">Academy</span>
+        </span>
+      </div>
+      <!-- Center: Nav -->
+      <nav class="nav mx-auto">
         <a href="#assignments" class="nav-link px-2 active">Assignments</a>
         <a href="#events" class="nav-link px-2">Events</a>
         <a href="#updates" class="nav-link px-2">Updates</a>
@@ -202,9 +205,12 @@
         <a href="https://lattergloryacademy.netlify.app" class="main-site-link nav-link px-2" target="_blank" rel="noopener noreferrer">
           <i class="bi bi-house-door-fill"></i> Main Site
         </a>
+      </nav>
+      <!-- Right: Auth actions -->
+      <div>
         <button class="btn btn-brand ms-3" data-bs-toggle="modal" data-bs-target="#loginModal" id="loginBtnNav" style="display:none;">Login</button>
         <button class="logout-btn ms-3" style="display:none;" id="logoutBtnNav"><i class="bi bi-box-arrow-right"></i> Logout</button>
-      </nav>
+      </div>
     </div>
   </header>
 
@@ -298,11 +304,17 @@
       apiKey: "AIzaSyDgReNsNbU6-Cnx-ej0HPcHSrCXVppohJQ",
       authDomain: "latter-glory.firebaseapp.com",
       projectId: "latter-glory",
-      storageBucket: "latter-glory.firebasestorage.app",
+      storageBucket: "latter-glory.appspot.com",
       messagingSenderId: "133970297722",
       appId: "1:133970297722:web:33758b76625c70930dccc3",
       measurementId: "G-5G1BYM7Q3Y"
     };
+
+    const allowedAdmins = [
+      "praiseola22@gmail.com",
+      "thelattergloryacademy@gmail.com",
+      "sunbam16@gmail.com"
+    ];
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
@@ -428,6 +440,11 @@
     // Show/hide UI based on auth state
     function updateUI(user) {
       if (user) {
+        // If admin, redirect!
+        if (allowedAdmins.includes(user.email)) {
+          window.location.href = "admin.html";
+          return;
+        }
         mainContent.style.display = 'block';
         loginBtnMainDiv.style.display = 'none';
         loginBtnNav.style.display = 'none';
@@ -455,10 +472,15 @@
 
       signInWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
-          const modal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
-          modal.hide();
-          loginError.style.display = 'none';
-          showNotification('Login successful! Welcome back.', 'success');
+          const user = userCredential.user;
+          if (allowedAdmins.includes(user.email)) {
+            window.location.href = "admin.html"; // Redirect admin
+          } else {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+            modal.hide();
+            loginError.style.display = 'none';
+            showNotification('Login successful! Welcome back.', 'success');
+          }
         })
         .catch((error) => {
           loginError.style.display = 'block';
