@@ -3,13 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Latter Glory Academy Portal - Assignments, Events, and Club Updates" />
-  <meta name="keywords" content="Latter Glory Academy, School Portal, Assignments, Events, Clubs, Student Dashboard" />
-  <meta name="author" content="Praix Tech" />
   <title>Student Portal | Latter Glory Academy</title>
-  <!-- Bootstrap 5 CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
-  <!-- AOS Animation CSS -->
   <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
   <style>
@@ -22,13 +17,17 @@
       --brand-shadow: 0 6px 24px 0 rgba(255,60,143,0.11);
       --radius: 1rem;
     }
-    html {
-      scroll-behavior: smooth;
-    }
+    html { scroll-behavior: smooth; }
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;
       background: var(--grey-bg);
       color: var(--text-dark);
+    }
+    .blurred {
+      filter: blur(6px);
+      pointer-events: none;
+      user-select: none;
+      transition: filter 0.3s;
     }
     header, footer {
       background: var(--light);
@@ -44,35 +43,22 @@
       gap: 0.35em;
       letter-spacing: 0.07em;
     }
-    .brand-latter-glory {
-      color: var(--accent);
-      font-weight: 600;
-      font-size: inherit;
-    }
-    .brand-academy {
-      color: var(--text-dark);
-      font-weight: 800;
-      font-size: inherit;
-      letter-spacing: 0.02em;
-    }
+    .brand-latter-glory { color: var(--accent); font-weight: 600; }
+    .brand-academy { color: var(--text-dark); font-weight: 800; letter-spacing: 0.02em; }
     .main-site-link {
       color: var(--primary)!important;
       font-weight: 600;
       text-decoration: underline;
       margin-left: 1.2rem;
     }
-    .main-site-link:hover {
-      color: var(--accent)!important;
-      text-decoration: none;
-    }
+    .main-site-link:hover { color: var(--accent)!important; text-decoration: none; }
     header .nav-link {
       color: var(--accent)!important;
       font-weight: 600;
       letter-spacing: 0.03em;
       transition: color 0.2s;
     }
-    header .nav-link.active,
-    header .nav-link:hover {
+    header .nav-link.active, header .nav-link:hover {
       color: var(--primary)!important;
       text-decoration: underline;
     }
@@ -85,6 +71,19 @@
       background-color: var(--accent);
       color: #fff;
     }
+    .logout-btn {
+      background: #fff;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      border-radius: 30px;
+      font-weight: 600;
+      margin-left: 1.1rem;
+      transition: background 0.2s, color 0.2s;
+    }
+    .logout-btn:hover, .logout-btn:focus {
+      background: var(--accent);
+      color: #fff;
+    }
     .section-title {
       color: var(--primary);
       font-weight: 700;
@@ -95,10 +94,7 @@
       gap: .5em;
       font-size: 1.7rem;
     }
-    section {
-      margin-bottom: 2.5rem;
-      padding-top: 1rem;
-    }
+    section { margin-bottom: 2.5rem; padding-top: 1rem; }
     .card {
       border: none;
       border-radius: var(--radius);
@@ -110,11 +106,7 @@
       transform: translateY(-4px) scale(1.02);
       box-shadow: 0 8px 28px 0 rgba(183,28,28,0.11);
     }
-    .card-title {
-      color: var(--accent);
-      font-weight: 700;
-      font-size: 1.25rem;
-    }
+    .card-title { color: var(--accent); font-weight: 700; font-size: 1.25rem; }
     .card .badge {
       background: var(--primary);
       color: var(--light);
@@ -143,7 +135,6 @@
       margin-bottom: 6px;
       border: 2px solid var(--primary);
     }
-    /* Toast-style logo */
     .logo-toast {
       position: fixed;
       bottom: 2rem;
@@ -158,9 +149,7 @@
       gap: 0.7rem;
       transition: box-shadow 0.2s;
     }
-    .logo-toast:hover {
-      box-shadow: 0 8px 32px #b71c1c33;
-    }
+    .logo-toast:hover { box-shadow: 0 8px 32px #b71c1c33; }
     .logo-toast img {
       width: 54px;
       height: 54px;
@@ -199,7 +188,7 @@
 </head>
 <body>
   <!-- Header -->
-  <header class="py-3 mb-4 border-bottom">
+  <header class="py-3 mb-4 border-bottom" id="header">
     <div class="container d-flex flex-wrap justify-content-between align-items-center">
       <span class="brand-title">
         <span class="brand-latter-glory">Latter Glory</span>
@@ -214,12 +203,13 @@
           <i class="bi bi-house-door-fill"></i> Main Site
         </a>
         <button class="btn btn-brand ms-3" data-bs-toggle="modal" data-bs-target="#loginModal" id="loginBtnNav" style="display:none;">Login</button>
+        <button class="logout-btn ms-3" style="display:none;" id="logoutBtnNav"><i class="bi bi-box-arrow-right"></i> Logout</button>
       </nav>
     </div>
   </header>
 
-  <!-- Login Button (visible only if not logged in; JS toggles)-->
-  <div class="text-center my-4">
+  <!-- Login Button (center) -->
+  <div class="text-center my-4" id="loginBtnMainDiv">
     <button class="btn btn-brand" data-bs-toggle="modal" data-bs-target="#loginModal" id="loginBtnMain">Login to Access Portal</button>
   </div>
 
@@ -321,75 +311,11 @@
     const loginError = document.getElementById('loginError');
     const mainContent = document.getElementById('mainContent');
     const loginBtnMain = document.getElementById('loginBtnMain');
+    const loginBtnMainDiv = document.getElementById('loginBtnMainDiv');
     const loginBtnNav = document.getElementById('loginBtnNav');
+    const logoutBtnNav = document.getElementById('logoutBtnNav');
 
-    // Show/hide login button depending on auth state
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        mainContent.style.display = 'block';
-        loginBtnMain.style.display = 'none';
-        loginBtnNav.style.display = 'none';
-        // Show welcome toast
-        showNotification('Welcome to the Latter Glory Academy Portal!', 'success');
-      } else {
-        mainContent.style.display = 'none';
-        loginBtnMain.style.display = 'inline-block';
-        loginBtnNav.style.display = 'inline-block';
-      }
-    });
-
-    loginForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-
-      signInWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-          const modal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
-          modal.hide();
-          loginError.style.display = 'none';
-          showNotification('Login successful! Welcome back.', 'success');
-        })
-        .catch((error) => {
-          loginError.style.display = 'block';
-          showNotification('Invalid credentials, please try again.', 'danger');
-        });
-    });
-  </script>
-
-  <!-- Bootstrap, AOS, and Other Logic -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
-  <script>
-    AOS.init({ once: true, easing: 'ease-out-back' });
-
-    // Smooth scroll for nav links
-    document.querySelectorAll('a.nav-link[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', function (e) {
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-          e.preventDefault();
-          const headerOffset = 80;
-          const elementPosition = target.getBoundingClientRect().top + window.pageYOffset;
-          const offsetPosition = elementPosition - headerOffset;
-          window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
-          document.querySelectorAll('header .nav-link').forEach(link => link.classList.remove('active'));
-          this.classList.add('active');
-        }
-      });
-    });
-
-    // Toast notification function
-    function showNotification(message, type = 'primary', timeout = 4000) {
-      const toastEl = document.getElementById('mainToast');
-      const toastBody = document.getElementById('mainToastBody');
-      toastBody.textContent = message;
-      toastEl.className = `toast align-items-center text-bg-${type} border-0`;
-      const toast = new bootstrap.Toast(toastEl, { delay: timeout });
-      toast.show();
-    }
-
-    // Sample Cards Loader: Only after login
+    // Render portal cards
     function renderPortalCards() {
       document.getElementById('assignments-list').innerHTML = `
         <div class="col-md-6 col-lg-4">
@@ -496,24 +422,98 @@
           </div>
         </div>
       `;
-      // Refresh AOS for dynamic content
       if (window.AOS) setTimeout(() => AOS.refresh(), 200);
     }
 
-    // Only load portal cards if user is logged in
-    document.addEventListener('DOMContentLoaded', () => {
-      if (document.getElementById('mainContent').style.display !== 'none') {
+    // Show/hide UI based on auth state
+    function updateUI(user) {
+      if (user) {
+        mainContent.style.display = 'block';
+        loginBtnMainDiv.style.display = 'none';
+        loginBtnNav.style.display = 'none';
+        logoutBtnNav.style.display = 'inline-block';
         renderPortalCards();
+        showNotification('Welcome to the Latter Glory Academy Portal!', 'success');
+      } else {
+        mainContent.style.display = 'none';
+        loginBtnMainDiv.style.display = 'block';
+        loginBtnNav.style.display = 'inline-block';
+        logoutBtnNav.style.display = 'none';
       }
-    });
-    // Also render cards on each login
-    const authReady = setInterval(() => {
-      if (typeof firebase !== "undefined" && document.getElementById('mainContent').style.display !== 'none') {
-        renderPortalCards();
-        clearInterval(authReady);
-      }
-    }, 500);
+    }
 
+    // Auth state observer
+    onAuthStateChanged(auth, (user) => {
+      updateUI(user);
+    });
+
+    // Login form
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          const modal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+          modal.hide();
+          loginError.style.display = 'none';
+          showNotification('Login successful! Welcome back.', 'success');
+        })
+        .catch((error) => {
+          loginError.style.display = 'block';
+          showNotification('Invalid credentials, please try again.', 'danger');
+        });
+    });
+
+    // Logout
+    logoutBtnNav.addEventListener('click', async () => {
+      await signOut(auth);
+      showNotification('Logged out successfully.', 'info');
+    });
+
+    // Blur background when modal opens/closes
+    const bgElements = [document.getElementById('header'), mainContent, document.getElementById('loginBtnMainDiv'), document.querySelector('footer')];
+    const loginModal = document.getElementById('loginModal');
+    loginModal.addEventListener('show.bs.modal', () => {
+      bgElements.forEach(el => el && el.classList.add('blurred'));
+    });
+    loginModal.addEventListener('hidden.bs.modal', () => {
+      bgElements.forEach(el => el && el.classList.remove('blurred'));
+    });
+  </script>
+
+  <!-- Bootstrap, AOS, and Other Logic -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+  <script>
+    AOS.init({ once: true, easing: 'ease-out-back' });
+
+    // Smooth scroll for nav links
+    document.querySelectorAll('a.nav-link[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          e.preventDefault();
+          const headerOffset = 80;
+          const elementPosition = target.getBoundingClientRect().top + window.pageYOffset;
+          const offsetPosition = elementPosition - headerOffset;
+          window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+          document.querySelectorAll('header .nav-link').forEach(link => link.classList.remove('active'));
+          this.classList.add('active');
+        }
+      });
+    });
+
+    // Toast notification function
+    function showNotification(message, type = 'primary', timeout = 4000) {
+      const toastEl = document.getElementById('mainToast');
+      const toastBody = document.getElementById('mainToastBody');
+      toastBody.textContent = message;
+      toastEl.className = `toast align-items-center text-bg-${type} border-0`;
+      const toast = new bootstrap.Toast(toastEl, { delay: timeout });
+      toast.show();
+    }
   </script>
 </body>
 </html>
