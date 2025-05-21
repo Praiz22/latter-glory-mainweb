@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-    <head>
+<head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -8,7 +8,7 @@
     <!-- Essential SEO -->
     <title>Latter Glory Academy - Building Tomorrow's Leaders</title>
     <meta name="description" content="Latter Glory Academy is a top-tier school in Ogbomoso offering quality education, moral values, and academic excellence for future leaders.">
-    <meta name="keywords" content="Latter Glory Academy, Ogbomoso schools, best school in Oyo State, primary school, secondary school, academic excellence, Nigerian schools, moral education, Christian education">
+    <meta name="keywords" content="Latter Glory Academy, Ogbomoso schools, best school in Oyo State, primary school, secondary school, academic excellence, Nigerian schools, moral education, Christian school">
     <meta name="author" content="Latter Glory Academy, Praix Tech">
     <meta name="robots" content="index, follow">
     <meta name="googlebot" content="index, follow">
@@ -19,7 +19,7 @@
     <!-- Open Graph / Facebook -->
     <meta property="og:title" content="Latter Glory Academy - Building Tomorrow's Leaders">
     <meta property="og:description" content="Enroll your child in a school that nurtures minds and builds character. Located in Ogbomoso, Latter Glory Academy offers world-class education.">
-    <meta property="og:image" content="https://praiz22.github.io/latter-glory-mainweb/images/cover.webp"> <!-- Replace with actual image URL -->
+    <meta property="og:image" content="https://praiz22.github.io/latter-glory-mainweb/images/cover.webp">
     <meta property="og:url" content="https://praiz22.github.io/latter-glory-mainweb/">
     <meta property="og:type" content="website">
     <meta property="og:locale" content="en_NG">
@@ -30,18 +30,19 @@
     <meta name="twitter:description" content="Top-performing school in Ogbomoso offering quality education, Christian values, and future-driven curriculum.">
     <meta name="twitter:image" content="https://praiz22.github.io/latter-glory-mainweb/images/cover.webp">
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/webp" sizes="48x48" href="latter-glory logo.webp">
+    <!-- Favicons -->
+    <link rel="icon" type="image/webp" sizes="48x48" href="latter-glory-logo.webp">
+    <link rel="icon" type="image/png" sizes="48x48" href="latter-glory-logo.png">
+    <link rel="apple-touch-icon" href="latter-glory-logo.png">
 
-    <!-- Preconnect and Font -->
+    <!-- Fonts and Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;300;400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
 
     <!-- CSS Files -->
     <link href="bootstrap.min.css" rel="stylesheet">
-    <link href="bootstrap-icons.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
     <link rel="stylesheet" href="slick.css"/>
     <link href="latter-glory-website-css.css" rel="stylesheet">
 
@@ -66,400 +67,293 @@
     }
     </script>
 </head>
+<body>
+    <!-- Preloader -->
+    <section class="preloader" aria-label="Loading">
+        <div class="spinner" role="status" aria-live="polite">
+            <span class="sk-inner-circle"></span>
+        </div>
+    </section>
 
-    
-    <body>
+    <main>
+        <!-- Navigation Bar -->
+        <nav class="navbar navbar-expand-lg" aria-label="Main navigation">
+            <div class="container">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <a class="navbar-brand" href="index.html">
+                    <span>Latter Glory<strong></span> Academy</strong>
+                </a>
+                <div class="d-lg-none">
+                    <a href="sign-in.html" class="bi-person custom-icon me-3" title="Sign In" aria-label="Sign In"></a>
+                    <a href="portal.html" class="bi-bag custom-icon" title="Portal" aria-label="Portal"></a>
+                </div>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav mx-auto">
+                        <li class="nav-item"><a class="nav-link active" href="index.html">Home</a></li>
+                        <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
+                        <li class="nav-item"><a class="nav-link" href="programs.html">School Programs</a></li>
+                        <li class="nav-item"><a class="nav-link" href="faq.html">FAQs</a></li>
+                        <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+                    </ul>
+                    <div class="d-none d-lg-block">
+                        <a href="sign-in.html" class="bi-person custom-icon me-3" title="Sign In" aria-label="Sign In"></a>
+                        <a href="portal.html" class="bi-bag custom-icon" title="Portal" aria-label="Portal"></a>
+                    </div>
+                </div>
+            </div>
+        </nav>
 
-        <section class="preloader">
-            <div class="spinner">
-                <span class="sk-inner-circle"></span>
+        <!-- Slideshow Section -->
+        <section class="slick-slideshow" aria-label="Main highlights">
+            <div class="slick-custom">
+                <img src="latter-glory-selfie.webp" class="img-fluid" alt="Students at Latter Glory Academy">
+                <div class="slick-bottom">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-6 col-10">
+                                <h1 class="slick-title">LATTER GLORY</h1>
+                                <p class="lead text-white mt-lg-3 mb-lg-5">Nurturing Kids Towards a Bright Future</p>
+                                <a href="about.html" class="btn custom-btn">Learn more about us</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="slick-custom">
+                <img src="latter-glory-geniuses.webp" class="img-fluid" alt="Latter Glory Academy Geniuses">
+                <div class="slick-bottom">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-6 col-10">
+                                <h1 class="slick-title">Best Education</h1>
+                                <p class="lead text-white mt-lg-3 mb-lg-5">We offer top-notch education and a standard curriculum</p>
+                                <a href="product.html" class="btn custom-btn">Explore Our School</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="slick-custom">
+                <img src="new.webp" class="img-fluid" alt="Welcome to Latter Glory Academy">
+                <div class="slick-bottom">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-6 col-10">
+                                <h1 class="slick-title">Join Us</h1>
+                                <p class="lead text-white mt-lg-3 mb-lg-5">Join us at Latter Glory Academy and set a new path for your child</p>
+                                <a href="contact.html" class="btn custom-btn">Enroll Now</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
-    
-        <main>
 
-            <nav class="navbar navbar-expand-lg">
-                <div class="container">
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                        <span class="navbar-toggler-icon"></span>
-                        
-                    </button>
-                 <a class="navbar-brand" href="index.html">
-                        <span>Latter Glory<strong></span> Academy</strong>
-                    </a>
-                            <div class="d-lg-none">
-                             <a href="sign-in.html" class="bi-person custom-icon me-3"></a>
-                            </div>
-
-                    <div class="collapse navbar-collapse" id="navbarNav">
-                        <ul class="navbar-nav mx-auto">
-                            <li class="nav-item">
-                                <a class="nav-link active" href="index.html">Home</a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link" href="about.html">About</a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link" href="programs.html">School Programs</a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link" href="faq.html">FAQs</a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link" href="contact.html">Contact</a>
-                            </li>
-                        </ul>
-                         <div class="d-none d-lg-block">
-                            <a href="sign-in.html" class="bi-person custom-icon me-3"></a>
-
-                            <a href="portal.html" class="bi-bag custom-icon"></a>
-                        </div>
-                    </div>
-                </div>
-            </nav>
-
-
-            <section class="slick-slideshow">   
-                <div class="slick-custom">
-                    <img src="latter-glory-selfie.webp" class="img-fluid" alt="">
-
-                    <div class="slick-bottom">
-                        <div class="container">
-                            <div class="row">
-                                <div class="col-lg-6 col-10">
-                                    <h1 class="slick-title">LATTER GLORY</h1>
-
-                                    <p class="lead text-white mt-lg-3 mb-lg-5">Nurturing Kids Towards a Bright Future</p>
-
-                                    <a href="about.html" class="btn custom-btn">Learn more about us</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="slick-custom">
-                    <img src="latter-glory-geniuses.webp" class="img-fluid" alt="latter-glory">
-
-                    <div class="slick-bottom">
-                        <div class="container">
-                            <div class="row">
-                                <div class="col-lg-6 col-10">
-                                    <h1 class="slick-title">Best Education</h1>
-
-                                    <p class="lead text-white mt-lg-3 mb-lg-5">We offer top-notch education and a standard curriculum</p>
-
-                                    <a href="product.html" class="btn custom-btn">Explore Our School</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="slick-custom">
-                    <img src="new.webp" class="img-fluid" alt="">
-
-                    <div class="slick-bottom">
-                        <div class="container">
-                            <div class="row">
-                                <div class="col-lg-6 col-10">
-                                    <h1 class="slick-title">Join Us</h1>
-
-                                    <p class="lead text-white mt-lg-3 mb-lg-5">Join us at Latter Glory Academy and set a new path for your child</p>
-
-                                    <a href="contact.html" class="btn custom-btn">Enroll Now</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </section>
-
-            <section class="about section-padding">
-                <div class="container">
-                    <div class="row">
-
-                        <div class="col-12 text-center">
-                            <h2 class="mb-5">Get started with <span>Latter Glory</span> Academy</h2>
-                        </div>
-
-                        <div class="col-lg-2 col-12 mt-auto mb-auto">
-                            <ul class="nav nav-pills mb-5 mx-auto justify-content-center align-items-center" id="pills-tab" role="tablist">
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home" type="button" role="tab" aria-controls="pills-home" aria-selected="true">Introduction</button>
-                                </li>
-
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="pills-youtube-tab" data-bs-toggle="pill" data-bs-target="#pills-youtube" type="button" role="tab" aria-controls="pills-youtube" aria-selected="true">What We Offer</button>
-                                </li>
-
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="pills-skill-tab" data-bs-toggle="pill" data-bs-target="#pills-skill" type="button" role="tab" aria-controls="pills-skill" aria-selected="false">Why Choose Us?</button>
-                                </li>
-                            </ul>
-                        </div>
-
-                        <div class="col-lg-10 col-12">
-                            <div class="tab-content mt-2" id="pills-tabContent">
-                                <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
-
-                                    <div class="row">
-                                        <div class="col-lg-7 col-12">
-                                            <img src="student2.webp" class="img-fluid" alt="">
-                                        </div>
-
-                                        <div class="col-lg-5 col-12">
-                                            <div class="d-flex flex-column h-100 ms-lg-4 mt-lg-0 mt-5">
-                                                <h4 class="mb-3">Introduction to <span>Latter Glory</span> Academy</h4>
-
-                                                <p>Latter Glory Academy is dedicated to providing a nurturing environment where students can thrive academically, socially, and personally. Our school is committed to excellence in education, ensuring each student reaches their full potential.</p>
-
-                                                <div class="mt-2 mt-lg-auto">
-                                                    <a href="about.html" class="custom-link mb-2">
-                                                        Learn more about us
-                                                        <i class="bi-arrow-right ms-2"></i>
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="tab-pane fade" id="pills-youtube" role="tabpanel" aria-labelledby="pills-youtube-tab">
-
-                                    <div class="row">
-                                        <div class="col-lg-7 col-12">
-                                            <div class="ratio ratio-16x9">
-                                                <img src="latter-view2.webp" class="img-fluid" alt="latter-glory academy">
-                                            </div>
-                                        </div>
-
-                                        <div class="col-lg-5 col-12">
-                                            <div class="d-flex flex-column h-100 ms-lg-4 mt-lg-0 mt-5">
-                                                <h4 class="mb-3">What We Offer</h4>
-
-                                                <p>At Latter Glory Academy, we offer a comprehensive curriculum that caters to the holistic development of students. From foundational subjects to extracurricular activities, we ensure a well-rounded education.</p>
-
-                                                <div class="mt-2 mt-lg-auto">
-                                                    <a href="contact.html" class="custom-link mb-2">
-                                                        Contact us for more information
-                                                        <i class="bi-arrow-right ms-2"></i>
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="tab-pane fade" id="pills-skill" role="tabpanel" aria-labelledby="pills-skill-tab">
-                                    <div class="row">
-                                        <div class="col-lg-7 col-12">
-                                            <img src="g1.webp" class="img-fluid" alt="latter-glory ">
-                                        </div>
-
-                                        <div class="col-lg-5 col-12">
-                                            <div class="d-flex flex-column h-100 ms-lg-4 mt-lg-0 mt-5">
-                                                <h4 class="mb-3">Why Choose Us?</h4>
-
-                                                <p>Choosing Latter Glory Academy means opting for a nurturing, supportive, and academically rigorous environment that prepares students for future success. Our dedicated staff and state-of-the-art facilities make learning an enriching experience.</p>
-
-                                                <div class="mt-2 mt-lg-auto">
-                                                    <a href="products.html" class="custom-link mb-2">
-                                                        Explore our programs
-                                                        <i class="bi-arrow-right ms-2"></i>
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </section>
-
-            <section class="front-product">
-                <div class="container-fluid p-0">
-                    <div class="row align-items-center">
-
-                        <div class="col-lg-6 col-12">
-                            <img src="student.webp" class="img-fluid" alt="">
-                        </div>
-
-                        <div class="col-lg-6 col-12">
-                            <div class="px-5 py-5 py-lg-0">
-                                
-                                <h2 class="mb-4"><span>Best</span> Education</h2>
-
-                                <p class="lead mb-4">At Latter Glory Academy, we provide exceptional education programs tailored to the needs of every student.</p>
-
-                                <a href="products.html" class="custom-link">
-                                    Learn more about our offerings
-                                    <i class="bi-arrow-right ms-2"></i>
-                                </a>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </section>
-
-            <section class="featured-product section-padding">
-                <div class="container">
-                    <div class="row">
-                        
-                        <div class="col-12 text-center">
-                            <h2 class="mb-5">Our Latest Events</h2>
-                        </div>
-
-                        <div class="col-lg-4 col-12 mb-3">
-                            <div class="product-thumb">
-                                <a href="product-detail.html">
-                                    <img src="latter-february.webp" class="img-fluid product-image" alt="">
-                                </a>
-
-                                <div class="product-info d-flex">
-                                    <div>
-                                        <h5 class="product-title mb-0">
-                                            <a href="product-detail.html" class="product-title-link">Valentine's Week</a>
-                                        </h5>
-
-                                        <p class="product-p">Sharing love all over</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-lg-4 col-12 mb-3">
-                            <div class="product-thumb">
-                                <a href="product-detail.html">
-                                    <img src="event2.webp" class="img-fluid product-image" alt="">
-                                </a>
-
-                                <div class="product-info d-flex">
-                                    <div>
-                                        <h5 class="product-title mb-0">
-                                            <a href="product-detail.html" class="product-title-link">School Ads</a>
-                                        </h5>
-
-                                        <p class="product-p">Showcasing the excellence of Latter Glory Academy</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-lg-4 col-12">
-                            <div class="product-thumb">
-                                <a href="product-detail.html">
-                                    <img src="event3.webp" class="img-fluid product-image" alt="">
-                                </a>
-
-                                <div class="product-info d-flex">
-                                    <div>
-                                        <h5 class="product-title mb-0">
-                                            <a href="product-detail.html" class="product-title-link">Resumption Party</a>
-                                        </h5>
-
-                                        <p class="product-p">Starting the session with energy and enthusiasm</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-12 text-center">
-                            <a href="events.html" class="view-all">View All Events</a>
-                        </div>
-
-                    </div>
-                </div>
-            </section>
-
-        </main>
-
-        <footer class="site-footer">
+        <!-- About Section -->
+        <section class="about section-padding" id="about">
             <div class="container">
                 <div class="row">
-
-                    <div class="col-lg-3 col-10 me-auto mb-4">
-                        <h4 class="text-white mb-3"><a href="index.html">Latter Glory</a> Academy</h4>
-                        <p class="copyright-text text-muted mt-lg-5 mb-4 mb-lg-0">Copyright © 2025 <strong>Latter Glory Academy</strong></p>
-                        <br>
-                        <p class="copyright-text">Site Designed and Developed by <a href="https://praixtech.netlify.app/" target="_blank"><strong>PraixTech</strong></a></p>
+                    <div class="col-12 text-center">
+                        <h2 class="mb-5">Get started with <span>Latter Glory</span> Academy</h2>
                     </div>
-
-                    <div class="col-lg-5 col-8">
-                        <h5 class="text-white mb-3">Sitemap</h5>
-
-                        <ul class="footer-menu d-flex flex-wrap">
-                            <li class="footer-menu-item"><a href="about.html" class="footer-menu-link">Story</a></li>
-
-                            <li class="footer-menu-item"><a href="index.html" class="footer-menu-link">Home</a></li>
-
-                            <li class="footer-menu-item"><a href="#" class="footer-menu-link">Events</a></li>
-
-                            <li class="footer-menu-item"><a href="#" class="footer-menu-link">FAQs</a></li>
-
-                            <li class="footer-menu-item"><a href="#" class="footer-menu-link">Contact</a></li>
+                    <div class="col-lg-2 col-12 mt-auto mb-auto">
+                        <ul class="nav nav-pills mb-5 mx-auto justify-content-center align-items-center" id="pills-tab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home" type="button" role="tab" aria-controls="pills-home" aria-selected="true">Home</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="pills-youtube-tab" data-bs-toggle="pill" data-bs-target="#pills-youtube" type="button" role="tab" aria-controls="pills-youtube" aria-selected="false">Campus</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="pills-skill-tab" data-bs-toggle="pill" data-bs-target="#pills-skill" type="button" role="tab" aria-controls="pills-skill" aria-selected="false">Why Us?</button>
+                            </li>
                         </ul>
                     </div>
-
-                    <div class="col-lg-3 col-4">
-                        <h5 class="text-white mb-3">Social</h5>
-
-                        <ul class="social-icon">
-
-                            <li><a href="https://www.facebook.com/profile.php?id=61575272211297" class="social-icon-link bi-facebook"></a></li>
-
-                            <li><a href="https://wa.me/2348162873036" class="social-icon-link bi-whatsapp"></a></li>
-
-                            <li><a href="https://www.instagram.com/thelattergloryacademy/" class="social-icon-link bi-instagram"></a></li>
-
-                            <li><a href="https://www.tiktok.com/@lattergloryacademy?lang=en" class="social-icon-link bi-tiktok"></a></li>
-                        </ul>
+                    <div class="col-lg-10 col-12">
+                        <div class="tab-content mt-2" id="pills-tabContent">
+                            <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+                                <div class="row">
+                                    <div class="col-lg-7 col-12">
+                                        <img src="student2.webp" class="img-fluid" alt="Students at Latter Glory Academy">
+                                    </div>
+                                    <div class="col-lg-5 col-12">
+                                        <div class="d-flex flex-column h-100 ms-lg-4 mt-lg-0 mt-5">
+                                            <h4 class="mb-3">Introduction to <span>Latter Glory</span> Academy</h4>
+                                            <p>Latter Glory Academy is dedicated to providing a nurturing environment where students can thrive academically, socially, and personally. Our school combines innovative teaching methods with core values to offer a holistic education.</p>
+                                            <div class="mt-2 mt-lg-auto">
+                                                <a href="about.html" class="custom-link mb-2">
+                                                    Learn more about us
+                                                    <i class="bi-arrow-right ms-2"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="pills-youtube" role="tabpanel" aria-labelledby="pills-youtube-tab">
+                                <div class="row">
+                                    <div class="col-lg-7 col-12">
+                                        <div class="ratio ratio-16x9">
+                                            <img src="latter-view2.webp" class="img-fluid" alt="Latter Glory Academy campus">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-5 col-12">
+                                        <div class="d-flex flex-column h-100 ms-lg-4 mt-lg-0 mt-5">
+                                            <h4 class="mb-3">What We Offer</h4>
+                                            <p>At Latter Glory Academy, we offer a comprehensive curriculum that caters to the holistic development of students. From foundational subjects to life skills, we ensure every child is equipped for success.</p>
+                                            <div class="mt-2 mt-lg-auto">
+                                                <a href="contact.html" class="custom-link mb-2">
+                                                    Contact us for more information
+                                                    <i class="bi-arrow-right ms-2"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="pills-skill" role="tabpanel" aria-labelledby="pills-skill-tab">
+                                <div class="row">
+                                    <div class="col-lg-7 col-12">
+                                        <img src="g1.webp" class="img-fluid" alt="Why choose Latter Glory Academy">
+                                    </div>
+                                    <div class="col-lg-5 col-12">
+                                        <div class="d-flex flex-column h-100 ms-lg-4 mt-lg-0 mt-5">
+                                            <h4 class="mb-3">Why Choose Us?</h4>
+                                            <p>Choosing Latter Glory Academy means opting for a nurturing, supportive, and academically rigorous environment that prepares students for future challenges and successes.</p>
+                                            <div class="mt-2 mt-lg-auto">
+                                                <a href="products.html" class="custom-link mb-2">
+                                                    Explore our programs
+                                                    <i class="bi-arrow-right ms-2"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-
                 </div>
             </div>
-        </footer>
-        <script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
+        </section>
 
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  const firebaseConfig = {
-    apiKey: "AIzaSyDgReNsNbU6-Cnx-ej0HPcHSrCXVppohJQ",
-    authDomain: "latter-glory.firebaseapp.com",
-    projectId: "latter-glory",
-    storageBucket: "latter-glory.firebasestorage.app",
-    messagingSenderId: "133970297722",
-    appId: "1:133970297722:web:33758b76625c70930dccc3",
-    measurementId: "G-5G1BYM7Q3Y"
-  };
+        <!-- Featured Events Section -->
+        <section class="featured-product section-padding" id="events">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12 text-center">
+                        <h2 class="mb-5">Our Latest Events</h2>
+                    </div>
+                    <div class="col-lg-4 col-12 mb-3">
+                        <div class="product-thumb">
+                            <a href="product-detail.html">
+                                <img src="latter-february.webp" class="img-fluid product-image" alt="Valentine's Week event">
+                            </a>
+                            <div class="product-info d-flex">
+                                <div>
+                                    <h5 class="product-title mb-0">
+                                        <a href="product-detail.html" class="product-title-link">Valentine's Week</a>
+                                    </h5>
+                                    <p class="product-p">Sharing love all over</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-12 mb-3">
+                        <div class="product-thumb">
+                            <a href="product-detail.html">
+                                <img src="event2.webp" class="img-fluid product-image" alt="School Ads event">
+                            </a>
+                            <div class="product-info d-flex">
+                                <div>
+                                    <h5 class="product-title mb-0">
+                                        <a href="product-detail.html" class="product-title-link">School Ads</a>
+                                    </h5>
+                                    <p class="product-p">Showcasing the excellence of Latter Glory Academy</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-12">
+                        <div class="product-thumb">
+                            <a href="product-detail.html">
+                                <img src="event3.webp" class="img-fluid product-image" alt="Resumption Party event">
+                            </a>
+                            <div class="product-info d-flex">
+                                <div>
+                                    <h5 class="product-title mb-0">
+                                        <a href="product-detail.html" class="product-title-link">Resumption Party</a>
+                                    </h5>
+                                    <p class="product-p">Starting the session with energy and enthusiasm</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 text-center">
+                        <a href="events.html" class="view-all">View All Events</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
 
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-</script>
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3 col-10 me-auto mb-4">
+                    <h4 class="text-white mb-3"><a href="index.html">Latter Glory</a> Academy</h4>
+                    <p class="copyright-text text-muted mt-lg-5 mb-4 mb-lg-0">Copyright © 2025 <strong>Latter Glory Academy</strong></p>
+                    <br>
+                    <p class="copyright-text">Site Designed and Developed by <a href="https://praixtech.netlify.app/" target="_blank"><strong>PraixTech</strong></a></p>
+                </div>
+                <div class="col-lg-5 col-8">
+                    <h5 class="text-white mb-3">Sitemap</h5>
+                    <ul class="footer-menu d-flex flex-wrap">
+                        <li class="footer-menu-item"><a href="about.html" class="footer-menu-link">Story</a></li>
+                        <li class="footer-menu-item"><a href="index.html" class="footer-menu-link">Home</a></li>
+                        <li class="footer-menu-item"><a href="#" class="footer-menu-link">Events</a></li>
+                        <li class="footer-menu-item"><a href="#" class="footer-menu-link">FAQs</a></li>
+                        <li class="footer-menu-item"><a href="#" class="footer-menu-link">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-4">
+                    <h5 class="text-white mb-3">Social</h5>
+                    <ul class="social-icon">
+                        <li><a href="https://www.facebook.com/profile.php?id=61575272211297" class="social-icon-link bi-facebook" title="Facebook" aria-label="Facebook"></a></li>
+                        <li><a href="https://wa.me/2348162873036" class="social-icon-link bi-whatsapp" title="WhatsApp" aria-label="WhatsApp"></a></li>
+                        <li><a href="https://www.instagram.com/thelattergloryacademy/" class="social-icon-link bi-instagram" title="Instagram" aria-label="Instagram"></a></li>
+                        <li><a href="https://www.tiktok.com/@lattergloryacademy?lang=en" class="social-icon-link bi-tiktok" title="TikTok" aria-label="TikTok"></a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
 
-        <!-- JAVASCRIPT FILES -->
-        <script src="jquery.min.js"></script>
-        <script src="bootstrap.bundle.min.js"></script>
-        <script src="Headroom.js"></script>
-        <script src="jQuery.headroom.js"></script>
-        <script src="slick.min.js"></script>
-        <script src="custom.js"></script>
+    <!-- Firebase JS SDK -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js";
+      const firebaseConfig = {
+        apiKey: "AIzaSyDgReNsNbU6-Cnx-ej0HPcHSrCXVppohJQ",
+        authDomain: "latter-glory.firebaseapp.com",
+        projectId: "latter-glory",
+        storageBucket: "latter-glory.firebasestorage.app",
+        messagingSenderId: "133970297722",
+        appId: "1:133970297722:web:33758b76625c70930dccc3",
+        measurementId: "G-5G1BYM7Q3Y"
+      };
+      const app = initializeApp(firebaseConfig);
+      const analytics = getAnalytics(app);
+    </script>
 
-    </body>
+    <!-- JavaScript Files -->
+    <script src="jquery.min.js"></script>
+    <script src="bootstrap.bundle.min.js"></script>
+    <script src="Headroom.js"></script>
+    <script src="jQuery.headroom.js"></script>
+    <script src="slick.min.js"></script>
+    <script src="custom.js"></script>
+</body>
 </html>
