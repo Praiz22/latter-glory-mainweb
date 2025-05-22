@@ -4,142 +4,199 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Student Portal | Latter Glory Academy</title>
-  <!-- Bootstrap, AOS, Icons -->
+  <!-- Bootstrap 5, Icons, AOS, Fonts -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
   <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+  <!-- Inter font for modern simple look -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary: #e91e63;
-      --accent: #b71c1c;
-      --light: #fff;
-      --grey-bg: #f8f9fa;
-      --text-dark: #212529;
+      --primary: #111;
+      --accent: #b71c1c; /* minimal use */
+      --frost: rgba(255,255,255,0.60);
+      --frost-border: rgba(255,255,255,0.40);
+      --main-bg: #f7f7f7;
+      --card-bg: #fff;
       --radius: 1rem;
+      --shadow: 0 4px 24px 0 rgba(0,0,0,0.07);
     }
     html { scroll-behavior: smooth; }
     body {
-      font-family: 'Montserrat', Arial, sans-serif;
-      background: var(--grey-bg);
-      color: var(--text-dark);
+      font-family: 'Inter', 'Open Sans', Arial, sans-serif;
+      background: var(--main-bg);
+      color: var(--primary);
+      min-height: 100vh;
     }
     .navbar {
-      background: var(--light);
-      box-shadow: 0 2px 8px rgba(233,30,99,0.07);
+      background: var(--card-bg);
+      box-shadow: 0 2px 10px #0001;
+      padding-top: 0.6rem;
+      padding-bottom: 0.6rem;
     }
     .navbar-brand {
-      font-family: 'Orbitron', 'Montserrat', Arial, sans-serif;
-      color: var(--accent) !important;
-      font-weight: bold;
-      letter-spacing: 2px;
-      text-transform: uppercase;
+      font-family: 'Inter', Arial, sans-serif;
+      color: var(--primary)!important;
+      font-weight: 700;
+      font-size: 1.35rem;
+      letter-spacing: 0.02em;
+      display: flex;
+      align-items: center;
     }
-    .nav-link.active {
-      background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
-      color: #fff !important;
-      border-radius: 6px;
-    }
+    .navbar-brand img { height: 34px; margin-right: 0.7rem;}
     .nav-link {
-      color: var(--accent) !important;
+      color: var(--primary)!important;
       font-weight: 500;
-      font-size: 1.05rem;
-      transition: background 0.3s;
+      font-size: 1.01rem;
+      transition: color 0.2s;
+      border-radius: 8px;
+      padding: 0.45rem 1.1rem;
     }
-    .nav-link:hover {
-      background: #fde4ec;
-      color: var(--primary) !important;
+    .nav-link.active, .nav-link:focus, .nav-link:hover {
+      background: var(--frost);
+      color: var(--accent)!important;
+      font-weight: 700;
     }
     .btn-brand {
-      background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+      background: var(--primary);
       color: #fff;
-      border: none;
+      border-radius: 30px;
       font-weight: 600;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px #e91e6333;
+      border: none;
+      transition: background 0.18s;
     }
     .btn-brand:hover, .btn-brand:focus {
-      background: linear-gradient(90deg, var(--accent) 0%, var(--primary) 100%);
+      background: var(--accent);
       color: #fff;
-      box-shadow: 0 4px 20px #b71c1c22;
     }
     .card {
-      border-radius: 18px;
-      box-shadow: 0 4px 28px #b71c1c13;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
       border: none;
+      background: var(--card-bg);
+      margin-bottom: 1.2rem;
+    }
+    .card-title {
+      color: var(--primary);
+      font-weight: 600;
+      font-size: 1.15rem;
+    }
+    .badge {
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.85em;
+      border-radius: 0.6em;
+      margin-right: 0.2em;
+      font-weight: 500;
     }
     .tab-title {
+      font-family: 'Inter', Arial, sans-serif;
       color: var(--primary);
-      font-size: 1.45rem;
-      margin-bottom: 1.1rem;
-      font-family: 'Orbitron', 'Montserrat', Arial, sans-serif;
-      font-weight: 700;
-      letter-spacing: 1px;
+      font-weight: 600;
+      font-size: 1.25rem;
+      margin-bottom: 1.3rem;
+      letter-spacing: 0.01em;
     }
     .like-btn.active, .rsvp-btn.active, .club-btn.active {
-      color: var(--primary);
+      color: var(--accent);
     }
     .comment-box {
-      background: #fde4ec;
-      border-radius: 12px;
-      padding: 1.1rem;
+      background: #faf4f4;
+      border-radius: 10px;
+      padding: 1rem;
       margin-top: 1rem;
+      font-size: 0.97em;
     }
     .event-card {
-      border-left: 6px solid var(--accent);
+      border-left: 4px solid var(--accent);
+      background: linear-gradient(92deg,#fff 90%,#ffeded 100%);
     }
     .club-card {
-      border-left: 6px solid var(--primary);
+      border-left: 4px solid var(--accent);
     }
     .gallery-img {
-      border-radius: 10px;
-      box-shadow: 0 2px 12px #e91e6330;
+      border-radius: 8px;
+      box-shadow: 0 2px 12px #0001;
       cursor: pointer;
-      transition: transform .2s;
-      margin-bottom: 12px;
+      transition: transform .16s;
       max-width: 100%;
       aspect-ratio: 4/3;
       object-fit: cover;
     }
     .gallery-img:hover {
-      transform: scale(1.05);
-      box-shadow: 0 8px 24px #e91e63aa;
+      transform: scale(1.03);
+      box-shadow: 0 8px 24px #b71c1c22;
+    }
+    .profile-avatar {
+      width: 92px;
+      height: 92px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 3px solid var(--accent);
+      margin-bottom: 0.8rem;
     }
     .table-timetable th, .table-timetable td {
       vertical-align: middle;
-      font-size: 1.12rem;
+      font-size: 1.06rem;
     }
-    .profile-avatar {
-      width: 112px;
-      height: 112px;
-      object-fit: cover;
-      border-radius: 50%;
-      border: 4px solid var(--primary);
-      margin-bottom: 1rem;
-    }
+    .btn-link, .btn-link:hover { color: var(--accent); text-decoration: underline;}
+    .aos-init { opacity: 0; transition: opacity 0.5s;}
+    .aos-animate { opacity: 1 !important;}
     footer {
-      background: var(--accent);
-      color: #fff;
+      background: #fff;
+      color: var(--primary);
+      font-size: 1.02rem;
       text-align: center;
-      padding: 1.3rem 0;
-      letter-spacing: 1px;
+      padding: 1.2rem 0;
       margin-top: 2rem;
+      border-top: 1px solid #eee;
     }
-    .aos-init {
-      opacity: 0;
-      transition: opacity 0.5s;
+
+    /* --- Modal glassmorphism/blur effect --- */
+    .modal-backdrop.show {
+      opacity: 1!important;
+      background: rgba(255,255,255,0.5)!important;
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+      transition: all 0.2s;
     }
-    .aos-animate {
-      opacity: 1 !important;
+    .modal-content {
+      background: var(--frost);
+      border: 1.5px solid var(--frost-border);
+      -webkit-backdrop-filter: blur(18px);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 4px 48px #0002;
+      border-radius: 1.2rem;
+    }
+    .modal-header, .modal-footer { border: none; background: transparent!important;}
+    .modal-title { font-family: 'Inter', Arial, sans-serif; font-weight: 700;}
+    /* Blur the background when modal is open */
+    body.modal-blur main,
+    body.modal-blur .navbar,
+    body.modal-blur footer {
+      filter: blur(8px) grayscale(.08);
+      pointer-events: none;
+      user-select: none;
+      transition: filter 0.3s;
+    }
+    .form-label { font-weight: 500;}
+    @media (max-width: 991.98px) {
+      .tab-title { font-size: 1.07rem;}
+      .navbar-brand { font-size: 1.08rem;}
+      .profile-avatar { width: 70px; height: 70px;}
+    }
+    @media (max-width: 575.98px) {
+      .main-content { padding-left: 0.4rem; padding-right: 0.4rem;}
+      .navbar-brand { font-size: 1rem;}
     }
   </style>
 </head>
 <body>
   <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg" id="mainNav">
+  <nav class="navbar navbar-expand-lg shadow-sm">
     <div class="container">
       <a class="navbar-brand d-flex align-items-center" href="#">
-        <img src="latter-glory logo.png" alt="Logo" height="40" class="me-2">
+        <img src="latter-glory logo.png" alt="Logo">
         Latter Glory Academy
       </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
@@ -156,7 +213,7 @@
           <li class="nav-item"><a class="nav-link scroll-link" data-bs-toggle="tab" href="#timetableTab">Timetable</a></li>
         </ul>
         <button id="loginBtnNav" class="btn btn-brand ms-3">Login</button>
-        <button id="logoutBtnNav" class="btn btn-secondary ms-3" style="display:none;">Logout</button>
+        <button id="logoutBtnNav" class="btn btn-outline-dark ms-3" style="display:none;">Logout</button>
         <button id="registerStudentBtn" class="btn btn-brand ms-3" style="display:none;" data-bs-toggle="modal" data-bs-target="#registerModal">Register Student</button>
       </div>
     </div>
@@ -170,22 +227,22 @@
   <!-- Login Modal -->
   <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-      <div class="modal-content">
-        <form id="loginForm">
+      <div class="modal-content shadow-lg">
+        <form id="loginForm" autocomplete="off">
           <div class="modal-header">
             <h5 class="modal-title" id="loginModalLabel">Student Login</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <div class="mb-3">
-              <label for="email" class="form-label">Email</label>
-              <input type="email" class="form-control" id="email" required autocomplete="username">
-            </div>
-            <div class="mb-3">
-              <label for="password" class="form-label">Password</label>
-              <input type="password" class="form-control" id="password" required autocomplete="current-password">
-            </div>
-            <div id="loginError" class="text-danger mt-2" style="display:none;">Invalid credentials. Please try again.</div>
+              <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" class="form-control" id="email" required autocomplete="username">
+              </div>
+              <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" class="form-control" id="password" required autocomplete="current-password">
+              </div>
+              <div id="loginError" class="text-danger mt-2" style="display:none;">Invalid credentials. Please try again.</div>
           </div>
           <div class="modal-footer">
             <button type="submit" class="btn btn-brand w-100">Login</button>
@@ -198,7 +255,7 @@
   <!-- Register Student Modal (Admin Only) -->
   <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-      <form id="registerForm" class="modal-content" enctype="multipart/form-data">
+      <form id="registerForm" class="modal-content shadow-lg" enctype="multipart/form-data" autocomplete="off">
         <div class="modal-header">
           <h5 class="modal-title" id="registerModalLabel">Register New Student</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -211,6 +268,10 @@
           <div class="mb-3">
             <label for="studentName" class="form-label">Full Name</label>
             <input type="text" class="form-control" id="studentName" required>
+          </div>
+          <div class="mb-3">
+            <label for="studentEmail" class="form-label">Student Email</label>
+            <input type="email" class="form-control" id="studentEmail" required>
           </div>
           <div class="mb-3">
             <label for="studentClass" class="form-label">Class</label>
@@ -242,7 +303,7 @@
   </div>
 
   <!-- Main Content (hidden until logged in) -->
-  <main class="container" id="mainContent" style="display: none;">
+  <main class="container main-content" id="mainContent" style="display: none;">
     <!-- Profile Section -->
     <section id="profileTab" class="tab-pane fade show active" data-aos="fade-up">
       <h2 class="tab-title"><i class="bi bi-person-badge"></i> Profile</h2>
@@ -300,7 +361,7 @@
 
   <!-- Toast Notification Container -->
   <div aria-live="polite" aria-atomic="true" class="position-fixed bottom-0 end-0 p-3" style="z-index: 1080;">
-    <div id="mainToast" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
+    <div id="mainToast" class="toast align-items-center text-bg-dark border-0" role="alert" aria-live="assertive" aria-atomic="true">
       <div class="d-flex">
         <div class="toast-body" id="mainToastBody"></div>
         <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
@@ -309,10 +370,10 @@
   </div>
 
   <footer>
-    &copy; 2025 Latter Glory Academy. Designed with <span style="color:var(--primary);">&hearts;</span>
+    &copy; 2025 Latter Glory Academy. <span style="color:var(--accent);font-weight:700;">Powered by Praix Tech</span>
   </footer>
 
-  <!-- Bootstrap, AOS, Firebase, Main JS -->
+  <!-- Bootstrap, AOS, and portal JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
   <script>
@@ -327,10 +388,19 @@
           const elementPosition = target.getBoundingClientRect().top + window.pageYOffset;
           const offsetPosition = elementPosition - headerOffset;
           window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
-          document.querySelectorAll('header .nav-link').forEach(link => link.classList.remove('active'));
+          document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
           this.classList.add('active');
         }
       });
+    });
+    // Glassmorphism blur on modal open/close
+    function setBodyBlur(blurring) {
+      if(blurring) document.body.classList.add('modal-blur');
+      else document.body.classList.remove('modal-blur');
+    }
+    document.querySelectorAll('.modal').forEach(modal => {
+      modal.addEventListener('show.bs.modal', () => setBodyBlur(true));
+      modal.addEventListener('hidden.bs.modal', () => setBodyBlur(false));
     });
   </script>
   <script type="module" src="portal-main.js"></script>
