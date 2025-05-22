@@ -303,62 +303,248 @@
   </div>
 
   <!-- Main Content (hidden until logged in) -->
-  <main class="container main-content" id="mainContent" style="display: none;">
-    <!-- Profile Section -->
-    <section id="profileTab" class="tab-pane fade show active" data-aos="fade-up">
-      <h2 class="tab-title"><i class="bi bi-person-badge"></i> Profile</h2>
-      <div id="profileContent"></div>
-    </section>
-    <!-- Assignments Section -->
-    <section id="assignmentsTab" class="tab-pane fade" data-aos="fade-up">
-      <div class="d-flex justify-content-between align-items-center mb-2">
-        <span class="tab-title"><i class="bi bi-journal-check"></i> Assignments</span>
-        <button id="addAssignmentBtn" class="btn btn-brand btn-sm" style="display:none;" data-bs-toggle="modal" data-bs-target="#addAssignmentModal"><i class="bi bi-plus"></i> Post Assignment</button>
+ <main class="container main-content" id="mainContent" style="display: none;">
+  <!-- Profile Section -->
+  <section id="profileTab" class="tab-pane fade show active" data-aos="fade-up">
+    <h2 class="tab-title"><i class="bi bi-person-badge"></i> Profile</h2>
+    <div id="profileContent"></div>
+  </section>
+  <!-- Assignments Section -->
+  <section id="assignmentsTab" class="tab-pane fade" data-aos="fade-up">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <span class="tab-title"><i class="bi bi-journal-check"></i> Assignments</span>
+      <button id="addAssignmentBtn" class="btn btn-brand btn-sm" style="display:none;" data-bs-toggle="modal" data-bs-target="#addAssignmentModal"><i class="bi bi-plus"></i> Post Assignment</button>
+    </div>
+    <div id="assignments-list" class="row g-4">
+      <div class="col-md-6 col-lg-4">
+        <div class="card h-100 glassmorphism" data-aos="zoom-in">
+          <div class="card-body">
+            <h5 class="card-title">Math Homework 1</h5>
+            <span class="badge">JSS1</span>
+            <span class="badge">Mathematics</span>
+            <p class="card-text">Complete exercises 1-10 on page 23.</p>
+          </div>
+          <div class="card-footer d-flex align-items-center justify-content-between">
+            <div>Due: <b>2025-05-25</b></div>
+            <div>
+              <button class="btn btn-sm like-btn" title="Like"><i class="bi bi-heart"></i> <span>2</span></button>
+              <button class="btn btn-sm comment-btn" title="Comment"><i class="bi bi-chat-left-dots"></i></button>
+            </div>
+          </div>
+        </div>
       </div>
-      <div id="assignments-list" class="row g-4"></div>
-    </section>
-    <!-- Events Section -->
-    <section id="eventsTab" class="tab-pane fade" data-aos="fade-up">
-      <div class="d-flex justify-content-between align-items-center mb-2">
-        <span class="tab-title"><i class="bi bi-calendar-event"></i> Events</span>
-        <button id="addEventBtn" class="btn btn-brand btn-sm" style="display:none;" data-bs-toggle="modal" data-bs-target="#addEventModal"><i class="bi bi-plus"></i> Create Event</button>
+      <div class="col-md-6 col-lg-4">
+        <div class="card h-100 glassmorphism" data-aos="zoom-in">
+          <div class="card-body">
+            <h5 class="card-title">English Essay</h5>
+            <span class="badge">SS2</span>
+            <span class="badge">English</span>
+            <p class="card-text">Write an essay about your favorite book.</p>
+          </div>
+          <div class="card-footer d-flex align-items-center justify-content-between">
+            <div>Due: <b>2025-05-28</b></div>
+            <div>
+              <button class="btn btn-sm like-btn" title="Like"><i class="bi bi-heart"></i> <span>5</span></button>
+              <button class="btn btn-sm comment-btn" title="Comment"><i class="bi bi-chat-left-dots"></i></button>
+            </div>
+          </div>
+        </div>
       </div>
-      <div id="events-list" class="row g-4"></div>
-    </section>
-    <!-- Clubs Section -->
-    <section id="clubsTab" class="tab-pane fade" data-aos="fade-up">
-      <div class="d-flex justify-content-between align-items-center mb-2">
-        <span class="tab-title"><i class="bi bi-people"></i> Clubs</span>
-        <button id="addClubBtn" class="btn btn-brand btn-sm" style="display:none;" data-bs-toggle="modal" data-bs-target="#addClubModal"><i class="bi bi-plus"></i> Add Club</button>
+    </div>
+  </section>
+  <!-- Events Section -->
+  <section id="eventsTab" class="tab-pane fade" data-aos="fade-up">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <span class="tab-title"><i class="bi bi-calendar-event"></i> Events</span>
+      <button id="addEventBtn" class="btn btn-brand btn-sm" style="display:none;" data-bs-toggle="modal" data-bs-target="#addEventModal"><i class="bi bi-plus"></i> Create Event</button>
+    </div>
+    <div id="events-list" class="row g-4">
+      <div class="col-md-6 col-lg-4">
+        <div class="card h-100 event-card glassmorphism" data-aos="fade-right">
+          <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80" class="event-img" alt="Interhouse Sports" style="width:100%;border-radius:12px 12px 0 0;object-fit:cover;">
+          <div class="card-body">
+            <h5 class="card-title">Interhouse Sports</h5>
+            <p class="mb-2"><i class="bi bi-calendar"></i> 2025-06-01</p>
+            <p class="mb-2"><i class="bi bi-geo-alt"></i> School Field</p>
+            <p>Join us for a day of fun and sportsmanship!</p>
+          </div>
+          <div class="card-footer d-flex align-items-center justify-content-between">
+            <div>
+              <button class="btn btn-sm like-btn" title="Like"><i class="bi bi-heart"></i> <span>4</span></button>
+              <button class="btn btn-sm comment-btn" title="Comment"><i class="bi bi-chat-left-dots"></i></button>
+            </div>
+          </div>
+        </div>
       </div>
-      <div id="clubs-list" class="row g-4"></div>
-    </section>
-    <!-- Updates Section -->
-    <section id="updatesTab" class="tab-pane fade" data-aos="fade-up">
-      <div class="d-flex justify-content-between align-items-center mb-2">
-        <span class="tab-title"><i class="bi bi-megaphone"></i> Updates</span>
-        <button id="addUpdateBtn" class="btn btn-brand btn-sm" style="display:none;" data-bs-toggle="modal" data-bs-target="#addUpdateModal"><i class="bi bi-plus"></i> Post Update</button>
+      <div class="col-md-6 col-lg-4">
+        <div class="card h-100 event-card glassmorphism" data-aos="fade-right">
+          <img src="https://images.unsplash.com/photo-1515165562835-c3b6b95b2a02?auto=format&fit=crop&w=400&q=80" class="event-img" alt="Cultural Day" style="width:100%;border-radius:12px 12px 0 0;object-fit:cover;">
+          <div class="card-body">
+            <h5 class="card-title">Cultural Day</h5>
+            <p class="mb-2"><i class="bi bi-calendar"></i> 2025-07-15</p>
+            <p class="mb-2"><i class="bi bi-geo-alt"></i> Assembly Hall</p>
+            <p>Experience the rich cultural heritage of our students.</p>
+          </div>
+          <div class="card-footer d-flex align-items-center justify-content-between">
+            <div>
+              <button class="btn btn-sm like-btn" title="Like"><i class="bi bi-heart"></i> <span>7</span></button>
+              <button class="btn btn-sm comment-btn" title="Comment"><i class="bi bi-chat-left-dots"></i></button>
+            </div>
+          </div>
+        </div>
       </div>
-      <div id="updates-list" class="row g-4"></div>
-    </section>
-    <!-- Gallery Section -->
-    <section id="galleryTab" class="tab-pane fade" data-aos="fade-up">
-      <div class="d-flex justify-content-between align-items-center mb-2">
-        <span class="tab-title"><i class="bi bi-images"></i> Gallery</span>
-        <button id="addGalleryBtn" class="btn btn-brand btn-sm" style="display:none;" data-bs-toggle="modal" data-bs-target="#addGalleryModal"><i class="bi bi-plus"></i> Add Photo</button>
+    </div>
+  </section>
+  <!-- Clubs Section -->
+  <section id="clubsTab" class="tab-pane fade" data-aos="fade-up">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <span class="tab-title"><i class="bi bi-people"></i> Clubs</span>
+      <button id="addClubBtn" class="btn btn-brand btn-sm" style="display:none;" data-bs-toggle="modal" data-bs-target="#addClubModal"><i class="bi bi-plus"></i> Add Club</button>
+    </div>
+    <div id="clubs-list" class="row g-4">
+      <div class="col-md-6 col-lg-4">
+        <div class="card h-100 club-card glassmorphism" data-aos="fade-left">
+          <img src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80" class="club-img" alt="Science Club" style="width:100%;border-radius:12px 12px 0 0;object-fit:cover;">
+          <div class="card-body">
+            <h5 class="card-title">Science Club</h5>
+            <p>Explore, experiment, and discover the wonders of science every Friday after classes.</p>
+            <p><b>Supervisor:</b> Mr. Johnson</p>
+          </div>
+          <div class="card-footer d-flex align-items-center justify-content-between">
+            <div>
+              <button class="btn btn-sm like-btn" title="Like"><i class="bi bi-heart"></i> <span>3</span></button>
+              <button class="btn btn-sm comment-btn" title="Comment"><i class="bi bi-chat-left-dots"></i></button>
+            </div>
+          </div>
+        </div>
       </div>
-      <div id="galleryContent" class="row g-3"></div>
-    </section>
-    <!-- Timetable Section -->
-    <section id="timetableTab" class="tab-pane fade" data-aos="fade-up">
-      <div class="d-flex justify-content-between align-items-center mb-2">
-        <span class="tab-title"><i class="bi bi-table"></i> Timetable</span>
-        <button id="addTimetableBtn" class="btn btn-brand btn-sm" style="display:none;" data-bs-toggle="modal" data-bs-target="#addTimetableModal"><i class="bi bi-plus"></i> Upload Timetable</button>
+      <div class="col-md-6 col-lg-4">
+        <div class="card h-100 club-card glassmorphism" data-aos="fade-left">
+          <img src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80" class="club-img" alt="Drama Club" style="width:100%;border-radius:12px 12px 0 0;object-fit:cover;">
+          <div class="card-body">
+            <h5 class="card-title">Drama Club</h5>
+            <p>Act, direct, and bring stories to life on stage each Wednesday.</p>
+            <p><b>Supervisor:</b> Mrs. Adeyemi</p>
+          </div>
+          <div class="card-footer d-flex align-items-center justify-content-between">
+            <div>
+              <button class="btn btn-sm like-btn" title="Like"><i class="bi bi-heart"></i> <span>2</span></button>
+              <button class="btn btn-sm comment-btn" title="Comment"><i class="bi bi-chat-left-dots"></i></button>
+            </div>
+          </div>
+        </div>
       </div>
-      <div id="timetableContent"></div>
-    </section>
-  </main>
-
+    </div>
+  </section>
+  <!-- Updates Section -->
+  <section id="updatesTab" class="tab-pane fade" data-aos="fade-up">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <span class="tab-title"><i class="bi bi-megaphone"></i> Updates</span>
+      <button id="addUpdateBtn" class="btn btn-brand btn-sm" style="display:none;" data-bs-toggle="modal" data-bs-target="#addUpdateModal"><i class="bi bi-plus"></i> Post Update</button>
+    </div>
+    <div id="updates-list" class="row g-4">
+      <div class="col-md-6">
+        <div class="card h-100 glassmorphism" data-aos="flip-up">
+          <div class="card-body">
+            <h5 class="card-title">Welcome Back!</h5>
+            <p>We are excited to begin the new term. Please check your schedules and assignments regularly.</p>
+            <div class="text-end">
+              <small>by Admin | 2025-05-22</small>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card h-100 glassmorphism" data-aos="flip-up">
+          <div class="card-body">
+            <h5 class="card-title">PTA Meeting</h5>
+            <p>PTA meeting is scheduled for June 5th in the main hall. All parents are expected to attend.</p>
+            <div class="text-end">
+              <small>by Admin | 2025-05-20</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- Gallery Section -->
+  <section id="galleryTab" class="tab-pane fade" data-aos="fade-up">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <span class="tab-title"><i class="bi bi-images"></i> Gallery</span>
+      <button id="addGalleryBtn" class="btn btn-brand btn-sm" style="display:none;" data-bs-toggle="modal" data-bs-target="#addGalleryModal"><i class="bi bi-plus"></i> Add Photo</button>
+    </div>
+    <div id="galleryContent" class="row g-3">
+      <div class="col-6 col-md-4">
+        <img src="https://images.unsplash.com/photo-1465101178521-c1a9136a3b41?auto=format&fit=crop&w=400&q=80" class="gallery-img" alt="Gallery 1" data-aos="zoom-in">
+      </div>
+      <div class="col-6 col-md-4">
+        <img src="https://images.unsplash.com/photo-1454023492550-5696f8ff10e1?auto=format&fit=crop&w=400&q=80" class="gallery-img" alt="Gallery 2" data-aos="zoom-in">
+      </div>
+      <div class="col-6 col-md-4">
+        <img src="https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80" class="gallery-img" alt="Gallery 3" data-aos="zoom-in">
+      </div>
+    </div>
+  </section>
+  <!-- Timetable Section -->
+  <section id="timetableTab" class="tab-pane fade" data-aos="fade-up">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <span class="tab-title"><i class="bi bi-table"></i> Timetable</span>
+      <button id="addTimetableBtn" class="btn btn-brand btn-sm" style="display:none;" data-bs-toggle="modal" data-bs-target="#addTimetableModal"><i class="bi bi-plus"></i> Upload Timetable</button>
+    </div>
+    <div id="timetableContent">
+      <div class="table-responsive" data-aos="zoom-in">
+        <table class="table table-timetable table-bordered glassmorphism">
+          <thead>
+            <tr>
+              <th>Day</th>
+              <th>8:00 - 9:00</th>
+              <th>9:00 - 10:00</th>
+              <th>10:00 - 11:00</th>
+              <th>11:00 - 12:00</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Monday</td>
+              <td>Mathematics</td>
+              <td>English</td>
+              <td>Biology</td>
+              <td>Geography</td>
+            </tr>
+            <tr>
+              <td>Tuesday</td>
+              <td>Physics</td>
+              <td>Chemistry</td>
+              <td>Mathematics</td>
+              <td>English</td>
+            </tr>
+            <tr>
+              <td>Wednesday</td>
+              <td>Economics</td>
+              <td>Literature</td>
+              <td>Biology</td>
+              <td>Christian Religion</td>
+            </tr>
+            <tr>
+              <td>Thursday</td>
+              <td>Geography</td>
+              <td>Mathematics</td>
+              <td>Physics</td>
+              <td>Chemistry</td>
+            </tr>
+            <tr>
+              <td>Friday</td>
+              <td>English</td>
+              <td>Economics</td>
+              <td>Government</td>
+              <td>Physical Education</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</main>
   <!-- Toast Notification Container -->
   <div aria-live="polite" aria-atomic="true" class="position-fixed bottom-0 end-0 p-3" style="z-index: 1080;">
     <div id="mainToast" class="toast align-items-center text-bg-dark border-0" role="alert" aria-live="assertive" aria-atomic="true">
