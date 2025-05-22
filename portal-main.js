@@ -1,5 +1,3 @@
-// portal-main.js
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import {
   getFirestore, collection, doc, setDoc, getDoc, getDocs, onSnapshot, addDoc, updateDoc, deleteDoc, query, orderBy, serverTimestamp
@@ -43,6 +41,9 @@ const loginBtnMainDiv = document.getElementById('loginBtnMainDiv');
 const mainContent = document.getElementById('mainContent');
 const loginError = document.getElementById('loginError');
 
+const registerForm = document.getElementById('registerForm');
+const registerError = document.getElementById('registerError');
+
 // Section containers
 const assignmentsList = document.getElementById('assignments-list');
 const eventsList = document.getElementById('events-list');
@@ -66,6 +67,66 @@ function showNotification(message, type = 'primary', timeout = 4000) {
   toastEl.className = `toast align-items-center text-bg-${type} border-0`;
   const toast = new bootstrap.Toast(toastEl, { delay: timeout });
   toast.show();
+}
+
+// --- Registration: email/password signup ---
+if (registerForm) {
+  registerForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (registerError) registerError.style.display = "none";
+
+    // Get form values (portal.html fields)
+    const regNumber = registerForm.regNumber.value.trim();
+    const fullName = registerForm.studentName.value.trim();
+    const email = registerForm.studentEmail.value.trim().toLowerCase();
+    const password = registerForm.registerPassword.value;
+    const studentClass = registerForm.studentClass.value;
+    const passportFile = registerForm.passport.files[0];
+
+    if (!email || !password) {
+      if (registerError) {
+        registerError.textContent = "Email and password are required.";
+        registerError.style.display = "block";
+      }
+      return;
+    }
+
+    try {
+      // 1. Create user in Firebase Auth
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      await updateProfile(userCredential.user, { displayName: fullName });
+
+      // 2. Upload passport photo to Firebase Storage
+      let passportUrl = "";
+      if (passportFile) {
+        const imgRef = storageRef(storage, `passports/${regNumber}_${Date.now()}.jpg`);
+        await uploadBytes(imgRef, passportFile);
+        passportUrl = await getDownloadURL(imgRef);
+      }
+
+      // 3. Add user to Firestore
+      await setDoc(doc(db, "students", regNumber), {
+        registrationNumber: regNumber,
+        name: fullName,
+        class: studentClass,
+        passportUrl,
+        email,
+        uid: userCredential.user.uid,
+        createdAt: new Date().toISOString()
+      });
+
+      // 4. Success feedback
+      showNotification("Registration successful! You can now log in.", "success");
+      registerForm.reset();
+      bootstrap.Modal.getInstance(document.getElementById('registerModal')).hide();
+    } catch (err) {
+      if (registerError) {
+        registerError.textContent = err.message;
+        registerError.style.display = "block";
+      }
+      showNotification("Registration failed: " + err.message, "danger");
+    }
+  });
 }
 
 // --- Auth: login/logout ---
@@ -496,4 +557,4 @@ document.querySelectorAll('a.nav-link[href^="#"]').forEach(anchor => {
 
 // --- Profile loading, Gallery, Timetable, etc. can follow similar patterns above ---
 
-// End of portal-main.jsn
+// End of portal-main.js
