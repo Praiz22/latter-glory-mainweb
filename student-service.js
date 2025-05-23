@@ -26,6 +26,32 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 const storage = getStorage(app);
 
+// --- BATCH CREATE ADMIN USERS IN FIRESTORE (RUN ONCE & THEN COMMENT OUT) ---
+// Add your admin UID and email in the array below:
+const adminAccounts = [
+  { uid: "OvlzMg2DkBPDjOvByaPTcu6c89m2", email: "praiseola22@gmail.com" },
+  { uid: "fbMRfLMiUtezXublDEhSCqHCT4d2", email: "thelattergloryacademy@gmail.com" },
+  { uid: "SdqsLC8UihYZsN4fkEpfFifjzpy1", email: "praix25@gmail.com" }
+];
+
+async function createAdminDocs() {
+  for (const admin of adminAccounts) {
+    try {
+      await setDoc(doc(db, "users", admin.uid), {
+        email: admin.email,
+        role: "admin",
+        createdAt: new Date().toISOString()
+      });
+      console.log(`Admin Firestore doc created for: ${admin.email}`);
+    } catch (err) {
+      console.error(`Failed for ${admin.email}:`, err);
+    }
+  }
+}
+
+// --- UNCOMMENT THE NEXT LINE, run once, then comment/remove after admins are created ---
+// createAdminDocs();
+
 // --- Helper Functions ---
 
 // Generate Matric Number
@@ -198,7 +224,7 @@ if (logoutBtnNav) {
 
 let studentProfile = null;
 
-// --- ROLE CHECKER AND REDIRECT LOGIC (THIS IS WHAT YOU NEED) ---
+// --- ROLE CHECKER AND REDIRECT LOGIC ---
 onAuthStateChanged(auth, async (user) => {
   showPortalUI(!!user);
   if (user) {
