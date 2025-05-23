@@ -1,9 +1,9 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import {
-  getFirestore, collection, addDoc, getDocs, query, orderBy, doc, updateDoc, deleteDoc, serverTimestamp, setDoc
+  getFirestore, collection, addDoc, getDocs, query, orderBy, doc, updateDoc, deleteDoc, serverTimestamp, setDoc, where
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import {
-  getAuth, onAuthStateChanged, signOut, sendPasswordResetEmail
+  getAuth, onAuthStateChanged, signOut
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {
   getStorage, ref as storageRef, uploadBytes, getDownloadURL
@@ -29,6 +29,19 @@ const storage = getStorage(app);
 // --- DOM Elements ---
 const adminContent = document.getElementById('adminContent');
 const logoutBtnAdmin = document.getElementById('logoutBtnAdmin');
+const toastContainer = document.getElementById('toast-container');
+
+// Assignments
+const assignmentForm = document.getElementById('assignmentForm');
+const assignmentTitle = document.getElementById('assignmentTitle');
+const assignmentDesc = document.getElementById('assignmentDesc');
+const assignmentClass = document.getElementById('assignmentClass');
+const assignmentDueHours = document.getElementById('assignmentDueHours');
+const postAssignmentBtn = document.getElementById('postAssignmentBtn');
+const assignmentSpinner = document.getElementById('assignmentSpinner');
+const assignmentError = document.getElementById('assignmentError');
+const assignmentAdminList = document.getElementById('assignmentAdminList');
+
 // Gallery
 const galleryUploadForm = document.getElementById('galleryUploadForm');
 const galleryType = document.getElementById('galleryType');
@@ -40,19 +53,13 @@ const uploadSpinner = document.getElementById('uploadSpinner');
 const uploadError = document.getElementById('uploadError');
 const galleryPreview = document.getElementById('galleryPreview');
 const galleryPreviewType = document.getElementById('galleryPreviewType');
-const toastContainer = document.getElementById('toast-container');
-// Assignment
-const assignmentForm = document.getElementById('assignmentForm');
-const assignmentTitle = document.getElementById('assignmentTitle');
-const assignmentDesc = document.getElementById('assignmentDesc');
-const assignmentClass = document.getElementById('assignmentClass');
-const assignmentDueHours = document.getElementById('assignmentDueHours');
-const postAssignmentBtn = document.getElementById('postAssignmentBtn');
-const assignmentSpinner = document.getElementById('assignmentSpinner');
-const assignmentError = document.getElementById('assignmentError');
-const assignmentAdminList = document.getElementById('assignmentAdminList');
 
-// --- Toast Function ---
+// Students
+const studentsList = document.getElementById('studentsList');
+const studentSearchInput = document.getElementById('studentSearchInput');
+const probationKey = "probation"; // field in student doc
+
+// --- Utility Functions ---
 function showToast(message, type = 'success') {
   if (!toastContainer) return;
   const toast = document.createElement('div');
@@ -73,8 +80,10 @@ function showToast(message, type = 'success') {
     setTimeout(() => toast.remove(), 500);
   }, 4000);
 }
-
-// --- Loader Helper ---
+function logError(context, err) {
+  console.error(`[${context}]`, err);
+  showToast(`Error: ${err.message || err}`, "danger");
+}
 function buttonLoader(btn, loading = true, text = "") {
   if (!btn) return;
   if (loading) {
@@ -87,14 +96,189 @@ function buttonLoader(btn, loading = true, text = "") {
   }
 }
 
-// --- GALLERY UPLOAD HANDLER ---
+// --- Admin Auth State ---
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    loadAllStudents();
+    loadAdminAssignments();
+    loadGalleryPreview('gallery');
+    // Add other initializations here as needed
+  } else {
+    if (adminContent) adminContent.innerHTML = `<div class="alert alert-warning">You must be logged in as an admin to view this page.</div>`;
+  }
+});
+if (logoutBtnAdmin) {
+  logoutBtnAdmin.addEventListener('click', async function() {
+    buttonLoader(logoutBtnAdmin, true, "Logging out...");
+    await signOut(auth);
+    window.location.reload();
+  });
+}
+
+// --- STUDENT MANAGEMENT ---
+// Load all students
+async function loadAllStudents() {
+  if (!studentsList) return;
+  studentsList.innerHTML = '<div class="text-center"><span class="spinner-border spinner-border-sm"></span> Loading...</div>';
+  try {
+    const snap = await getDocs(query(collection(db, 'students'), orderBy('createdAt', 'desc')));
+    if (snap.empty) {
+      studentsList.innerHTML = "<p>No students registered yet.</p>";
+      return;
+    }
+    let html = `<input type="text" class="form-control mb-3" id="studentSearchInput" placeholder="Search students by name, email, class, or matric...">`;
+    html += '<div class="list-group">';
+    snap.forEach(docSnap => {
+      const s = docSnap.data();
+      html += `
+        <div class="list-group-item d-flex justify-content-between align-items-center">
+          <div>
+            <b>${s.name}</b>
+            <span class="text-muted small ms-2">${s.class}</span>
+            <br>
+            <span class="text-secondary">${s.matricNumber}</span><br>
+            <span class="text-secondary">${s.email}</span>
+            ${s[probationKey] ? '<span class="badge bg-warning text-dark ms-2">On Probation</span>' : ''}
+          </div>
+          <div>
+            <button class="btn btn-sm btn-outline-info me-2" onclick="window.viewStudentDetail('${docSnap.id}')">View</button>
+            <button class="btn btn-sm btn-outline-warning me-2" onclick="window.toggleProbation('${docSnap.id}', ${!!s[probationKey]})">${s[probationKey] ? "Unfreeze" : "Freeze"}</button>
+            <button class="btn btn-sm btn-outline-danger" onclick="window.adminDeleteStudent('${docSnap.id}', '${s.email}')">Delete</button>
+          </div>
+        </div>
+      `;
+    });
+    html += '</div>';
+    studentsList.innerHTML = html;
+
+    // Attach search handler
+    const searchInput = document.getElementById('studentSearchInput');
+    if (searchInput) {
+      searchInput.addEventListener('input', function () {
+        const val = this.value.toLowerCase();
+        document.querySelectorAll('#studentsList .list-group-item').forEach(item => {
+          item.style.display = item.textContent.toLowerCase().includes(val) ? '' : 'none';
+        });
+      });
+    }
+  } catch (err) {
+    logError("LoadAllStudents", err);
+    studentsList.innerHTML = "<p class='text-danger'>Failed to load students.</p>";
+  }
+}
+window.loadAllStudents = loadAllStudents;
+
+// View student detail modal
+window.viewStudentDetail = async function(studentId) {
+  const snap = await getDocs(query(collection(db, "students")));
+  let student = null;
+  snap.forEach(docSnap => { if (docSnap.id === studentId) student = docSnap.data(); });
+  if (!student) return showToast("Student not found.", "danger");
+
+  // Modal
+  let modalEl = document.getElementById('studentDetailModal');
+  if (modalEl) modalEl.remove();
+  modalEl = document.createElement('div');
+  modalEl.className = 'modal fade';
+  modalEl.id = 'studentDetailModal';
+  modalEl.tabIndex = -1;
+  modalEl.innerHTML = `
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Student Details</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body text-center">
+          <img src="${student.passportUrl || 'https://placehold.co/100x100?text=No+Photo'}" class="profile-avatar mb-2" alt="Passport" style="width:80px;height:80px;">
+          <div><b>${student.name}</b></div>
+          <div>${student.email}</div>
+          <div>${student.matricNumber}</div>
+          <div>Class: ${student.class}</div>
+          <div>Gender: ${student.gender}</div>
+          <div>Points: ${student.points || 0}</div>
+          <div>Status: ${student[probationKey] ? '<span class="text-warning">On Probation</span>' : '<span class="text-success">Active</span>'}</div>
+          <div class="mt-3">
+            <button class="btn btn-outline-warning me-2" onclick="window.toggleProbation('${studentId}', ${!!student[probationKey]})">${student[probationKey] ? "Unfreeze Account" : "Freeze Account"}</button>
+            <button class="btn btn-outline-danger" onclick="window.adminDeleteStudent('${studentId}', '${student.email}')">Delete Account</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modalEl);
+  const bsModal = new bootstrap.Modal(modalEl);
+  bsModal.show();
+  modalEl.addEventListener('hidden.bs.modal', () => modalEl.remove());
+};
+
+// Probation (Freeze/Unfreeze)
+window.toggleProbation = async function(studentId, isFrozen) {
+  const msg = isFrozen ? "Unfreeze this account (allow login/portal access)?" : "Freeze this account (prevent login/portal access)?";
+  if (!confirm(msg)) return;
+  try {
+    await updateDoc(doc(db, "students", studentId), { [probationKey]: !isFrozen });
+    showToast(isFrozen ? "Account unfrozen." : "Account frozen (on probation).", isFrozen ? "success" : "warning");
+    loadAllStudents();
+  } catch (err) {
+    logError("Probation", err);
+  }
+};
+
+// Delete Student (admin key required)
+window.adminDeleteStudent = function(studentId, studentEmail) {
+  let modalEl = document.getElementById('deleteStudentModal');
+  if (modalEl) modalEl.remove();
+
+  modalEl = document.createElement('div');
+  modalEl.className = 'modal fade';
+  modalEl.id = 'deleteStudentModal';
+  modalEl.tabIndex = -1;
+  modalEl.innerHTML = `
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title text-danger">Delete Student Account</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body text-center">
+          <p>Enter admin key to confirm deletion of <b>${studentEmail}</b>.<br><span class="text-danger">This cannot be undone.</span></p>
+          <input type="password" class="form-control mb-3" id="adminDeleteKey" placeholder="Admin Key/Password">
+          <button class="btn btn-danger" id="confirmDeleteBtn">Delete Account</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modalEl);
+  const bsModal = new bootstrap.Modal(modalEl);
+  bsModal.show();
+
+  modalEl.querySelector('#confirmDeleteBtn').onclick = async function() {
+    const key = modalEl.querySelector('#adminDeleteKey').value;
+    if (key !== 'YOUR_ADMIN_KEY') {
+      showToast('Invalid admin key!', 'danger');
+      return;
+    }
+    try {
+      await deleteDoc(doc(db, "students", studentId));
+      showToast('Student account deleted.', 'danger');
+      bsModal.hide();
+      loadAllStudents();
+    } catch (e) {
+      logError("DeleteStudent", e);
+      bsModal.hide();
+    }
+  };
+  modalEl.addEventListener('hidden.bs.modal', () => modalEl.remove());
+};
+
+// --- GALLERY SECTION ---
 if (galleryUploadForm) {
   galleryUploadForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     uploadError.textContent = '';
     uploadBtn.disabled = true;
     uploadSpinner.classList.remove('d-none');
-
     const file = galleryImage.files[0];
     const caption = galleryCaption.value.trim();
     const date = galleryDate.value;
@@ -106,37 +290,33 @@ if (galleryUploadForm) {
       uploadSpinner.classList.add('d-none');
       return;
     }
-
     try {
       const fileRef = storageRef(storage, `gallery/${Date.now()}_${file.name}`);
       await uploadBytes(fileRef, file);
       const imageUrl = await getDownloadURL(fileRef);
-
       const docData = {
         imageUrl,
         caption,
         date: new Date(date),
         createdAt: serverTimestamp()
       };
-
       if (type === 'both') {
         await addDoc(collection(db, 'gallery'), docData);
         await addDoc(collection(db, 'portalGallery'), docData);
       } else {
         await addDoc(collection(db, type), docData);
       }
-
       showToast("Image uploaded!", "success");
       galleryUploadForm.reset();
       loadGalleryPreview(type === 'both' ? 'gallery' : type);
     } catch (err) {
       uploadError.textContent = err.message || "Upload failed.";
+      logError("GalleryUpload", err);
     }
     uploadBtn.disabled = false;
     uploadSpinner.classList.add('d-none');
   });
 }
-
 async function loadGalleryPreview(which = 'gallery') {
   if (!galleryPreview) return;
   galleryPreview.innerHTML = '<div class="text-center"><span class="spinner-border spinner-border-sm"></span> Loading...</div>';
@@ -171,6 +351,7 @@ async function loadGalleryPreview(which = 'gallery') {
     });
   } catch (error) {
     galleryPreview.innerHTML = '<p class="text-danger p-3">Failed to load preview.</p>';
+    logError("GalleryPreview", error);
   }
 }
 if (galleryType) {
@@ -178,14 +359,13 @@ if (galleryType) {
 }
 window.addEventListener('DOMContentLoaded', () => loadGalleryPreview('gallery'));
 
-// --- ASSIGNMENT POSTING HANDLER ---
+// --- ASSIGNMENTS: POST, LIST, CLOSE, SUBMISSIONS, APPROVE ---
 if (assignmentForm) {
   assignmentForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     assignmentError.textContent = "";
     postAssignmentBtn.disabled = true;
     assignmentSpinner.classList.remove('d-none');
-
     const title = assignmentTitle.value.trim();
     const description = assignmentDesc.value.trim();
     const classVal = assignmentClass.value;
@@ -197,7 +377,6 @@ if (assignmentForm) {
       assignmentSpinner.classList.add('d-none');
       return;
     }
-
     try {
       const now = new Date();
       const dueDate = new Date(now.getTime() + dueHours * 60 * 60 * 1000);
@@ -214,17 +393,16 @@ if (assignmentForm) {
       loadAdminAssignments();
     } catch (err) {
       assignmentError.textContent = err.message || "Failed to post assignment.";
+      logError("AssignmentPost", err);
     }
     postAssignmentBtn.disabled = false;
     assignmentSpinner.classList.add('d-none');
   });
 }
 
-// --- LOAD ASSIGNMENTS FOR ADMIN ---
 async function loadAdminAssignments() {
   if (!assignmentAdminList) return;
   assignmentAdminList.innerHTML = '<div class="text-center"><span class="spinner-border spinner-border-sm"></span> Loading...</div>';
-  // Group by class
   try {
     const q = query(collection(db, 'assignments'), orderBy('dueDate', 'desc'));
     const snapshot = await getDocs(q);
@@ -232,7 +410,6 @@ async function loadAdminAssignments() {
       assignmentAdminList.innerHTML = "<p>No assignments posted yet.</p>";
       return;
     }
-    // Group by class
     const grouped = {};
     snapshot.forEach(docSnap => {
       const a = docSnap.data();
@@ -247,7 +424,7 @@ async function loadAdminAssignments() {
         <ul class="list-group mb-3">
           ${grouped[cls].map(a => `
             <li class="list-group-item">
-              <b>${a.title}</b> - 
+              <b>${a.title}</b>
               <span class="assignment-status">${getAssignmentStatus(a)}</span>
               <br/>
               <small>Due: ${a.dueDate?.toDate ? a.dueDate.toDate().toLocaleString() : new Date(a.dueDate).toLocaleString()}</small>
@@ -260,6 +437,7 @@ async function loadAdminAssignments() {
       `;
     });
   } catch (err) {
+    logError("LoadAdminAssignments", err);
     assignmentAdminList.innerHTML = "<p class='text-danger'>Failed to load assignments.</p>";
   }
 }
@@ -270,8 +448,6 @@ function getAssignmentStatus(a) {
   if (now > due) return `<span class="text-danger">Closed</span>`;
   return `<span class="text-success">Open</span>`;
 }
-
-// --- CLOSE ASSIGNMENT MANUALLY ---
 window.closeAssignment = async function (id) {
   if (!confirm("Are you sure you want to close this assignment?")) return;
   try {
@@ -279,13 +455,12 @@ window.closeAssignment = async function (id) {
     showToast("Assignment closed!", "danger");
     loadAdminAssignments();
   } catch (err) {
-    showToast("Failed to close assignment.", "danger");
+    logError("CloseAssignment", err);
   }
 };
 
 // --- SUBMISSIONS AND APPROVAL ---
 window.showSubmissions = async function (assignmentId, classVal) {
-  // Modal UI for submissions
   let modalEl = document.getElementById('submissionModal');
   if (modalEl) modalEl.remove();
   modalEl = document.createElement('div');
@@ -310,22 +485,18 @@ window.showSubmissions = async function (assignmentId, classVal) {
   const bsModal = new bootstrap.Modal(modalEl);
   bsModal.show();
 
-  // Load submissions
   const submissionList = modalEl.querySelector('#submissionList');
   submissionList.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Loading...';
-  // Get submissions
   const q = query(collection(db, 'assignments', assignmentId, 'submissions'));
   const snaps = await getDocs(q);
   if (snaps.empty) {
     submissionList.innerHTML = '<p>No submissions yet.</p>';
     return;
   }
-  // Load students for names/matric
   const studentsSnap = await getDocs(collection(db, 'students'));
   const students = {};
   studentsSnap.forEach(doc => students[doc.data().email] = doc.data());
 
-  // List with approve buttons
   let html = `<table class="table table-bordered"><thead><tr>
       <th>Name</th><th>Matric</th><th>Email</th><th>Status</th><th>Action</th></tr></thead><tbody>`;
   let exportRows = [["Name","Matric","Email","Status"]];
@@ -360,49 +531,29 @@ window.showSubmissions = async function (assignmentId, classVal) {
   };
 };
 window.approveSubmission = async function (assignmentId, submissionId, studentEmail) {
-  // Mark submission as approved
   try {
     await updateDoc(doc(db, 'assignments', assignmentId, 'submissions', submissionId), { approved: true });
     // Increment student points
-    const studentsSnap = await getDocs(query(collection(db, "students")));
+    const studentsSnap = await getDocs(query(collection(db, "students"), where("email", "==", studentEmail)));
     let studentDocId = null;
-    studentsSnap.forEach(docSnap => {
-      if ((docSnap.data().email || "").toLowerCase() === studentEmail.toLowerCase()) {
-        studentDocId = docSnap.id;
-      }
-    });
+    studentsSnap.forEach(docSnap => { studentDocId = docSnap.id; });
     if (studentDocId) {
       const studentRef = doc(db, "students", studentDocId);
-      const studentDoc = await getDocs(query(collection(db, "students")));
-      const curr = studentDoc.docs.find(d => d.id === studentDocId);
-      const prevPoints = (curr ? curr.data().points : 0) || 0;
+      const studentDoc = await getDocs(query(collection(db, "students"), where("email", "==", studentEmail)));
+      const prevPoints = (studentDoc.docs[0]?.data().points || 0);
       await updateDoc(studentRef, { points: prevPoints + 1 });
     }
     showToast("Submission approved & point awarded!", "success");
     loadAdminAssignments();
-    // Close modal and reopen to refresh list
     document.querySelector('.btn-close[data-bs-dismiss="modal"]')?.click();
     setTimeout(() => window.showSubmissions(assignmentId), 400);
   } catch (e) {
-    showToast("Failed to approve submission.", "danger");
+    logError("ApproveSubmission", e);
   }
 };
 
-// --- LOGOUT ---
-if (logoutBtnAdmin) {
-  logoutBtnAdmin.addEventListener('click', async function() {
-    buttonLoader(logoutBtnAdmin, true, "Logging out...");
-    await signOut(auth);
-    window.location.reload();
-  });
-}
-
-// --- LOAD ON AUTH ---
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    loadAdminAssignments();
-    // ...call any other initial loads you want
-  } else {
-    if (adminContent) adminContent.innerHTML = `<div class="alert alert-warning">You must be logged in as an admin to view this page.</div>`;
-  }
-});
+// --- FUTURE: Result Collation Hook ---
+window.collateResults = function() {
+  // Placeholder for result collation logic
+  showToast("Result collation coming soon!", "info");
+};
