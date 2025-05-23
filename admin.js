@@ -1,10 +1,13 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import {
-  getFirestore, collection, getDocs, query, orderBy, doc, updateDoc, deleteDoc
+  getFirestore, collection, addDoc, getDocs, query, orderBy, doc, updateDoc, deleteDoc, serverTimestamp, setDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import {
   getAuth, onAuthStateChanged, signOut, sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import {
+  getStorage, ref as storageRef, uploadBytes, getDownloadURL
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
 // --- Firebase config ---
 const firebaseConfig = {
@@ -21,29 +24,54 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
+const storage = getStorage(app);
 
 // --- DOM Elements ---
-const adminContent = document.getElementById('adminContent'); // The container for admin dashboard
+const adminContent = document.getElementById('adminContent');
 const logoutBtnAdmin = document.getElementById('logoutBtnAdmin');
+// Gallery
+const galleryUploadForm = document.getElementById('galleryUploadForm');
+const galleryType = document.getElementById('galleryType');
+const galleryImage = document.getElementById('galleryImage');
+const galleryCaption = document.getElementById('galleryCaption');
+const galleryDate = document.getElementById('galleryDate');
+const uploadBtn = document.getElementById('uploadBtn');
+const uploadSpinner = document.getElementById('uploadSpinner');
+const uploadError = document.getElementById('uploadError');
+const galleryPreview = document.getElementById('galleryPreview');
+const galleryPreviewType = document.getElementById('galleryPreviewType');
+const toastContainer = document.getElementById('toast-container');
+// Assignment
+const assignmentForm = document.getElementById('assignmentForm');
+const assignmentTitle = document.getElementById('assignmentTitle');
+const assignmentDesc = document.getElementById('assignmentDesc');
+const assignmentClass = document.getElementById('assignmentClass');
+const assignmentDueHours = document.getElementById('assignmentDueHours');
+const postAssignmentBtn = document.getElementById('postAssignmentBtn');
+const assignmentSpinner = document.getElementById('assignmentSpinner');
+const assignmentError = document.getElementById('assignmentError');
+const assignmentAdminList = document.getElementById('assignmentAdminList');
 
-// --- Helper: Format time ago ---
-function formatTimeAgo(date) {
-  if (!date) return '';
-  if (typeof date === 'string') date = new Date(date);
-  if (typeof date.toDate === 'function') date = date.toDate();
-  const now = new Date();
-  const diff = Math.floor((now - date) / 1000);
-  if (diff < 60) return 'just now';
-  if (diff < 3600) return `${Math.floor(diff / 60)} min${Math.floor(diff / 60) === 1 ? '' : 's'} ago`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)} hour${Math.floor(diff / 3600) === 1 ? '' : 's'} ago`;
-  if (diff < 604800) return `${Math.floor(diff / 86400)} day${Math.floor(diff / 86400) === 1 ? '' : 's'} ago`;
-  return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
-}
-function formatCalendarDate(date) {
-  if (!date) return '';
-  if (typeof date === 'string') date = new Date(date);
-  if (typeof date.toDate === 'function') date = date.toDate();
-  return date.toLocaleString(undefined, { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+// --- Toast Function ---
+function showToast(message, type = 'success') {
+  if (!toastContainer) return;
+  const toast = document.createElement('div');
+  toast.className = `toast align-items-center text-bg-${type} border-0 show mb-2`;
+  toast.setAttribute('role', 'alert');
+  toast.setAttribute('aria-live', 'assertive');
+  toast.setAttribute('aria-atomic', 'true');
+  toast.innerHTML = `
+    <div class="d-flex">
+      <div class="toast-body">${message}</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+  `;
+  toastContainer.appendChild(toast);
+  setTimeout(() => {
+    toast.classList.remove('show');
+    toast.classList.add('hide');
+    setTimeout(() => toast.remove(), 500);
+  }, 4000);
 }
 
 // --- Loader Helper ---
@@ -59,317 +87,308 @@ function buttonLoader(btn, loading = true, text = "") {
   }
 }
 
-// --- Load all students grouped by class ---
-async function loadAllStudents() {
-  if (!adminContent) return;
-  adminContent.innerHTML = `<div class="text-center py-3"><span class="spinner-border spinner-border-sm"></span> Loading students...</div>`;
+// --- GALLERY UPLOAD HANDLER ---
+if (galleryUploadForm) {
+  galleryUploadForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    uploadError.textContent = '';
+    uploadBtn.disabled = true;
+    uploadSpinner.classList.remove('d-none');
 
-  const studentsSnap = await getDocs(query(collection(db, "students"), orderBy("createdAt", "desc")));
-  const students = [];
-  studentsSnap.forEach(doc => students.push(doc.data()));
+    const file = galleryImage.files[0];
+    const caption = galleryCaption.value.trim();
+    const date = galleryDate.value;
+    const type = galleryType.value;
 
-  if (students.length === 0) {
-    adminContent.innerHTML = `<div class="text-danger">No students found.</div>`;
-    return;
-  }
+    if (!file || !caption || !date || !type) {
+      uploadError.textContent = "All fields are required.";
+      uploadBtn.disabled = false;
+      uploadSpinner.classList.add('d-none');
+      return;
+    }
 
-  // Group by class
-  const groupByClass = {};
-  students.forEach(s => {
-    if (!groupByClass[s.class]) groupByClass[s.class] = [];
-    groupByClass[s.class].push(s);
+    try {
+      const fileRef = storageRef(storage, `gallery/${Date.now()}_${file.name}`);
+      await uploadBytes(fileRef, file);
+      const imageUrl = await getDownloadURL(fileRef);
+
+      const docData = {
+        imageUrl,
+        caption,
+        date: new Date(date),
+        createdAt: serverTimestamp()
+      };
+
+      if (type === 'both') {
+        await addDoc(collection(db, 'gallery'), docData);
+        await addDoc(collection(db, 'portalGallery'), docData);
+      } else {
+        await addDoc(collection(db, type), docData);
+      }
+
+      showToast("Image uploaded!", "success");
+      galleryUploadForm.reset();
+      loadGalleryPreview(type === 'both' ? 'gallery' : type);
+    } catch (err) {
+      uploadError.textContent = err.message || "Upload failed.";
+    }
+    uploadBtn.disabled = false;
+    uploadSpinner.classList.add('d-none');
   });
-
-  adminContent.innerHTML = `
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h3 class="mb-0"><i class="bi bi-people"></i> All Students</h3>
-      <button class="btn btn-outline-primary btn-sm" id="exportCSVBtn"><i class="bi bi-download"></i> Export CSV</button>
-    </div>
-    <div id="studentGroups"></div>
-    <div id="engagementChart" class="my-4"></div>
-  `;
-  const groupsDiv = adminContent.querySelector('#studentGroups');
-  Object.keys(groupByClass).sort().forEach(cls => {
-    groupsDiv.innerHTML += `
-      <div class="mb-4">
-        <h5 class="mb-3"><span class="badge bg-dark">${cls}</span></h5>
-        <div class="row g-3">
-          ${groupByClass[cls].map(s => `
-          <div class="col-md-4">
-            <div class="card glassmorphism p-2">
-              <div class="d-flex align-items-center">
-                <img src="${s.passportUrl || 'https://placehold.co/60x60?text=No+Photo'}" alt="Passport" style="width:60px;height:60px;border-radius:50%;margin-right:1rem;">
-                <div>
-                  <div class="fw-bold">${s.name}</div>
-                  <div class="text-muted small">Matric: ${s.matricNumber}</div>
-                  <div class="text-muted small">Gender: ${s.gender || '-'}</div>
-                  <div class="text-muted small">Created: <span class="admin-created-at" data-date="${s.createdAt || ''}">${formatTimeAgo(s.createdAt)}</span></div>
-                  <button class="btn btn-sm btn-link view-student-btn mt-2 p-0" data-matric="${s.matricNumber}"><i class="bi bi-eye"></i> View Details</button>
-                </div>
-              </div>
-            </div>
-          </div>
-          `).join('')}
-        </div>
-      </div>
-    `;
-  });
-
-  setInterval(() => {
-    groupsDiv.querySelectorAll('.admin-created-at').forEach(span => {
-      const date = span.getAttribute('data-date');
-      span.textContent = formatTimeAgo(date);
-    });
-  }, 60000);
-
-  groupsDiv.querySelectorAll('.view-student-btn').forEach(btn => {
-    btn.onclick = function () {
-      const matric = btn.getAttribute('data-matric');
-      const student = students.find(s => s.matricNumber === matric);
-      if (!student) return;
-      showStudentDetailModal(student);
-    };
-  });
-
-  // Export CSV
-  const exportBtn = document.getElementById('exportCSVBtn');
-  if (exportBtn) {
-    exportBtn.onclick = () => exportStudentsCSV(students, exportBtn);
-  }
-
-  // Engagement chart
-  renderEngagementChart(students);
 }
 
-// --- Export Students as CSV ---
-function exportStudentsCSV(students, btn) {
-  buttonLoader(btn, true, "Exporting...");
-  setTimeout(() => {
-    const headers = ["Name", "Matric Number", "Email", "Gender", "Class", "Created At"];
-    const rows = students.map(s => [
-      s.name, s.matricNumber, s.email, s.gender, s.class, s.createdAt
-    ]);
-    let csv = headers.join(",") + "\n" + rows.map(r => r.map(x => `"${(x || '').toString().replace(/"/g, '""')}"`).join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
+async function loadGalleryPreview(which = 'gallery') {
+  if (!galleryPreview) return;
+  galleryPreview.innerHTML = '<div class="text-center"><span class="spinner-border spinner-border-sm"></span> Loading...</div>';
+  if (galleryPreviewType) {
+    galleryPreviewType.textContent = (
+      which === 'gallery' ? 'School Gallery' :
+      which === 'portalGallery' ? 'Portal Gallery' : 'School Gallery'
+    );
+  }
+  try {
+    const q = query(collection(db, which), orderBy('date', 'desc'));
+    const snapshot = await getDocs(q);
+    if (snapshot.empty) {
+      galleryPreview.innerHTML = "<p class='text-center p-3'>No images yet.</p>";
+      return;
+    }
+    galleryPreview.innerHTML = "";
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      const col = document.createElement('div');
+      col.className = "col-12 col-md-6";
+      col.innerHTML = `
+        <div class="card mb-3">
+          <img src="${data.imageUrl}" style="width:100%;max-height:220px;object-fit:cover;border-radius:10px;" />
+          <div class="card-body">
+            <div class="caption mb-1">${data.caption || ""}</div>
+            <div class="date text-muted">${data.date ? (new Date(data.date.seconds ? data.date.seconds * 1000 : data.date)).toLocaleDateString() : ""}</div>
+          </div>
+        </div>
+      `;
+      galleryPreview.appendChild(col);
+    });
+  } catch (error) {
+    galleryPreview.innerHTML = '<p class="text-danger p-3">Failed to load preview.</p>';
+  }
+}
+if (galleryType) {
+  galleryType.addEventListener('change', () => loadGalleryPreview(galleryType.value === 'both' ? 'gallery' : galleryType.value));
+}
+window.addEventListener('DOMContentLoaded', () => loadGalleryPreview('gallery'));
+
+// --- ASSIGNMENT POSTING HANDLER ---
+if (assignmentForm) {
+  assignmentForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    assignmentError.textContent = "";
+    postAssignmentBtn.disabled = true;
+    assignmentSpinner.classList.remove('d-none');
+
+    const title = assignmentTitle.value.trim();
+    const description = assignmentDesc.value.trim();
+    const classVal = assignmentClass.value;
+    const dueHours = parseInt(assignmentDueHours.value);
+
+    if (!title || !description || !classVal || !dueHours || dueHours < 1) {
+      assignmentError.textContent = "All fields are required and due hours must be >= 1.";
+      postAssignmentBtn.disabled = false;
+      assignmentSpinner.classList.add('d-none');
+      return;
+    }
+
+    try {
+      const now = new Date();
+      const dueDate = new Date(now.getTime() + dueHours * 60 * 60 * 1000);
+      await addDoc(collection(db, 'assignments'), {
+        title,
+        description,
+        class: classVal,
+        postedAt: serverTimestamp(),
+        dueDate,
+        closed: false
+      });
+      showToast("Assignment posted!", "success");
+      assignmentForm.reset();
+      loadAdminAssignments();
+    } catch (err) {
+      assignmentError.textContent = err.message || "Failed to post assignment.";
+    }
+    postAssignmentBtn.disabled = false;
+    assignmentSpinner.classList.add('d-none');
+  });
+}
+
+// --- LOAD ASSIGNMENTS FOR ADMIN ---
+async function loadAdminAssignments() {
+  if (!assignmentAdminList) return;
+  assignmentAdminList.innerHTML = '<div class="text-center"><span class="spinner-border spinner-border-sm"></span> Loading...</div>';
+  // Group by class
+  try {
+    const q = query(collection(db, 'assignments'), orderBy('dueDate', 'desc'));
+    const snapshot = await getDocs(q);
+    if (snapshot.empty) {
+      assignmentAdminList.innerHTML = "<p>No assignments posted yet.</p>";
+      return;
+    }
+    // Group by class
+    const grouped = {};
+    snapshot.forEach(docSnap => {
+      const a = docSnap.data();
+      a._id = docSnap.id;
+      if (!grouped[a.class]) grouped[a.class] = [];
+      grouped[a.class].push(a);
+    });
+    assignmentAdminList.innerHTML = "";
+    Object.keys(grouped).forEach(cls => {
+      assignmentAdminList.innerHTML += `
+        <h6>${cls}</h6>
+        <ul class="list-group mb-3">
+          ${grouped[cls].map(a => `
+            <li class="list-group-item">
+              <b>${a.title}</b> - 
+              <span class="assignment-status">${getAssignmentStatus(a)}</span>
+              <br/>
+              <small>Due: ${a.dueDate?.toDate ? a.dueDate.toDate().toLocaleString() : new Date(a.dueDate).toLocaleString()}</small>
+              <br/>
+              <button class="btn btn-sm btn-outline-secondary mb-1" onclick="window.showSubmissions('${a._id}','${cls}')">Submissions</button>
+              <button class="btn btn-sm btn-outline-danger mb-1" onclick="window.closeAssignment('${a._id}')">Force Close</button>
+            </li>
+          `).join('')}
+        </ul>
+      `;
+    });
+  } catch (err) {
+    assignmentAdminList.innerHTML = "<p class='text-danger'>Failed to load assignments.</p>";
+  }
+}
+function getAssignmentStatus(a) {
+  const now = new Date();
+  const due = a.dueDate?.toDate ? a.dueDate.toDate() : new Date(a.dueDate);
+  if (a.closed) return `<span class="text-danger">Closed</span>`;
+  if (now > due) return `<span class="text-danger">Closed</span>`;
+  return `<span class="text-success">Open</span>`;
+}
+
+// --- CLOSE ASSIGNMENT MANUALLY ---
+window.closeAssignment = async function (id) {
+  if (!confirm("Are you sure you want to close this assignment?")) return;
+  try {
+    await updateDoc(doc(db, 'assignments', id), { closed: true });
+    showToast("Assignment closed!", "danger");
+    loadAdminAssignments();
+  } catch (err) {
+    showToast("Failed to close assignment.", "danger");
+  }
+};
+
+// --- SUBMISSIONS AND APPROVAL ---
+window.showSubmissions = async function (assignmentId, classVal) {
+  // Modal UI for submissions
+  let modalEl = document.getElementById('submissionModal');
+  if (modalEl) modalEl.remove();
+  modalEl = document.createElement('div');
+  modalEl.className = 'modal fade';
+  modalEl.id = 'submissionModal';
+  modalEl.tabIndex = -1;
+  modalEl.innerHTML = `
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Assignment Submissions (${classVal})</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div id="submissionList"></div>
+          <button class="btn btn-outline-primary mt-2" id="exportSubmissionsBtn">Export CSV</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modalEl);
+  const bsModal = new bootstrap.Modal(modalEl);
+  bsModal.show();
+
+  // Load submissions
+  const submissionList = modalEl.querySelector('#submissionList');
+  submissionList.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Loading...';
+  // Get submissions
+  const q = query(collection(db, 'assignments', assignmentId, 'submissions'));
+  const snaps = await getDocs(q);
+  if (snaps.empty) {
+    submissionList.innerHTML = '<p>No submissions yet.</p>';
+    return;
+  }
+  // Load students for names/matric
+  const studentsSnap = await getDocs(collection(db, 'students'));
+  const students = {};
+  studentsSnap.forEach(doc => students[doc.data().email] = doc.data());
+
+  // List with approve buttons
+  let html = `<table class="table table-bordered"><thead><tr>
+      <th>Name</th><th>Matric</th><th>Email</th><th>Status</th><th>Action</th></tr></thead><tbody>`;
+  let exportRows = [["Name","Matric","Email","Status"]];
+  snaps.forEach(sub => {
+    const data = sub.data();
+    const student = students[data.studentEmail] || {};
+    html += `<tr>
+      <td>${student.name || "-"}</td>
+      <td>${student.matricNumber || "-"}</td>
+      <td>${data.studentEmail}</td>
+      <td>${data.approved ? '<span class="text-success">Approved</span>' : '<span class="text-warning">Pending</span>'}</td>
+      <td>
+        ${data.approved ? '' : `<button class="btn btn-sm btn-success" onclick="window.approveSubmission('${assignmentId}','${sub.id}','${student.email}')">Approve</button>`}
+      </td>
+    </tr>`;
+    exportRows.push([student.name || "-", student.matricNumber || "-", data.studentEmail, data.approved ? "Approved" : "Pending"]);
+  });
+  html += "</tbody></table>";
+  submissionList.innerHTML = html;
+
+  // Export CSV
+  modalEl.querySelector('#exportSubmissionsBtn').onclick = () => {
+    let csv = exportRows.map(row => row.map(x=> `"${x}"`).join(",")).join("\n");
+    const blob = new Blob([csv], {type: "text/csv"});
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `students_${new Date().toISOString().slice(0,10)}.csv`;
+    a.download = `submissions_${assignmentId}.csv`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    buttonLoader(btn, false, "Export CSV");
-  }, 700);
-}
-
-// --- Student Details Modal (View, Edit, Delete, Reset Password) ---
-function showStudentDetailModal(student) {
-  let modalEl = document.getElementById('studentDetailModal');
-  if (modalEl) modalEl.remove();
-
-  modalEl = document.createElement('div');
-  modalEl.className = 'modal fade';
-  modalEl.id = 'studentDetailModal';
-  modalEl.tabIndex = -1;
-  modalEl.innerHTML = `
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content glassmorphism">
-        <div class="modal-header">
-          <h5 class="modal-title">Student Details</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body text-center">
-          <img src="${student.passportUrl || 'https://placehold.co/100x100?text=No+Photo'}" class="profile-avatar mb-3" alt="Student Passport">
-          <div class="mb-2"><b>Name:</b> <span id="editName">${student.name}</span></div>
-          <div class="mb-2"><b>Email:</b> <span id="editEmail">${student.email}</span></div>
-          <div class="mb-2"><b>Matric Number:</b> <span id="editMatric">${student.matricNumber}</span></div>
-          <div class="mb-2"><b>Class:</b> <span id="editClass">${student.class}</span></div>
-          <div class="mb-2"><b>Gender:</b> <span id="editGender">${student.gender || '-'}</span></div>
-          <div class="mb-2"><b>Account Created:</b> <span class="student-modal-created-at" data-date="${student.createdAt || ''}">${formatTimeAgo(student.createdAt)}</span> <span class="text-muted small">(${formatCalendarDate(student.createdAt)})</span></div>
-          <div class="mb-3 mt-4 d-flex justify-content-center gap-2">
-            <button class="btn btn-outline-primary btn-sm" id="editStudentBtn"><i class="bi bi-pencil"></i> Edit</button>
-            <button class="btn btn-outline-danger btn-sm" id="deleteStudentBtn"><i class="bi bi-trash"></i> Delete</button>
-            <button class="btn btn-outline-warning btn-sm" id="resetPwdBtn"><i class="bi bi-key"></i> Reset Password</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  `;
-  document.body.appendChild(modalEl);
-  const bsModal = new bootstrap.Modal(modalEl);
-  bsModal.show();
-
-  modalEl.addEventListener('hidden.bs.modal', () => { modalEl.remove(); });
-  setInterval(() => {
-    const span = modalEl.querySelector('.student-modal-created-at');
-    if (span) {
-      const date = span.getAttribute('data-date');
-      span.textContent = formatTimeAgo(date);
-    }
-  }, 60000);
-
-  // Edit
-  modalEl.querySelector('#editStudentBtn').onclick = () => showStudentEditModal(student, bsModal);
-
-  // Delete
-  modalEl.querySelector('#deleteStudentBtn').onclick = () => showAdminDeleteModal(student, bsModal);
-
-  // Reset Password
-  modalEl.querySelector('#resetPwdBtn').onclick = (e) => resetStudentPassword(student, e.target);
-}
-
-// --- Edit Student Modal ---
-function showStudentEditModal(student, parentBsModal) {
-  parentBsModal.hide();
-  let modalEl = document.getElementById('studentEditModal');
-  if (modalEl) modalEl.remove();
-
-  modalEl = document.createElement('div');
-  modalEl.className = 'modal fade';
-  modalEl.id = 'studentEditModal';
-  modalEl.tabIndex = -1;
-  modalEl.innerHTML = `
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content glassmorphism">
-        <form id="editStudentForm">
-          <div class="modal-header">
-            <h5 class="modal-title">Edit Student</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body text-start">
-            <label class="form-label">Name</label>
-            <input class="form-control mb-2" name="name" value="${student.name}" required>
-            <label class="form-label">Class</label>
-            <input class="form-control mb-2" name="class" value="${student.class}" required>
-            <label class="form-label">Gender</label>
-            <select name="gender" class="form-control mb-2" required>
-              <option value="Male" ${student.gender === "Male" ? "selected" : ""}>Male</option>
-              <option value="Female" ${student.gender === "Female" ? "selected" : ""}>Female</option>
-              <option value="Other" ${student.gender === "Other" ? "selected" : ""}>Other</option>
-            </select>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-primary" id="saveEditStudentBtn" type="submit">Save</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  `;
-  document.body.appendChild(modalEl);
-  const bsModal = new bootstrap.Modal(modalEl);
-  bsModal.show();
-
-  modalEl.addEventListener('hidden.bs.modal', () => { modalEl.remove(); parentBsModal.show(); });
-
-  const form = modalEl.querySelector('#editStudentForm');
-  const saveBtn = modalEl.querySelector('#saveEditStudentBtn');
-  form.onsubmit = async function(e) {
-    e.preventDefault();
-    buttonLoader(saveBtn, true, "Saving...");
-    try {
-      const newName = form.name.value.trim();
-      const newClass = form.class.value.trim();
-      const newGender = form.gender.value;
-      await updateDoc(doc(db, "students", student.matricNumber), {
-        name: newName,
-        class: newClass,
-        gender: newGender
-      });
-      buttonLoader(saveBtn, false, "Save");
-      bsModal.hide();
-      loadAllStudents();
-    } catch (err) {
-      alert("Failed to save: " + err.message);
-      buttonLoader(saveBtn, false, "Save");
-    }
   };
-}
-
-// --- Delete Student (with Admin Key Modal) ---
-function showAdminDeleteModal(student, parentBsModal) {
-  parentBsModal.hide();
-  let modalEl = document.getElementById('adminDeleteModal');
-  if (modalEl) modalEl.remove();
-
-  modalEl = document.createElement('div');
-  modalEl.className = 'modal fade';
-  modalEl.id = 'adminDeleteModal';
-  modalEl.tabIndex = -1;
-  modalEl.innerHTML = `
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content glassmorphism">
-        <div class="modal-header">
-          <h5 class="modal-title text-danger">Delete Student</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body text-center">
-          <p>Enter admin password to confirm deletion.<br>This cannot be undone.</p>
-          <input type="password" class="form-control mb-3" id="adminDeleteKey" placeholder="Admin Key/Password">
-          <button class="btn btn-danger" id="confirmAdminDeleteBtn">Delete Student</button>
-        </div>
-      </div>
-    </div>
-  `;
-  document.body.appendChild(modalEl);
-  const bsModal = new bootstrap.Modal(modalEl);
-  bsModal.show();
-
-  modalEl.addEventListener('hidden.bs.modal', () => { modalEl.remove(); parentBsModal.show(); });
-
-  const confirmBtn = modalEl.querySelector('#confirmAdminDeleteBtn');
-  confirmBtn.onclick = async function() {
-    buttonLoader(confirmBtn, true, "Deleting...");
-    const key = modalEl.querySelector('#adminDeleteKey').value;
-    if (key !== 'YOUR_ADMIN_KEY') {
-      alert('Invalid admin key!');
-      buttonLoader(confirmBtn, false, "Delete Student");
-      return;
-    }
-    try {
-      await deleteDoc(doc(db, "students", student.matricNumber));
-      buttonLoader(confirmBtn, false, "Delete Student");
-      bsModal.hide();
-      loadAllStudents();
-    } catch (e) {
-      alert('Failed to delete student: ' + e.message);
-      buttonLoader(confirmBtn, false, "Delete Student");
-    }
-  };
-}
-
-// --- Reset Student Password ---
-function resetStudentPassword(student, btn) {
-  buttonLoader(btn, true, "Sending...");
-  sendPasswordResetEmail(auth, student.email)
-    .then(() => {
-      alert("Password reset email sent to " + student.email);
-      buttonLoader(btn, false, "Reset Password");
-    })
-    .catch(err => {
-      alert("Failed to send reset email: " + err.message);
-      buttonLoader(btn, false, "Reset Password");
+};
+window.approveSubmission = async function (assignmentId, submissionId, studentEmail) {
+  // Mark submission as approved
+  try {
+    await updateDoc(doc(db, 'assignments', assignmentId, 'submissions', submissionId), { approved: true });
+    // Increment student points
+    const studentsSnap = await getDocs(query(collection(db, "students")));
+    let studentDocId = null;
+    studentsSnap.forEach(docSnap => {
+      if ((docSnap.data().email || "").toLowerCase() === studentEmail.toLowerCase()) {
+        studentDocId = docSnap.id;
+      }
     });
-}
+    if (studentDocId) {
+      const studentRef = doc(db, "students", studentDocId);
+      const studentDoc = await getDocs(query(collection(db, "students")));
+      const curr = studentDoc.docs.find(d => d.id === studentDocId);
+      const prevPoints = (curr ? curr.data().points : 0) || 0;
+      await updateDoc(studentRef, { points: prevPoints + 1 });
+    }
+    showToast("Submission approved & point awarded!", "success");
+    loadAdminAssignments();
+    // Close modal and reopen to refresh list
+    document.querySelector('.btn-close[data-bs-dismiss="modal"]')?.click();
+    setTimeout(() => window.showSubmissions(assignmentId), 400);
+  } catch (e) {
+    showToast("Failed to approve submission.", "danger");
+  }
+};
 
-// --- Placeholder: Engagement Analytics Chart ---
-function renderEngagementChart(students) {
-  const chartDiv = document.getElementById('engagementChart');
-  // For now, just count students per class as a sample
-  const classCounts = {};
-  students.forEach(s => {
-    classCounts[s.class] = (classCounts[s.class] || 0) + 1;
-  });
-  chartDiv.innerHTML = `<h5>Student Distribution (Sample)</h5>
-    <div>
-      ${Object.entries(classCounts).map(([cls, count]) =>
-        `<div>${cls}: <b>${count}</b></div>`
-      ).join('')}
-    </div>
-    <div class="alert alert-info small mt-2">Real engagement analytics (pie/bar charts) can be added here using Chart.js or similar, by logging actions/events in Firestore and reading them here.</div>
-  `;
-}
-
-// --- Logout (with loader) ---
+// --- LOGOUT ---
 if (logoutBtnAdmin) {
   logoutBtnAdmin.addEventListener('click', async function() {
     buttonLoader(logoutBtnAdmin, true, "Logging out...");
@@ -378,10 +397,11 @@ if (logoutBtnAdmin) {
   });
 }
 
-// --- Auth ---
+// --- LOAD ON AUTH ---
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    loadAllStudents();
+    loadAdminAssignments();
+    // ...call any other initial loads you want
   } else {
     if (adminContent) adminContent.innerHTML = `<div class="alert alert-warning">You must be logged in as an admin to view this page.</div>`;
   }
