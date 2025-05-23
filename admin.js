@@ -20,6 +20,81 @@ const firebaseConfig = {
   measurementId: "G-5G1BYM7Q3Y"
 };
 
+import {
+  createUserWithEmailAndPassword, updateProfile
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+// Helper to generate matric number
+function generateMatricNumber(fullName, studentClass) {
+  const firstLetter = fullName.trim()[0].toUpperCase();
+  const randomDigits = Math.floor(Math.random() * 90 + 10); // two digits
+  return `LGA/${studentClass}/${firstLetter}${randomDigits}`;
+}
+
+const adminRegisterForm = document.getElementById('adminRegisterForm');
+const adminRegisterError = document.getElementById('adminRegisterError');
+const adminRegisterSuccess = document.getElementById('adminRegisterSuccess');
+
+if (adminRegisterForm) {
+  adminRegisterForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    adminRegisterError.style.display = "none";
+    adminRegisterSuccess.style.display = "none";
+
+    const fullName = document.getElementById('studentName').value.trim();
+    const email = document.getElementById('studentEmail').value.trim().toLowerCase();
+    const studentClass = document.getElementById('studentClass').value.trim();
+    const gender = document.getElementById('studentGender').value;
+    const passportFile = document.getElementById('studentPassport').files[0];
+    const tempPassword = `LGA${Math.floor(Math.random() * 90000 + 10000)}`; // example password
+
+    if (!email || !fullName || !studentClass || !gender) {
+      adminRegisterError.textContent = "All fields are required.";
+      adminRegisterError.style.display = "block";
+      return;
+    }
+
+    const matricNumber = generateMatricNumber(fullName, studentClass);
+
+    try {
+      // Create Auth user
+      const userCredential = await createUserWithEmailAndPassword(auth, email, tempPassword);
+      await updateProfile(userCredential.user, { displayName: fullName });
+
+      // Upload passport
+      let passportUrl = "";
+      if (passportFile) {
+        const imgRef = storageRef(storage, `passports/${matricNumber}_${Date.now()}.jpg`);
+        await uploadBytes(imgRef, passportFile);
+        passportUrl = await getDownloadURL(imgRef);
+      }
+
+      // Create student doc
+      await setDoc(doc(db, "students", matricNumber), {
+        matricNumber,
+        name: fullName,
+        class: studentClass,
+        gender,
+        passportUrl,
+        email,
+        uid: userCredential.user.uid,
+        createdAt: new Date().toISOString(),
+        points: 0,
+        probation: false,
+      });
+
+      adminRegisterSuccess.innerHTML = `Student registered!<br>
+        <b>Matric Number:</b> ${matricNumber}<br>
+        <b>Temp Password:</b> <span style="font-family:monospace">${tempPassword}</span>`;
+      adminRegisterSuccess.style.display = "block";
+      adminRegisterForm.reset();
+      if (typeof loadAllStudents === "function") loadAllStudents(); // Refresh students list if available
+    } catch (err) {
+      adminRegisterError.textContent = err.message;
+      adminRegisterError.style.display = "block";
+    }
+  });
+}
 // --- Firebase init ---
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
