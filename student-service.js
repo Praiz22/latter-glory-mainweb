@@ -267,3 +267,86 @@ onAuthStateChanged(auth, async (user) => {
     if (profileContent) profileContent.innerHTML = '';
   }
 });
+
+
+const assignmentsList = document.getElementById('assignments-list');
+let studentProfile = null;
+
+// Load student's own profile to know class/email
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    // Load profile from students collection
+    const studentsSnap = await getDocs(collection(db, "students"));
+    studentsSnap.forEach(docSnap => {
+      if ((docSnap.data().email || "").toLowerCase() === user.email.toLowerCase()) {
+        studentProfile = docSnap.data();
+      }
+    });
+    loadAssignments();
+  }
+});
+
+async function loadAssignments() {
+  if (!assignmentsList || !studentProfile) return;
+  assignmentsList.innerHTML = '<div class="text-center"><span class="spinner-border spinner-border-sm"></span> Loading...</div>';
+  const q = query(collection(db, 'assignments'), orderBy('dueDate', 'desc'));
+  const snap = await getDocs(q);
+  if (snap.empty) {
+    assignmentsList.innerHTML = "<p>No assignments yet.</p>";
+    return;
+  }
+  let html = "";
+  snap.forEach(docSnap => {
+    const a = docSnap.data();
+    if (a.class !== studentProfile.class) return;
+    const now = new Date();
+    const due = a.dueDate?.toDate ? a.dueDate.toDate() : new Date(a.dueDate);
+    const closed = a.closed || now > due;
+    html += `
+      <div class="card mb-3">
+        <div class="card-body">
+          <h5>${a.title}</h5>
+          <div>${a.description}</div>
+          <div><b>Due:</b> ${due.toLocaleString()} <span class="assignment-status">${closed ? '<span class="text-danger">Closed</span>' : '<span class="text-success" id="timer-${docSnap.id}"></span>'}</span></div>
+          ${closed ? "<div class='alert alert-warning mt-2'>Assignment has closed.</div>" : `
+            <form onsubmit="window.submitAssignment(event, '${docSnap.id}')">
+              <input type="text" class="form-control mb-2" required placeholder="Enter your answer or link">
+              <button class="btn btn-primary btn-sm">Submit Assignment</button>
+            </form>
+          `}
+        </div>
+      </div>
+    `;
+    // Timer updater
+    if (!closed) {
+      setInterval(() => {
+        const left = due - new Date();
+        if (left > 0) {
+          const h = Math.floor(left/3600000), m = Math.floor((left%3600000)/60000), s = Math.floor((left%60000)/1000);
+          document.getElementById(`timer-${docSnap.id}`).textContent = `Time left: ${h}h ${m}m ${s}s`;
+        } else {
+          document.getElementById(`timer-${docSnap.id}`).textContent = `Closed`;
+        }
+      }, 1000);
+    }
+  });
+  assignmentsList.innerHTML = html;
+}
+
+// Assignment submission
+window.submitAssignment = async function (e, assignmentId) {
+  e.preventDefault();
+  const answer = e.target[0].value;
+  if (!answer) return;
+  const user = auth.currentUser;
+  if (!user || !studentProfile) return;
+  // Save submission
+  await setDoc(doc(db, 'assignments', assignmentId, 'submissions', user.uid), {
+    studentEmail: user.email,
+    answer,
+    submittedAt: serverTimestamp(),
+    approved: false // admin will update this
+  });
+  e.target.reset();
+  alert("Assignment submitted! Await admin approval.");
+};
