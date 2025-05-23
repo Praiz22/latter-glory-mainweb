@@ -1,9 +1,10 @@
+// --- Firebase Imports ---
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import {
   getFirestore, collection, addDoc, getDocs, query, orderBy, doc, updateDoc, deleteDoc, serverTimestamp, setDoc, where
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import {
-  getAuth, onAuthStateChanged, signOut
+  getAuth, onAuthStateChanged, signOut, createUserWithEmailAndPassword, updateProfile
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {
   getStorage, ref as storageRef, uploadBytes, getDownloadURL
@@ -20,21 +21,49 @@ const firebaseConfig = {
   measurementId: "G-5G1BYM7Q3Y"
 };
 
-import {
-  createUserWithEmailAndPassword, updateProfile
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+// --- Firebase init ---
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+const storage = getStorage(app);
 
-// Helper to generate matric number
+// --- Batch create admin users in Firestore by UID (run ONCE, then comment/remove) ---
+const adminAccounts = [
+  { uid: "OvlzMg2DkBPDjOvByaPTcu6c89m2", email: "praiseola22@gmail.com" },
+  { uid: "fbMRfLMiUtezXublDEhSCqHCT4d2", email: "thelattergloryacademy@gmail.com" },
+  { uid: "SdqsLC8UihYZsN4fkEpfFifjzpy1", email: "praix25@gmail.com" }
+];
+
+async function createAdminDocs() {
+  for (const admin of adminAccounts) {
+    try {
+      await setDoc(doc(db, "users", admin.uid), {
+        email: admin.email,
+        role: "admin",
+        createdAt: new Date().toISOString()
+      });
+      console.log(`Admin Firestore doc created for: ${admin.email}`);
+    } catch (err) {
+      console.error(`Failed for ${admin.email}:`, err);
+    }
+  }
+}
+// --- UNCOMMENT THE NEXT LINE, run once, then comment/remove after admins are created ---
+// createAdminDocs();
+
+// --- Helper to generate matric number ---
 function generateMatricNumber(fullName, studentClass) {
   const firstLetter = fullName.trim()[0].toUpperCase();
   const randomDigits = Math.floor(Math.random() * 90 + 10); // two digits
   return `LGA/${studentClass}/${firstLetter}${randomDigits}`;
 }
 
+// --- DOM Elements ---
 const adminRegisterForm = document.getElementById('adminRegisterForm');
 const adminRegisterError = document.getElementById('adminRegisterError');
 const adminRegisterSuccess = document.getElementById('adminRegisterSuccess');
 
+// --- Student Registration ---
 if (adminRegisterForm) {
   adminRegisterForm.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -69,20 +98,20 @@ if (adminRegisterForm) {
         passportUrl = await getDownloadURL(imgRef);
       }
 
-     // creating student document, praix agba coder
-await setDoc(doc(db, "students", matricNumber), {
-  matricNumber,
-  name: fullName,
-  class: studentClass,
-  gender,
-  passportUrl,
-  email,
-  uid: userCredential.user.uid,
-  createdAt: new Date().toISOString(),
-  points: 0,
-  probation: false,
-  role: "student" 
-});
+      // Create student document with role: "student"
+      await setDoc(doc(db, "students", matricNumber), {
+        matricNumber,
+        name: fullName,
+        class: studentClass,
+        gender,
+        passportUrl,
+        email,
+        uid: userCredential.user.uid,
+        createdAt: new Date().toISOString(),
+        points: 0,
+        probation: false,
+        role: "student"
+      });
 
       adminRegisterSuccess.innerHTML = `Student registered!<br>
         <b>Matric Number:</b> ${matricNumber}<br>
@@ -97,28 +126,17 @@ await setDoc(doc(db, "students", matricNumber), {
   });
 }
 
-// --- Batch create admin users in Firestore by UID (run ONCE, then comment/remove) ---
-const adminAccounts = [
-  { uid: "OvlzMg2DkBPDjOvByaPTcu6c89m2", email: "praiseola22@gmail.com" },
-  { uid: "fbMRfLMiUtezXublDEhSCqHCT4d2", email: "thelattergloryacademy@gmail.com" },
-  { uid: "SdqsLC8UihYZsN4fkEpfFifjzpy1", email: "praix25@gmail.com" }
-];
-
-async function createAdminDocs() {
-  for (const admin of adminAccounts) {
-    try {
-      await setDoc(doc(db, "users", admin.uid), {
-        email: admin.email,
-        role: "admin",
-        createdAt: new Date().toISOString()
-      });
-      console.log(`Admin Firestore doc created for: ${admin.email}`);
-    } catch (err) {
-      console.error(`Failed for ${admin.email}:`, err);
-    }
-  }
-}
- createAdminDocs();
+// --- Utility: Example Admin Auth State Redirect (optional, use in your login page) ---
+// onAuthStateChanged(auth, async (user) => {
+//   if (user) {
+//     const userDoc = await getDoc(doc(db, "users", user.uid));
+//     if (userDoc.exists() && userDoc.data().role === "admin") {
+//       window.location.href = "admin.html";
+//     } else {
+//       window.location.href = "student.html";
+//     }
+//   }
+// });
 // --- Firebase init ---
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
