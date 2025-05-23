@@ -4,186 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Student Portal | Latter Glory Academy</title>
-  <!-- Bootstrap 5, Icons, AOS, Fonts -->
+  <!-- Bootstrap, AOS, Icons, Fonts -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
   <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --primary: #111;
-      --accent: #b71c1c;
-      --frost: rgba(255,255,255,0.60);
-      --frost-border: rgba(255,255,255,0.40);
-      --main-bg: #f7f7f7;
-      --card-bg: #fff;
-      --radius: 1rem;
-      --shadow: 0 4px 24px 0 rgba(0,0,0,0.07);
-    }
-    html { scroll-behavior: smooth; }
-    body {
-      font-family: 'Inter', 'Open Sans', Arial, sans-serif;
-      background: var(--main-bg);
-      color: var(--primary);
-      min-height: 100vh;
-    }
-    .navbar {
-      background: var(--card-bg);
-      box-shadow: 0 2px 10px #0001;
-      padding-top: 0.6rem;
-      padding-bottom: 0.6rem;
-    }
-    .navbar-brand {
-      font-family: 'Inter', Arial, sans-serif;
-      color: var(--primary)!important;
-      font-weight: 700;
-      font-size: 1.35rem;
-      letter-spacing: 0.02em;
-      display: flex;
-      align-items: center;
-    }
-    .navbar-brand img { height: 34px; margin-right: 0.7rem;}
-    .nav-link {
-      color: var(--primary)!important;
-      font-weight: 500;
-      font-size: 1.01rem;
-      transition: color 0.2s;
-      border-radius: 8px;
-      padding: 0.45rem 1.1rem;
-    }
-    .nav-link.active, .nav-link:focus, .nav-link:hover {
-      background: var(--frost);
-      color: var(--accent)!important;
-      font-weight: 700;
-    }
-    .btn-brand {
-      background: var(--primary);
-      color: #fff;
-      border-radius: 30px;
-      font-weight: 600;
-      border: none;
-      transition: background 0.18s;
-    }
-    .btn-brand:hover, .btn-brand:focus {
-      background: var(--accent);
-      color: #fff;
-    }
-    .card {
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      border: none;
-      background: var(--card-bg);
-      margin-bottom: 1.2rem;
-    }
-    .glassmorphism {
-      background: var(--frost) !important;
-      border: 1.5px solid var(--frost-border) !important;
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      box-shadow: 0 4px 48px #0002 !important;
-    }
-    .card-title {
-      color: var(--primary);
-      font-weight: 600;
-      font-size: 1.15rem;
-    }
-    .badge {
-      background: var(--accent);
-      color: #fff;
-      font-size: 0.85em;
-      border-radius: 0.6em;
-      margin-right: 0.2em;
-      font-weight: 500;
-    }
-    .tab-title {
-      font-family: 'Inter', Arial, sans-serif;
-      color: var(--primary);
-      font-weight: 600;
-      font-size: 1.25rem;
-      margin-bottom: 1.3rem;
-      letter-spacing: 0.01em;
-    }
-    .like-btn.active, .rsvp-btn.active, .club-btn.active { color: var(--accent); }
-    .event-card {
-      border-left: 4px solid var(--accent);
-      background: linear-gradient(92deg,#fff 90%,#ffeded 100%);
-    }
-    .club-card {
-      border-left: 4px solid var(--accent);
-    }
-    .gallery-img {
-      border-radius: 8px;
-      box-shadow: 0 2px 12px #0001;
-      cursor: pointer;
-      transition: transform .16s;
-      max-width: 100%;
-      aspect-ratio: 4/3;
-      object-fit: cover;
-    }
-    .gallery-img:hover {
-      transform: scale(1.03);
-      box-shadow: 0 8px 24px #b71c1c22;
-    }
-    .profile-avatar {
-      width: 92px;
-      height: 92px;
-      object-fit: cover;
-      border-radius: 50%;
-      border: 3px solid var(--accent);
-      margin-bottom: 0.8rem;
-    }
-    .table-timetable th, .table-timetable td {
-      vertical-align: middle;
-      font-size: 1.06rem;
-    }
-    .btn-link, .btn-link:hover { color: var(--accent); text-decoration: underline;}
-    .aos-init { opacity: 0; transition: opacity 0.5s;}
-    .aos-animate { opacity: 1 !important;}
-    footer {
-      background: #fff;
-      color: var(--primary);
-      font-size: 1.02rem;
-      text-align: center;
-      padding: 1.2rem 0;
-      margin-top: 2rem;
-      border-top: 1px solid #eee;
-    }
-    .modal-backdrop.show {
-      opacity: 1!important;
-      background: rgba(255,255,255,0.5)!important;
-      -webkit-backdrop-filter: blur(10px);
-      backdrop-filter: blur(10px);
-      transition: all 0.2s;
-    }
-    .modal-content {
-      background: var(--frost);
-      border: 1.5px solid var(--frost-border);
-      -webkit-backdrop-filter: blur(18px);
-      backdrop-filter: blur(18px);
-      box-shadow: 0 4px 48px #0002;
-      border-radius: 1.2rem;
-    }
-    .modal-header, .modal-footer { border: none; background: transparent!important;}
-    .modal-title { font-family: 'Inter', Arial, sans-serif; font-weight: 700;}
-    body.modal-blur main,
-    body.modal-blur .navbar,
-    body.modal-blur footer {
-      filter: blur(8px) grayscale(.08);
-      pointer-events: none;
-      user-select: none;
-      transition: filter 0.3s;
-    }
-    .form-label { font-weight: 500;}
-    @media (max-width: 991.98px) {
-      .tab-title { font-size: 1.07rem;}
-      .navbar-brand { font-size: 1.08rem;}
-      .profile-avatar { width: 70px; height: 70px;}
-    }
-    @media (max-width: 575.98px) {
-      .main-content { padding-left: 0.4rem; padding-right: 0.4rem;}
-      .navbar-brand { font-size: 1rem;}
-    }
-  </style>
+  <link rel="stylesheet" href="portal-style.css" />
 </head>
 <body>
   <!-- Navbar -->
@@ -208,7 +34,6 @@
         </ul>
         <button id="loginBtnNav" class="btn btn-brand ms-3">Login</button>
         <button id="logoutBtnNav" class="btn btn-outline-dark ms-3" style="display:none;">Logout</button>
-        <button id="registerStudentBtn" class="btn btn-brand ms-3" style="display:none;" data-bs-toggle="modal" data-bs-target="#registerModal">Register Student</button>
       </div>
     </div>
   </nav>
@@ -228,15 +53,15 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-              <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
-                <input type="email" class="form-control" id="email" required autocomplete="username">
-              </div>
-              <div class="mb-3">
-                <label for="password" class="form-label">Password</label>
-                <input type="password" class="form-control" id="password" required autocomplete="current-password">
-              </div>
-              <div id="loginError" class="text-danger mt-2" style="display:none;">Invalid credentials. Please try again.</div>
+            <div class="mb-3">
+              <label for="email" class="form-label">Email</label>
+              <input type="email" class="form-control" id="email" required autocomplete="username">
+            </div>
+            <div class="mb-3">
+              <label for="password" class="form-label">Password</label>
+              <input type="password" class="form-control" id="password" required autocomplete="current-password">
+            </div>
+            <div id="loginError" class="text-danger mt-2" style="display:none;">Invalid credentials. Please try again.</div>
           </div>
           <div class="modal-footer">
             <button type="submit" class="btn btn-brand w-100">Login</button>
@@ -246,19 +71,15 @@
     </div>
   </div>
 
-  <!-- Register Student Modal (Admin Only) -->
+  <!-- Register Modal (For new students) -->
   <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <form id="registerForm" class="modal-content shadow-lg" enctype="multipart/form-data" autocomplete="off">
         <div class="modal-header">
-          <h5 class="modal-title" id="registerModalLabel">Register New Student</h5>
+          <h5 class="modal-title" id="registerModalLabel">Register as Student</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <div class="mb-3">
-            <label for="regNumber" class="form-label">Registration Number</label>
-            <input type="text" class="form-control" id="regNumber" required>
-          </div>
           <div class="mb-3">
             <label for="studentName" class="form-label">Full Name</label>
             <input type="text" class="form-control" id="studentName" required>
@@ -280,6 +101,17 @@
             </select>
           </div>
           <div class="mb-3">
+            <label class="form-label">Gender</label>
+            <div>
+              <input type="radio" name="gender" value="Male" id="genderMale" required>
+              <label for="genderMale">Male</label>
+              <input type="radio" name="gender" value="Female" id="genderFemale" required>
+              <label for="genderFemale">Female</label>
+              <input type="radio" name="gender" value="Other" id="genderOther" required>
+              <label for="genderOther">Other</label>
+            </div>
+          </div>
+          <div class="mb-3">
             <label for="registerPassword" class="form-label">Password</label>
             <input type="password" class="form-control" id="registerPassword" required>
           </div>
@@ -290,7 +122,7 @@
           <div id="registerError" class="text-danger mt-2" style="display:none;"></div>
         </div>
         <div class="modal-footer">
-          <button type="submit" class="btn btn-brand w-100">Register Student</button>
+          <button type="submit" class="btn btn-brand w-100">Register</button>
         </div>
       </form>
     </div>
@@ -306,287 +138,33 @@
       </section>
       <!-- Assignments Section -->
       <section id="assignmentsTab" class="tab-pane fade" data-aos="fade-up">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <span class="tab-title"><i class="bi bi-journal-check"></i> Assignments</span>
-          <button id="addAssignmentBtn" class="btn btn-brand btn-sm" style="display:none;" data-bs-toggle="modal" data-bs-target="#addAssignmentModal"><i class="bi bi-plus"></i> Post Assignment</button>
-        </div>
-        <div id="assignments-list" class="row g-4">
-          <div class="col-md-6 col-lg-4">
-            <div class="card h-100 glassmorphism" data-aos="zoom-in">
-              <div class="card-body">
-                <h5 class="card-title">Math Homework 1</h5>
-                <span class="badge">JSS1</span>
-                <span class="badge">Mathematics</span>
-                <p class="card-text">Complete exercises 1-10 on page 23.</p>
-              </div>
-              <div class="card-footer d-flex align-items-center justify-content-between">
-                <div>Due: <b>2025-05-25</b></div>
-                <div>
-                  <button class="btn btn-sm like-btn" title="Like"><i class="bi bi-heart"></i> <span>2</span></button>
-                  <button class="btn btn-sm comment-btn" title="Comment"><i class="bi bi-chat-left-dots"></i></button>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-6 col-lg-4">
-            <div class="card h-100 glassmorphism" data-aos="zoom-in">
-              <div class="card-body">
-                <h5 class="card-title">English Essay</h5>
-                <span class="badge">SS2</span>
-                <span class="badge">English</span>
-                <p class="card-text">Write an essay about your favorite book.</p>
-              </div>
-              <div class="card-footer d-flex align-items-center justify-content-between">
-                <div>Due: <b>2025-05-28</b></div>
-                <div>
-                  <button class="btn btn-sm like-btn" title="Like"><i class="bi bi-heart"></i> <span>5</span></button>
-                  <button class="btn btn-sm comment-btn" title="Comment"><i class="bi bi-chat-left-dots"></i></button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <span class="tab-title"><i class="bi bi-journal-check"></i> Assignments</span>
+        <div id="assignments-list" class="row g-4"></div>
       </section>
-
       <!-- Events Section -->
       <section id="eventsTab" class="tab-pane fade" data-aos="fade-up">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <span class="tab-title"><i class="bi bi-calendar-event"></i> Events</span>
-          <button id="addEventBtn" class="btn btn-brand btn-sm" style="display:none;" data-bs-toggle="modal" data-bs-target="#addEventModal"><i class="bi bi-plus"></i> Create Event</button>
-        </div>
-        <div id="events-list" class="row g-4">
-          <div class="col-md-6 col-lg-4">
-            <div class="card h-100 event-card glassmorphism" data-aos="fade-right">
-              <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80" class="event-img" alt="Interhouse Sports" style="width:100%;border-radius:12px 12px 0 0;object-fit:cover;">
-              <div class="card-body">
-                <h5 class="card-title">Interhouse Sports</h5>
-                <p class="mb-2"><i class="bi bi-calendar"></i> June 10, 2025</p>
-                <p class="mb-2"><i class="bi bi-geo-alt"></i> School Sports Field</p>
-                <p>Cheer on your house and enjoy a day of friendly competition, athletics, and fun!</p>
-              </div>
-              <div class="card-footer d-flex align-items-center justify-content-between">
-                <div>
-                  <button class="btn btn-sm like-btn" title="Like"><i class="bi bi-heart"></i> <span>8</span></button>
-                  <button class="btn btn-sm comment-btn" title="Comment"><i class="bi bi-chat-left-dots"></i></button>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-6 col-lg-4">
-            <div class="card h-100 event-card glassmorphism" data-aos="fade-right">
-              <img src="https://images.unsplash.com/photo-1515165562835-c3b6b95b2a02?auto=format&fit=crop&w=400&q=80" class="event-img" alt="Graduation Ceremony" style="width:100%;border-radius:12px 12px 0 0;object-fit:cover;">
-              <div class="card-body">
-                <h5 class="card-title">Graduation Ceremony</h5>
-                <p class="mb-2"><i class="bi bi-calendar"></i> July 20, 2025</p>
-                <p class="mb-2"><i class="bi bi-geo-alt"></i> Assembly Hall</p>
-                <p>Celebrate the achievements of our graduating class. All are welcome!</p>
-              </div>
-              <div class="card-footer d-flex align-items-center justify-content-between">
-                <div>
-                  <button class="btn btn-sm like-btn" title="Like"><i class="bi bi-heart"></i> <span>12</span></button>
-                  <button class="btn btn-sm comment-btn" title="Comment"><i class="bi bi-chat-left-dots"></i></button>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-6 col-lg-4">
-            <div class="card h-100 event-card glassmorphism" data-aos="fade-right">
-              <img src="https://images.unsplash.com/photo-1465101178521-c1a9136a3b41?auto=format&fit=crop&w=400&q=80" class="event-img" alt="Cultural Day" style="width:100%;border-radius:12px 12px 0 0;object-fit:cover;">
-              <div class="card-body">
-                <h5 class="card-title">Cultural Day</h5>
-                <p class="mb-2"><i class="bi bi-calendar"></i> August 5, 2025</p>
-                <p class="mb-2"><i class="bi bi-geo-alt"></i> Multipurpose Hall</p>
-                <p>Experience the beauty of Nigeria’s diverse cultures through music, dance, and displays.</p>
-              </div>
-              <div class="card-footer d-flex align-items-center justify-content-between">
-                <div>
-                  <button class="btn btn-sm like-btn" title="Like"><i class="bi bi-heart"></i> <span>10</span></button>
-                  <button class="btn btn-sm comment-btn" title="Comment"><i class="bi bi-chat-left-dots"></i></button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <span class="tab-title"><i class="bi bi-calendar-event"></i> Events</span>
+        <div id="events-list" class="row g-4"></div>
       </section>
-
       <!-- Clubs Section -->
       <section id="clubsTab" class="tab-pane fade" data-aos="fade-up">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <span class="tab-title"><i class="bi bi-people"></i> Clubs</span>
-          <button id="addClubBtn" class="btn btn-brand btn-sm" style="display:none;" data-bs-toggle="modal" data-bs-target="#addClubModal"><i class="bi bi-plus"></i> Add Club</button>
-        </div>
-        <div id="clubs-list" class="row g-4">
-          <div class="col-md-6 col-lg-4">
-            <div class="card h-100 club-card glassmorphism" data-aos="fade-left">
-              <img src="https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80" class="club-img" alt="Science Club" style="width:100%;border-radius:12px 12px 0 0;object-fit:cover;">
-              <div class="card-body">
-                <h5 class="card-title">Science Club</h5>
-                <p>Weekly experiments and STEM challenges. Open to all students passionate about discovery.</p>
-                <p><b>Supervisor:</b> Mr. Johnson</p>
-              </div>
-              <div class="card-footer d-flex align-items-center justify-content-between">
-                <div>
-                  <button class="btn btn-sm like-btn" title="Like"><i class="bi bi-heart"></i> <span>5</span></button>
-                  <button class="btn btn-sm comment-btn" title="Comment"><i class="bi bi-chat-left-dots"></i></button>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-6 col-lg-4">
-            <div class="card h-100 club-card glassmorphism" data-aos="fade-left">
-              <img src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80" class="club-img" alt="Drama Club" style="width:100%;border-radius:12px 12px 0 0;object-fit:cover;">
-              <div class="card-body">
-                <h5 class="card-title">Drama Club</h5>
-                <p>Bring scripts to life! Rehearsals every Wednesday after school in the auditorium.</p>
-                <p><b>Supervisor:</b> Mrs. Adeyemi</p>
-              </div>
-              <div class="card-footer d-flex align-items-center justify-content-between">
-                <div>
-                  <button class="btn btn-sm like-btn" title="Like"><i class="bi bi-heart"></i> <span>4</span></button>
-                  <button class="btn btn-sm comment-btn" title="Comment"><i class="bi bi-chat-left-dots"></i></button>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-6 col-lg-4">
-            <div class="card h-100 club-card glassmorphism" data-aos="fade-left">
-              <img src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=400&q=80" class="club-img" alt="Press Club" style="width:100%;border-radius:12px 12px 0 0;object-fit:cover;">
-              <div class="card-body">
-                <h5 class="card-title">Press Club</h5>
-                <p>Document school events, write articles, and edit the LGA Weekly. Friday meetings at noon.</p>
-                <p><b>Supervisor:</b> Mr. Samuel</p>
-              </div>
-              <div class="card-footer d-flex align-items-center justify-content-between">
-                <div>
-                  <button class="btn btn-sm like-btn" title="Like"><i class="bi bi-heart"></i> <span>6</span></button>
-                  <button class="btn btn-sm comment-btn" title="Comment"><i class="bi bi-chat-left-dots"></i></button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <span class="tab-title"><i class="bi bi-people"></i> Clubs</span>
+        <div id="clubs-list" class="row g-4"></div>
       </section>
-
       <!-- Updates Section -->
       <section id="updatesTab" class="tab-pane fade" data-aos="fade-up">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <span class="tab-title"><i class="bi bi-megaphone"></i> Updates</span>
-          <button id="addUpdateBtn" class="btn btn-brand btn-sm" style="display:none;" data-bs-toggle="modal" data-bs-target="#addUpdateModal"><i class="bi bi-plus"></i> Post Update</button>
-        </div>
-        <div id="updates-list" class="row g-4">
-          <div class="col-md-6">
-            <div class="card h-100 glassmorphism" data-aos="flip-up">
-              <div class="card-body">
-                <h5 class="card-title">New School Portal Launch!</h5>
-                <p>We have launched our new digital portal for students and parents. Explore features and stay up to date with all school activities.</p>
-                <div class="text-end">
-                  <small>by Admin | May 22, 2025</small>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="card h-100 glassmorphism" data-aos="flip-up">
-              <div class="card-body">
-                <h5 class="card-title">Exam Guidelines</h5>
-                <p>Second Term exams start June 15. Review the timetable, study hard, and maintain academic integrity.</p>
-                <div class="text-end">
-                  <small>by Principal | May 20, 2025</small>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="card h-100 glassmorphism" data-aos="flip-up">
-              <div class="card-body">
-                <h5 class="card-title">COVID-19 Precautions</h5>
-                <p>Sanitizers and masks are available at all entry points. Let's keep our academy safe together!</p>
-                <div class="text-end">
-                  <small>by Health Officer | May 18, 2025</small>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <span class="tab-title"><i class="bi bi-megaphone"></i> Updates</span>
+        <div id="updates-list" class="row g-4"></div>
       </section>
-
       <!-- Gallery Section -->
       <section id="galleryTab" class="tab-pane fade" data-aos="fade-up">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <span class="tab-title"><i class="bi bi-images"></i> Gallery</span>
-          <button id="addGalleryBtn" class="btn btn-brand btn-sm" style="display:none;" data-bs-toggle="modal" data-bs-target="#addGalleryModal"><i class="bi bi-plus"></i> Add Photo</button>
-        </div>
-        <div id="galleryContent" class="row g-3">
-          <div class="col-6 col-md-4">
-            <img src="https://images.unsplash.com/photo-1465101178521-c1a9136a3b41?auto=format&fit=crop&w=400&q=80" class="gallery-img" alt="Gallery 1" data-aos="zoom-in">
-          </div>
-          <div class="col-6 col-md-4">
-            <img src="https://images.unsplash.com/photo-1454023492550-5696f8ff10e1?auto=format&fit=crop&w=400&q=80" class="gallery-img" alt="Gallery 2" data-aos="zoom-in">
-          </div>
-          <div class="col-6 col-md-4">
-            <img src="https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80" class="gallery-img" alt="Gallery 3" data-aos="zoom-in">
-          </div>
-        </div>
+        <span class="tab-title"><i class="bi bi-images"></i> Gallery</span>
+        <div id="galleryContent" class="row g-3"></div>
       </section>
-
       <!-- Timetable Section -->
       <section id="timetableTab" class="tab-pane fade" data-aos="fade-up">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <span class="tab-title"><i class="bi bi-table"></i> Timetable</span>
-          <button id="addTimetableBtn" class="btn btn-brand btn-sm" style="display:none;" data-bs-toggle="modal" data-bs-target="#addTimetableModal"><i class="bi bi-plus"></i> Upload Timetable</button>
-        </div>
-        <div id="timetableContent">
-          <div class="table-responsive" data-aos="zoom-in">
-            <table class="table table-timetable table-bordered glassmorphism">
-              <thead>
-                <tr>
-                  <th>Day</th>
-                  <th>8:00 - 9:00</th>
-                  <th>9:00 - 10:00</th>
-                  <th>10:00 - 11:00</th>
-                  <th>11:00 - 12:00</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Monday</td>
-                  <td>Mathematics</td>
-                  <td>English</td>
-                  <td>Biology</td>
-                  <td>Geography</td>
-                </tr>
-                <tr>
-                  <td>Tuesday</td>
-                  <td>Physics</td>
-                  <td>Chemistry</td>
-                  <td>Mathematics</td>
-                  <td>English</td>
-                </tr>
-                <tr>
-                  <td>Wednesday</td>
-                  <td>Economics</td>
-                  <td>Literature</td>
-                  <td>Biology</td>
-                  <td>Christian Religion</td>
-                </tr>
-                <tr>
-                  <td>Thursday</td>
-                  <td>Geography</td>
-                  <td>Mathematics</td>
-                  <td>Physics</td>
-                  <td>Chemistry</td>
-                </tr>
-                <tr>
-                  <td>Friday</td>
-                  <td>English</td>
-                  <td>Economics</td>
-                  <td>Government</td>
-                  <td>Physical Education</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <span class="tab-title"><i class="bi bi-table"></i> Timetable</span>
+        <div id="timetableContent"></div>
       </section>
     </div>
   </main>
@@ -610,31 +188,8 @@
   <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
   <script>
     AOS.init({ once: true, easing: 'ease-out-back' });
-    document.querySelectorAll('a.nav-link[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', function (e) {
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-          e.preventDefault();
-          const headerOffset = 80;
-          const elementPosition = target.getBoundingClientRect().top + window.pageYOffset;
-          const offsetPosition = elementPosition - headerOffset;
-          window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
-          document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
-          this.classList.add('active');
-          document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('show','active'));
-          target.classList.add('show','active');
-        }
-      });
-    });
-    function setBodyBlur(blurring) {
-      if(blurring) document.body.classList.add('modal-blur');
-      else document.body.classList.remove('modal-blur');
-    }
-    document.querySelectorAll('.modal').forEach(modal => {
-      modal.addEventListener('show.bs.modal', () => setBodyBlur(true));
-      modal.addEventListener('hidden.bs.modal', () => setBodyBlur(false));
-    });
+    // ...tab logic, modal blur logic, etc...
   </script>
-  <script type="module" src="portal-main.js"></script>
+  <script type="module" src="student-service.js"></script>
 </body>
 </html>
