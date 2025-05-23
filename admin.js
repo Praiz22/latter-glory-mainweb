@@ -632,3 +632,8 @@ window.collateResults = function() {
   // Placeholder for result collation logic
   showToast("Result collation coming soon!", "info");
 };
+
+document.getElementById('showRegisterFormBtn').onclick = function() {
+  const formSection = document.getElementById('registerFormSection');
+  formSection.style.display = formSection.style.display === 'none' ? '' : 'none';
+}
