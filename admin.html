@@ -25,6 +25,53 @@
       <button class="btn btn-outline-dark ms-auto" id="logoutBtnAdmin">Logout</button>
     </div>
   </nav>
+  <!-- Register Student Button -->
+<button class="btn btn-brand mb-3" data-bs-toggle="modal" data-bs-target="#adminRegisterModal">
+  Register Student
+</button>
+
+<!-- Registration Modal -->
+<div class="modal fade" id="adminRegisterModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content glassmorphism">
+      <div class="modal-header">
+        <h5 class="modal-title">Register New Student</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="adminRegisterForm" enctype="multipart/form-data">
+          <div class="mb-2">
+            <label>Name</label>
+            <input type="text" class="form-control" id="studentName" required>
+          </div>
+          <div class="mb-2">
+            <label>Email</label>
+            <input type="email" class="form-control" id="studentEmail" required>
+          </div>
+          <div class="mb-2">
+            <label>Class</label>
+            <input type="text" class="form-control" id="studentClass" required>
+          </div>
+          <div class="mb-2">
+            <label>Gender</label>
+            <select class="form-control" id="studentGender" required>
+              <option value="">--Select--</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+            </select>
+          </div>
+          <div class="mb-2">
+            <label>Passport Photo</label>
+            <input type="file" class="form-control" id="studentPassport" accept="image/*">
+          </div>
+          <button type="submit" class="btn btn-brand mt-2 w-100">Register Student</button>
+          <div id="adminRegisterError" class="text-danger mt-2" style="display:none;"></div>
+          <div id="adminRegisterSuccess" class="text-success mt-2" style="display:none;"></div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 
   <main class="container main-content" id="adminContent">
     <!-- Student dashboard content will be rendered by admin.js -->
