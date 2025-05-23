@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import {
-  getFirestore, collection, doc, setDoc, getDoc, getDocs, deleteDoc, query, where
+  getFirestore, collection, doc, setDoc, getDoc, getDocs, query, where, orderBy, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import {
   getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword, updateProfile
@@ -30,10 +30,8 @@ const storage = getStorage(app);
 
 // Generate Matric Number
 function generateMatricNumber(fullName, studentClass) {
-  // fullName: "John Doe", studentClass: "J1"
   const firstLetter = fullName.trim()[0].toUpperCase();
   const randomDigits = Math.floor(Math.random() * 90 + 10); // two digits
-  // Use only the class part (J1, J2, S1, S2, etc)
   return `LGA/${studentClass}/${firstLetter}${randomDigits}`;
 }
 
@@ -48,7 +46,13 @@ function showNotification(message, type = 'primary', timeout = 4000) {
   toast.show();
 }
 
-// --- Registration: email/password/signup with gender & matric ---
+// Error Logger (console and toast)
+function logError(context, err) {
+  console.error(`[${context}]`, err);
+  showNotification(`Error: ${err.message || err}`, "danger", 6000);
+}
+
+// --- Registration ---
 const registerForm = document.getElementById('registerForm');
 const registerError = document.getElementById('registerError');
 
@@ -61,7 +65,6 @@ if (registerForm) {
     const email = registerForm.studentEmail.value.trim().toLowerCase();
     const password = registerForm.registerPassword.value;
     const studentClass = registerForm.studentClass.value;
-    // Gender from radio buttons
     const gender = registerForm.querySelector('input[name="gender"]:checked')?.value || '';
     const passportFile = registerForm.passport.files[0];
 
@@ -73,15 +76,12 @@ if (registerForm) {
       return;
     }
 
-    // Generate matric number
     const matricNumber = generateMatricNumber(fullName, studentClass);
 
     try {
-      // Create user in Auth
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(userCredential.user, { displayName: fullName });
 
-      // Upload passport
       let passportUrl = "";
       if (passportFile) {
         const imgRef = storageRef(storage, `passports/${matricNumber}_${Date.now()}.jpg`);
@@ -89,7 +89,6 @@ if (registerForm) {
         passportUrl = await getDownloadURL(imgRef);
       }
 
-      // Create student doc in Firestore
       await setDoc(doc(db, "students", matricNumber), {
         matricNumber,
         name: fullName,
@@ -98,7 +97,8 @@ if (registerForm) {
         passportUrl,
         email,
         uid: userCredential.user.uid,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        points: 0
       });
 
       showNotification("Registration successful! You can now log in.", "success");
@@ -109,12 +109,12 @@ if (registerForm) {
         registerError.textContent = err.message;
         registerError.style.display = "block";
       }
-      showNotification("Registration failed: " + err.message, "danger");
+      logError("Registration", err);
     }
   });
 }
 
-// --- Profile Section ---
+// --- Profile Section (NO delete button for students) ---
 const profileContent = document.getElementById('profileContent');
 
 async function loadProfile() {
@@ -126,7 +126,6 @@ async function loadProfile() {
       profileContent.innerHTML = `<div class="text-danger">You are not logged in.</div>`;
       return;
     }
-
     const q = query(collection(db, "students"), where("email", "==", user.email));
     const querySnap = await getDocs(q);
     if (querySnap.empty) {
@@ -143,90 +142,33 @@ async function loadProfile() {
         <div class="mb-2"><b>Matric Number:</b> ${student.matricNumber || '-'}</div>
         <div class="mb-2"><b>Class:</b> ${student.class || '-'}</div>
         <div class="mb-2"><b>Gender:</b> ${student.gender || '-'}</div>
+        <div class="mb-2"><b>Points:</b> ${student.points || 0}</div>
         <div class="mb-2"><b>Account Created:</b> <span>${student.createdAt || '-'}</span></div>
-        <div class="mb-3">
-          <button class="btn btn-danger" id="deleteStudentBtn">
-            <i class="bi bi-trash"></i> Delete My Account
-          </button>
-        </div>
       </div>
     `;
-    // Attach delete handler
-    const deleteBtn = document.getElementById('deleteStudentBtn');
-    if (deleteBtn) {
-      deleteBtn.onclick = showDeleteAccountModal;
-    }
   } catch (err) {
+    logError("Profile Load", err);
     profileContent.innerHTML = `<div class="text-danger">Error loading profile.</div>`;
   }
 }
 
-// --- Delete Account Modal and Logic ---
-function showDeleteAccountModal() {
-  let modalEl = document.getElementById('deleteAccountModal');
-  if (modalEl) modalEl.remove();
-
-  modalEl = document.createElement('div');
-  modalEl.className = 'modal fade';
-  modalEl.id = 'deleteAccountModal';
-  modalEl.tabIndex = -1;
-  modalEl.innerHTML = `
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content glassmorphism">
-        <div class="modal-header">
-          <h5 class="modal-title text-danger">Delete Account</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body text-center">
-          <p>Enter admin password to confirm deletion. This cannot be undone.</p>
-          <input type="password" class="form-control mb-3" id="adminDeleteKey" placeholder="Admin Key/Password">
-          <button class="btn btn-danger" id="confirmDeleteBtn">Delete Account</button>
-        </div>
-      </div>
-    </div>
-  `;
-  document.body.appendChild(modalEl);
-  const bsModal = new bootstrap.Modal(modalEl);
-  bsModal.show();
-
-  modalEl.querySelector('#confirmDeleteBtn').onclick = async function() {
-    const key = modalEl.querySelector('#adminDeleteKey').value;
-    // Replace with your secure admin key!
-    if (key !== 'YOUR_ADMIN_KEY') {
-      alert('Invalid admin key!');
-      return;
-    }
-    try {
-      const user = auth.currentUser;
-      // Find and delete student Firestore doc
-      const q = query(collection(db, "students"), where("email", "==", user.email));
-      const querySnap = await getDocs(q);
-      if (!querySnap.empty) {
-        await deleteDoc(querySnap.docs[0].ref);
-      }
-      // Delete Auth user
-      await user.delete();
-      await signOut(auth);
-      showNotification('Account deleted.', 'danger');
-      bsModal.hide();
-      window.location.reload();
-    } catch (e) {
-      alert('Failed to delete account: ' + e.message);
-      bsModal.hide();
-    }
-  };
-
-  modalEl.addEventListener('hidden.bs.modal', () => { modalEl.remove(); });
-}
-
-// --- Auth State Change (student only) ---
+// --- Auth State, Login/Logout/Tab Logic ---
 const loginForm = document.getElementById('loginForm');
 const loginModal = document.getElementById('loginModal');
 const loginBtnNav = document.getElementById('loginBtnNav');
 const logoutBtnNav = document.getElementById('logoutBtnNav');
 const loginBtnMainDiv = document.getElementById('loginBtnMainDiv');
 const mainContent = document.getElementById('mainContent');
+const tabNav = document.getElementById('tabNav');
 const loginError = document.getElementById('loginError');
+
+function showPortalUI(isLoggedIn) {
+  if (tabNav) tabNav.style.display = isLoggedIn ? '' : 'none';
+  if (mainContent) mainContent.style.display = isLoggedIn ? '' : 'none';
+  if (loginBtnNav) loginBtnNav.style.display = isLoggedIn ? 'none' : '';
+  if (logoutBtnNav) logoutBtnNav.style.display = isLoggedIn ? '' : 'none';
+  if (loginBtnMainDiv) loginBtnMainDiv.style.display = isLoggedIn ? 'none' : '';
+}
 
 if (loginForm) {
   loginForm.addEventListener('submit', async (e) => {
@@ -240,6 +182,7 @@ if (loginForm) {
       showNotification('Login successful!', 'success');
     } catch (err) {
       loginError.style.display = "block";
+      logError("Login", err);
       showNotification('Invalid credentials. Please try again.', 'danger');
     }
   });
@@ -249,88 +192,100 @@ if (logoutBtnNav) {
   logoutBtnNav.addEventListener('click', async () => {
     await signOut(auth);
     showNotification('Logged out.', 'info');
+    showPortalUI(false);
   });
 }
 
-onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    mainContent.style.display = 'block';
-    loginBtnMainDiv.style.display = 'none';
-    loginBtnNav.style.display = 'none';
-    logoutBtnNav.style.display = 'inline-block';
-    loadProfile();
-  } else {
-    mainContent.style.display = 'none';
-    loginBtnMainDiv.style.display = 'block';
-    loginBtnNav.style.display = 'inline-block';
-    logoutBtnNav.style.display = 'none';
-    if (profileContent) profileContent.innerHTML = '';
-  }
-});
-
-
-const assignmentsList = document.getElementById('assignments-list');
 let studentProfile = null;
 
-// Load student's own profile to know class/email
 onAuthStateChanged(auth, async (user) => {
+  showPortalUI(!!user);
   if (user) {
-    // Load profile from students collection
+    // Load student profile
     const studentsSnap = await getDocs(collection(db, "students"));
     studentsSnap.forEach(docSnap => {
       if ((docSnap.data().email || "").toLowerCase() === user.email.toLowerCase()) {
         studentProfile = docSnap.data();
       }
     });
+    loadProfile();
     loadAssignments();
+  } else {
+    studentProfile = null;
+    if (profileContent) profileContent.innerHTML = '';
+    if (assignmentsList) assignmentsList.innerHTML = '';
   }
 });
 
+// --- Assignments (with timer and robust interval logic) ---
+const assignmentsList = document.getElementById('assignments-list');
+let assignmentTimers = [];
+
+function clearAssignmentTimers() {
+  assignmentTimers.forEach(timer => clearInterval(timer));
+  assignmentTimers = [];
+}
+
 async function loadAssignments() {
   if (!assignmentsList || !studentProfile) return;
+  clearAssignmentTimers();
   assignmentsList.innerHTML = '<div class="text-center"><span class="spinner-border spinner-border-sm"></span> Loading...</div>';
-  const q = query(collection(db, 'assignments'), orderBy('dueDate', 'desc'));
-  const snap = await getDocs(q);
-  if (snap.empty) {
-    assignmentsList.innerHTML = "<p>No assignments yet.</p>";
-    return;
-  }
-  let html = "";
-  snap.forEach(docSnap => {
-    const a = docSnap.data();
-    if (a.class !== studentProfile.class) return;
-    const now = new Date();
-    const due = a.dueDate?.toDate ? a.dueDate.toDate() : new Date(a.dueDate);
-    const closed = a.closed || now > due;
-    html += `
-      <div class="card mb-3">
-        <div class="card-body">
-          <h5>${a.title}</h5>
-          <div>${a.description}</div>
-          <div><b>Due:</b> ${due.toLocaleString()} <span class="assignment-status">${closed ? '<span class="text-danger">Closed</span>' : '<span class="text-success" id="timer-${docSnap.id}"></span>'}</span></div>
-          ${closed ? "<div class='alert alert-warning mt-2'>Assignment has closed.</div>" : `
-            <form onsubmit="window.submitAssignment(event, '${docSnap.id}')">
-              <input type="text" class="form-control mb-2" required placeholder="Enter your answer or link">
-              <button class="btn btn-primary btn-sm">Submit Assignment</button>
-            </form>
-          `}
-        </div>
-      </div>
-    `;
-    // Timer updater
-    if (!closed) {
-      setInterval(() => {
-        const left = due - new Date();
-        if (left > 0) {
-          const h = Math.floor(left/3600000), m = Math.floor((left%3600000)/60000), s = Math.floor((left%60000)/1000);
-          document.getElementById(`timer-${docSnap.id}`).textContent = `Time left: ${h}h ${m}m ${s}s`;
-        } else {
-          document.getElementById(`timer-${docSnap.id}`).textContent = `Closed`;
-        }
-      }, 1000);
+  try {
+    const q = query(collection(db, 'assignments'), orderBy('dueDate', 'desc'));
+    const snap = await getDocs(q);
+    if (snap.empty) {
+      assignmentsList.innerHTML = "<p>No assignments yet.</p>";
+      return;
     }
-  });
-  assignmentsList.innerHTML = html;
+    let html = "";
+    snap.forEach(docSnap => {
+      const a = docSnap.data();
+      if (a.class !== studentProfile.class) return;
+      const now = new Date();
+      const due = a.dueDate?.toDate ? a.dueDate.toDate() : new Date(a.dueDate);
+      const closed = a.closed || now > due;
+      const timerId = `timer-${docSnap.id}`;
+      html += `
+        <div class="card mb-3">
+          <div class="card-body">
+            <h5>${a.title}</h5>
+            <div>${a.description}</div>
+            <div><b>Due:</b> ${due.toLocaleString()} <span class="assignment-status">${closed ? '<span class="text-danger">Closed</span>' : `<span class="text-success" id="${timerId}"></span>`}</span></div>
+            ${closed ? "<div class='alert alert-warning mt-2'>Assignment has closed.</div>" : `
+              <form onsubmit="window.submitAssignment(event, '${docSnap.id}')">
+                <input type="text" class="form-control mb-2" required placeholder="Enter your answer or link">
+                <button class="btn btn-primary btn-sm">Submit Assignment</button>
+              </form>
+            `}
+          </div>
+        </div>
+      `;
+      // Timer updater (ONE interval per assignment)
+      if (!closed) {
+        setTimeout(() => {
+          const timerElem = document.getElementById(timerId);
+          if (!timerElem) return;
+          function updateTimer() {
+            const left = due - new Date();
+            if (left > 0) {
+              const h = Math.floor(left/3600000), m = Math.floor((left%3600000)/60000), s = Math.floor((left%60000)/1000);
+              timerElem.textContent = `Time left: ${h}h ${m}m ${s}s`;
+            } else {
+              timerElem.textContent = `Closed`;
+              clearInterval(interval);
+            }
+          }
+          updateTimer();
+          const interval = setInterval(updateTimer, 1000);
+          assignmentTimers.push(interval);
+        }, 200);
+      }
+    });
+    assignmentsList.innerHTML = html;
+  } catch (err) {
+    logError("Assignments Load", err);
+    assignmentsList.innerHTML = "<div class='text-danger p-2'>Failed to load assignments.</div>";
+  }
 }
 
 // Assignment submission
@@ -340,13 +295,16 @@ window.submitAssignment = async function (e, assignmentId) {
   if (!answer) return;
   const user = auth.currentUser;
   if (!user || !studentProfile) return;
-  // Save submission
-  await setDoc(doc(db, 'assignments', assignmentId, 'submissions', user.uid), {
-    studentEmail: user.email,
-    answer,
-    submittedAt: serverTimestamp(),
-    approved: false // admin will update this
-  });
-  e.target.reset();
-  alert("Assignment submitted! Await admin approval.");
+  try {
+    await setDoc(doc(db, 'assignments', assignmentId, 'submissions', user.uid), {
+      studentEmail: user.email,
+      answer,
+      submittedAt: serverTimestamp(),
+      approved: false // admin will update this
+    });
+    e.target.reset();
+    showNotification("Assignment submitted! Await admin approval.", "success");
+  } catch (err) {
+    logError("Assignment Submit", err);
+  }
 };
