@@ -50,7 +50,7 @@ async function createAdminDocs() {
 }
 
 // --- UNCOMMENT THE NEXT LINE, run once, then comment/remove after admins are created ---
-// createAdminDocs();
+ createAdminDocs();
 
 // --- Helper Functions ---
 
