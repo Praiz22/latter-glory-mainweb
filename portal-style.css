@@ -1,0 +1,182 @@
+:root {
+  --primary: #b71c1c;
+  --accent: #e91e63;
+  --light: #fff;
+  --dark: #222;
+  --bg: #f7f7f7;
+  --shadow: 0 4px 16px rgba(183, 28, 28, 0.08);
+  --brand-gradient: linear-gradient(90deg, #b71c1c 0%, #e91e63 100%);
+}
+
+body {
+  font-family: 'Inter', 'Open Sans', Arial, sans-serif;
+  background: var(--bg);
+  color: var(--dark);
+  min-height: 100vh;
+}
+
+.navbar {
+  background: var(--light);
+  box-shadow: var(--shadow);
+}
+
+.navbar-brand img {
+  height: 36px;
+  margin-right: 10px;
+}
+
+.btn-brand {
+  background: var(--brand-gradient);
+  border: none;
+  color: #fff;
+  font-weight: 600;
+  transition: background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 6px rgba(183, 28, 28, 0.12);
+}
+.btn-brand:hover, .btn-brand:focus {
+  background: #a31515;
+  color: #fff;
+}
+
+footer {
+  background: var(--primary);
+  color: var(--light);
+  padding: 1rem 0;
+  text-align: center;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.tab-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tab-content section {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  padding: 2rem 1.3rem 1.5rem 1.3rem;
+  margin-bottom: 2.5rem;
+}
+
+.nav-link {
+  color: var(--primary);
+  font-weight: 600;
+  font-size: 1.04rem;
+  transition: color 0.18s, background 0.18s;
+}
+.nav-link.active, .nav-link:focus, .nav-link:hover {
+  color: var(--light) !important;
+  background: var(--brand-gradient) !important;
+  border-radius: 6px;
+}
+
+#profileContent, #events-list, #clubs-list, #updates-list, #galleryContent, #timetableContent {
+  margin-top: 1rem;
+}
+
+/* Gallery styles */
+#galleryContent .card,
+#galleryPreview .card {
+  border: none;
+  box-shadow: 0 4px 16px rgba(183, 28, 28, 0.08);
+  border-radius: 14px;
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+#galleryContent .card:hover,
+#galleryPreview .card:hover {
+  box-shadow: 0 8px 28px rgba(183, 28, 28, 0.16);
+}
+#galleryContent img,
+#galleryPreview img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 0 0 14px 14px;
+}
+
+/* Assignments */
+#assignments-list .card {
+  border-left: 5px solid var(--primary);
+  border-radius: 12px;
+  background: #fff;
+  margin-bottom: 1.3rem;
+  box-shadow: var(--shadow);
+  transition: border-color 0.2s;
+}
+#assignments-list .card.closed {
+  border-left-color: #ccc;
+  opacity: 0.7;
+}
+.assignment-status {
+  font-weight: 700;
+  margin-left: 1rem;
+  font-size: 1rem;
+}
+.assignment-status .text-success {
+  color: #27ae60 !important;
+}
+.assignment-status .text-danger {
+  color: #c0392b !important;
+}
+.assignment-status .text-warning {
+  color: #f39c12 !important;
+}
+
+/* Profile */
+#profileContent {
+  max-width: 500px;
+}
+
+#profileContent .profile-avatar {
+  width: 90px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 4px solid var(--primary);
+  margin-bottom: 1rem;
+}
+
+#mainToast {
+  min-width: 250px;
+  font-size: 1rem;
+  opacity: 0.95;
+}
+
+/* Responsive */
+@media (max-width: 991px) {
+  .tab-content section {
+    padding: 1rem 0.6rem 1rem 0.6rem;
+  }
+  .navbar-brand img {
+    height: 30px;
+  }
+}
+@media (max-width: 600px) {
+  .tab-title {
+    font-size: 1.1rem;
+    margin-bottom: .7rem;
+  }
+  #galleryContent img, #galleryPreview img {
+    height: 110px;
+  }
+  .tab-content section {
+    padding: 0.6rem 0.2rem 0.7rem 0.2rem;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 7px;
+  background: #eee;
+}
+::-webkit-scrollbar-thumb {
+  background: #d9b6b6;
+  border-radius: 8px;
+}
