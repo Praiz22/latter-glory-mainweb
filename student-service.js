@@ -198,10 +198,21 @@ if (logoutBtnNav) {
 
 let studentProfile = null;
 
+// --- ROLE CHECKER AND REDIRECT LOGIC (THIS IS WHAT YOU NEED) ---
 onAuthStateChanged(auth, async (user) => {
   showPortalUI(!!user);
   if (user) {
-    // Load student profile
+    // ---- ROLE CHECKER FOR ADMIN ----
+    try {
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      if (userDoc.exists() && userDoc.data().role === "admin") {
+        window.location.href = "admin.html";
+        return; // Stop further student logic
+      }
+    } catch (err) {
+      logError("Role Check", err);
+    }
+    // --- STUDENT LOGIC (if not admin) ---
     const studentsSnap = await getDocs(collection(db, "students"));
     studentsSnap.forEach(docSnap => {
       if ((docSnap.data().email || "").toLowerCase() === user.email.toLowerCase()) {
