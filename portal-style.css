@@ -197,6 +197,15 @@ footer {
   }
 }
 
+.glassmorphism {
+  background: rgba(255,255,255,0.85) !important;
+  box-shadow: 0 8px 32px 0 rgba(31,38,135,0.09);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.18);
+}
+
 /* Minimal scrollbar */
 ::-webkit-scrollbar { width: 6px; background: #f2f2f2; }
 ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 7px; }
