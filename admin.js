@@ -69,19 +69,20 @@ if (adminRegisterForm) {
         passportUrl = await getDownloadURL(imgRef);
       }
 
-      // Create student doc
-      await setDoc(doc(db, "students", matricNumber), {
-        matricNumber,
-        name: fullName,
-        class: studentClass,
-        gender,
-        passportUrl,
-        email,
-        uid: userCredential.user.uid,
-        createdAt: new Date().toISOString(),
-        points: 0,
-        probation: false,
-      });
+     // creating student document, praix agba coder
+await setDoc(doc(db, "students", matricNumber), {
+  matricNumber,
+  name: fullName,
+  class: studentClass,
+  gender,
+  passportUrl,
+  email,
+  uid: userCredential.user.uid,
+  createdAt: new Date().toISOString(),
+  points: 0,
+  probation: false,
+  role: "student" 
+});
 
       adminRegisterSuccess.innerHTML = `Student registered!<br>
         <b>Matric Number:</b> ${matricNumber}<br>
@@ -95,6 +96,29 @@ if (adminRegisterForm) {
     }
   });
 }
+
+// --- Batch create admin users in Firestore by UID (run ONCE, then comment/remove) ---
+const adminAccounts = [
+  { uid: "OvlzMg2DkBPDjOvByaPTcu6c89m2", email: "praiseola22@gmail.com" },
+  { uid: "fbMRfLMiUtezXublDEhSCqHCT4d2", email: "thelattergloryacademy@gmail.com" },
+  { uid: "SdqsLC8UihYZsN4fkEpfFifjzpy1", email: "praix25@gmail.com" }
+];
+
+async function createAdminDocs() {
+  for (const admin of adminAccounts) {
+    try {
+      await setDoc(doc(db, "users", admin.uid), {
+        email: admin.email,
+        role: "admin",
+        createdAt: new Date().toISOString()
+      });
+      console.log(`Admin Firestore doc created for: ${admin.email}`);
+    } catch (err) {
+      console.error(`Failed for ${admin.email}:`, err);
+    }
+  }
+}
+ createAdminDocs();
 // --- Firebase init ---
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
