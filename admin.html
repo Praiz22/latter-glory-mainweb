@@ -5,153 +5,353 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Admin Dashboard | Latter Glory Academy</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Inter', Arial, sans-serif; background: #f7f7f7; }
-    .container { max-width: 1000px; }
+    .glassmorphism {
+      background: rgba(255,255,255,0.75);
+      border-radius: 18px;
+      box-shadow: 0 2px 32px 0 rgba(60,60,90,0.06);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+    .sidebar {
+      min-width: 200px;
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 2px 32px 0 rgba(60,60,90,0.04);
+      margin-right: 20px;
+      padding: 1.2rem 0.6rem;
+      position: sticky;
+      top: 1rem;
+    }
+    .sidebar .nav-link {
+      color: #222;
+      font-weight: 500;
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      transition: background 0.18s;
+    }
+    .sidebar .nav-link.active, .sidebar .nav-link:hover {
+      background: #e3eafc;
+      color: #003366;
+    }
+    .sidebar i, .sidebar svg {
+      margin-right: 8px;
+      font-size: 1.25em;
+    }
+    .tab-pane {
+      min-height: 350px;
+      padding-top: 1.2rem;
+    }
+    .student-card {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 1px 8px 0 rgba(90,90,120,0.06);
+      padding: 1rem;
+      transition: box-shadow 0.15s;
+      cursor: pointer;
+    }
+    .student-card:hover {
+      box-shadow: 0 6px 30px 0 rgba(90,90,120,0.13);
+    }
+    .student-status-freeze {
+      filter: blur(2px) grayscale(0.6) brightness(0.90);
+      position: relative;
+    }
+    .student-status-freeze::after {
+      content: "❄️ Frozen";
+      position: absolute;
+      top: 40%;
+      left: 40%;
+      background: rgba(220,230,255,0.75);
+      color: #004080;
+      font-weight: bold;
+      font-size: 1.2em;
+      border-radius: 6px;
+      padding: 0.6em 1.2em;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+      z-index: 99;
+      pointer-events: none;
+    }
     .gallery-img { width: 100%; max-height: 220px; object-fit: cover; border-radius: 10px; }
     .preview { margin-top: 2rem; }
-    .toast { z-index: 1055; }
+    .btn-loading .spinner-border { display: inline-block !important; }
+    .spinner-border { display: none; vertical-align: middle;}
     .assignment-status { font-weight: bold; }
+    .glass-blur {
+      backdrop-filter: blur(4px) saturate(1.4);
+      background: rgba(255,255,255,0.5);
+    }
+    @media (max-width: 991px) {
+      .sidebar { margin-bottom: 1.5rem; }
+    }
   </style>
 </head>
 <body>
+  <!-- Navbar -->
   <nav class="navbar navbar-expand-lg shadow-sm mb-3">
     <div class="container">
       <a class="navbar-brand d-flex align-items-center" href="#">
         <img src="latter-glory logo.png" alt="Logo" style="height:34px;margin-right:0.7rem;">
-        Latter Glory Admin
+        <span class="fw-bold">Latter Glory Admin</span>
       </a>
-      <button class="btn btn-outline-dark ms-auto" id="logoutBtnAdmin">Logout</button>
+      <button class="btn btn-outline-dark ms-auto" id="logoutBtnAdmin">
+        <i class="bi bi-box-arrow-right"></i> Logout
+      </button>
     </div>
   </nav>
-  <!-- Register Student Button -->
-<button class="btn btn-brand mb-3" data-bs-toggle="modal" data-bs-target="#adminRegisterModal">
-  Register Student
-</button>
 
-<!-- Registration Modal -->
-<div class="modal fade" id="adminRegisterModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content glassmorphism">
-      <div class="modal-header">
-        <h5 class="modal-title">Register New Student</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+  <div class="container-fluid mb-5">
+    <div class="row">
+      <!-- Sidebar Navigation -->
+      <div class="col-lg-2 col-md-3 mb-3">
+        <nav class="sidebar glassmorphism">
+          <ul class="nav flex-column nav-pills" id="adminTabs" role="tablist">
+            <li><a class="nav-link active" data-bs-toggle="tab" href="#overviewTab" role="tab"><i class="bi bi-house"></i>Overview</a></li>
+            <li><a class="nav-link" data-bs-toggle="tab" href="#studentsTab" role="tab"><i class="bi bi-people"></i>Students</a></li>
+            <li><a class="nav-link" data-bs-toggle="tab" href="#assignmentsTab" role="tab"><i class="bi bi-journal-check"></i>Assignments</a></li>
+            <li><a class="nav-link" data-bs-toggle="tab" href="#actionsTab" role="tab"><i class="bi bi-tools"></i>Actions</a></li>
+            <li><a class="nav-link" data-bs-toggle="tab" href="#galleryTab" role="tab"><i class="bi bi-images"></i>Gallery</a></li>
+            <li><a class="nav-link" data-bs-toggle="tab" href="#notificationsTab" role="tab"><i class="bi bi-megaphone"></i>Notifications</a></li>
+            <li><a class="nav-link" data-bs-toggle="tab" href="#leaderboardTab" role="tab"><i class="bi bi-trophy"></i>Leaderboard</a></li>
+          </ul>
+        </nav>
       </div>
-      <div class="modal-body">
-        <form id="adminRegisterForm" enctype="multipart/form-data">
-          <div class="mb-2">
-            <label>Name</label>
-            <input type="text" class="form-control" id="studentName" required>
+      <!-- Main Admin Content -->
+      <div class="col-lg-10 col-md-9">
+        <div class="tab-content glassmorphism p-4" id="adminTabContent">
+          <!-- Overview Tab -->
+          <div class="tab-pane fade show active" id="overviewTab" role="tabpanel">
+            <h4 class="mb-3"><i class="bi bi-house"></i> Dashboard Overview</h4>
+            <div id="overviewStats" class="row g-3"></div>
+            <div id="overviewCharts" class="my-4"></div>
+            <div id="classListOverview"></div>
           </div>
-          <div class="mb-2">
-            <label>Email</label>
-            <input type="email" class="form-control" id="studentEmail" required>
+          <!-- Students Tab -->
+          <div class="tab-pane fade" id="studentsTab" role="tabpanel">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h4><i class="bi bi-people"></i> Student Management</h4>
+              <button class="btn btn-brand" data-bs-toggle="modal" data-bs-target="#adminRegisterModal">
+                <i class="bi bi-person-plus"></i> Register Student
+              </button>
+            </div>
+            <div id="studentsClassList" class="row g-3"></div>
+            <div id="studentDetailModalContainer"></div>
           </div>
-          <div class="mb-2">
-            <label>Class</label>
-            <input type="text" class="form-control" id="studentClass" required>
+          <!-- Assignments Tab -->
+          <div class="tab-pane fade" id="assignmentsTab" role="tabpanel">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h4><i class="bi bi-journal-check"></i> Assignment Management</h4>
+              <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#assignmentModal">
+                <i class="bi bi-plus-circle"></i> Post Assignment
+              </button>
+            </div>
+            <div id="adminAssignmentClassList" class="mb-4"></div>
+            <div id="adminAssignmentSubmissions"></div>
           </div>
-          <div class="mb-2">
-            <label>Gender</label>
-            <select class="form-control" id="studentGender" required>
-              <option value="">--Select--</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-            </select>
+          <!-- Actions Tab -->
+          <div class="tab-pane fade" id="actionsTab" role="tabpanel">
+            <h4><i class="bi bi-tools"></i> Actions</h4>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="card p-3 mb-2">
+                  <h6>Add Announcement</h6>
+                  <form id="announcementForm">
+                    <div class="mb-2">
+                      <input type="text" id="announcementTitle" class="form-control mb-2" placeholder="Title" required>
+                      <textarea id="announcementBody" class="form-control mb-2" placeholder="Announcement" rows="3" required></textarea>
+                    </div>
+                    <button class="btn btn-primary btn-sm" type="submit">
+                      <span class="spinner-border spinner-border-sm" style="display:none"></span>
+                      <i class="bi bi-megaphone"></i> Post
+                    </button>
+                  </form>
+                  <div id="announcementError" class="text-danger mt-2"></div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="card p-3 mb-2">
+                  <h6>Add Points to Student</h6>
+                  <form id="addPointForm">
+                    <div class="mb-2">
+                      <input type="email" id="pointStudentEmail" class="form-control mb-2" placeholder="Student Email" required>
+                      <input type="number" id="pointsToAdd" class="form-control mb-2" placeholder="Points" required>
+                      <input type="text" id="pointsReason" class="form-control" placeholder="Reason" required>
+                    </div>
+                    <button class="btn btn-success btn-sm" type="submit">
+                      <span class="spinner-border spinner-border-sm" style="display:none"></span>
+                      <i class="bi bi-plus-circle"></i> Add Points
+                    </button>
+                  </form>
+                  <div id="addPointError" class="text-danger mt-2"></div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="mb-2">
-            <label>Passport Photo</label>
-            <input type="file" class="form-control" id="studentPassport" accept="image/*">
+          <!-- Gallery Tab -->
+          <div class="tab-pane fade" id="galleryTab" role="tabpanel">
+            <h4><i class="bi bi-images"></i> Gallery</h4>
+            <form id="galleryUploadForm" class="mb-4">
+              <div class="row g-2">
+                <div class="col-md-3">
+                  <select id="galleryType" class="form-select" required>
+                    <option value="gallery">School Gallery</option>
+                    <option value="portalGallery">Portal Gallery</option>
+                    <option value="both">Both</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <input type="file" class="form-control" id="galleryImage" accept="image/*" required>
+                </div>
+                <div class="col-md-3">
+                  <input type="text" class="form-control" id="galleryCaption" maxlength="80" placeholder="Caption" required>
+                </div>
+                <div class="col-md-3">
+                  <input type="date" class="form-control" id="galleryDate" required>
+                </div>
+                <div class="col-md-12 mt-2">
+                  <button type="submit" class="btn btn-primary" id="uploadBtn">
+                    <span class="spinner-border spinner-border-sm d-none"></span>
+                    <i class="bi bi-upload"></i> Upload
+                  </button>
+                  <div id="uploadError" class="text-danger mt-2"></div>
+                </div>
+              </div>
+            </form>
+            <div class="preview">
+              <h5>Gallery Preview (<span id="galleryPreviewType">School Gallery</span>)</h5>
+              <div id="galleryPreview" class="row g-3"></div>
+            </div>
           </div>
-          <button type="submit" class="btn btn-brand mt-2 w-100">Register Student</button>
-          <div id="adminRegisterError" class="text-danger mt-2" style="display:none;"></div>
-          <div id="adminRegisterSuccess" class="text-success mt-2" style="display:none;"></div>
-        </form>
+          <!-- Notifications Tab -->
+          <div class="tab-pane fade" id="notificationsTab" role="tabpanel">
+            <h4><i class="bi bi-megaphone"></i> Notifications</h4>
+            <div id="notificationsList"></div>
+          </div>
+          <!-- Leaderboard Tab -->
+          <div class="tab-pane fade" id="leaderboardTab" role="tabpanel">
+            <h4><i class="bi bi-trophy"></i> Leaderboard & Analysis</h4>
+            <div id="leaderboardStats"></div>
+            <div id="userAnalysis"></div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-  <main class="container main-content" id="adminContent">
-    <!-- Student dashboard content will be rendered by admin.js -->
-
-    <!-- Gallery Upload Section -->
-    <section class="my-4">
-      <h4>Upload Gallery Image</h4>
-      <form id="galleryUploadForm" class="mb-4">
-        <div class="mb-3">
-          <label class="form-label">Gallery Type</label>
-          <select id="galleryType" class="form-select" required>
-            <option value="gallery">School Gallery</option>
-            <option value="portalGallery">Portal Gallery</option>
-            <option value="both">Both</option>
-          </select>
+  <!-- Register Student Modal -->
+  <div class="modal fade" id="adminRegisterModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content glassmorphism">
+        <div class="modal-header">
+          <h5 class="modal-title">Register New Student</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
-        <div class="mb-3">
-          <label class="form-label">Image</label>
-          <input type="file" class="form-control" id="galleryImage" accept="image/*" required>
+        <div class="modal-body">
+          <form id="adminRegisterForm" enctype="multipart/form-data">
+            <div class="mb-2">
+              <label>Name</label>
+              <input type="text" class="form-control" id="studentName" required>
+            </div>
+            <div class="mb-2">
+              <label>Email</label>
+              <input type="email" class="form-control" id="studentEmail" required>
+            </div>
+            <div class="mb-2">
+              <label>Class</label>
+              <select id="studentClass" class="form-select" required>
+                <option value="">Select</option>
+                <option>JSS1</option>
+                <option>JSS2</option>
+                <option>JSS3</option>
+                <option>SS1</option>
+                <option>SS2</option>
+                <option>SS3</option>
+              </select>
+            </div>
+            <div class="mb-2">
+              <label>Gender</label>
+              <select class="form-control" id="studentGender" required>
+                <option value="">--Select--</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="mb-2">
+              <label>Password</label>
+              <input type="password" class="form-control" id="studentPassword" required>
+            </div>
+            <div class="mb-2">
+              <label>Passport Photo</label>
+              <input type="file" class="form-control" id="studentPassport" accept="image/*">
+            </div>
+            <button type="submit" class="btn btn-brand mt-2 w-100" id="adminRegisterBtn">
+              <span class="spinner-border spinner-border-sm"></span>
+              <i class="bi bi-person-plus"></i> Register Student
+            </button>
+            <div id="adminRegisterError" class="text-danger mt-2" style="display:none;"></div>
+            <div id="adminRegisterSuccess" class="text-success mt-2" style="display:none;"></div>
+            <div class="mt-2" id="matricNumberDisplay" style="display:none;">
+              <div class="alert alert-info">Dear <span id="matricStudentName"></span> (<span id="matricStudentEmail"></span>), your Matric Number is <b id="matricNumberValue"></b></div>
+            </div>
+          </form>
         </div>
-        <div class="mb-3">
-          <label class="form-label">Caption</label>
-          <input type="text" class="form-control" id="galleryCaption" maxlength="80" required>
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Event Date</label>
-          <input type="date" class="form-control" id="galleryDate" required>
-        </div>
-        <button type="submit" class="btn btn-primary" id="uploadBtn">
-          <span id="uploadSpinner" class="spinner-border spinner-border-sm d-none"></span>
-          Upload
-        </button>
-        <div id="uploadError" class="text-danger mt-2"></div>
-      </form>
-      <div class="preview">
-        <h5>Gallery Preview (<span id="galleryPreviewType">School Gallery</span>)</h5>
-        <div id="galleryPreview" class="row g-3"></div>
       </div>
-    </section>
+    </div>
+  </div>
 
-    <!-- Assignment Posting Section -->
-    <section class="my-5">
-      <h4>Post Assignment</h4>
-      <form id="assignmentForm" class="mb-4">
-        <div class="mb-3">
-          <label class="form-label">Title</label>
-          <input type="text" id="assignmentTitle" class="form-control" required>
+  <!-- Assignment Modal -->
+  <div class="modal fade" id="assignmentModal" tabindex="-1" aria-labelledby="assignmentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content glassmorphism">
+        <div class="modal-header">
+          <h5 class="modal-title" id="assignmentModalLabel">Post Assignment</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
-        <div class="mb-3">
-          <label class="form-label">Description</label>
-          <textarea id="assignmentDesc" class="form-control" rows="3" required></textarea>
+        <div class="modal-body">
+          <form id="assignmentForm" class="mb-2">
+            <div class="mb-3">
+              <label class="form-label">Title</label>
+              <input type="text" id="assignmentTitle" class="form-control" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Description</label>
+              <textarea id="assignmentDesc" class="form-control" rows="3" required></textarea>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Class</label>
+              <select id="assignmentClass" class="form-select" required>
+                <option value="">Select Class</option>
+                <option>JSS1</option>
+                <option>JSS2</option>
+                <option>JSS3</option>
+                <option>SS1</option>
+                <option>SS2</option>
+                <option>SS3</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Due In (hours)</label>
+              <input type="number" id="assignmentDueHours" class="form-control" min="1" required>
+            </div>
+            <button type="submit" class="btn btn-success w-100" id="postAssignmentBtn">
+              <span class="spinner-border spinner-border-sm"></span>
+              <i class="bi bi-plus-circle"></i> Post Assignment
+            </button>
+            <div id="assignmentError" class="text-danger mt-2"></div>
+          </form>
         </div>
-        <div class="mb-3">
-          <label class="form-label">Class</label>
-          <select id="assignmentClass" class="form-select" required>
-            <option value="">Select Class</option>
-            <option>JSS1</option>
-            <option>JSS2</option>
-            <option>JSS3</option>
-            <option>SS1</option>
-            <option>SS2</option>
-            <option>SS3</option>
-          </select>
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Due In (hours)</label>
-          <input type="number" id="assignmentDueHours" class="form-control" min="1" required>
-        </div>
-        <button type="submit" class="btn btn-success" id="postAssignmentBtn">
-          <span id="assignmentSpinner" class="spinner-border spinner-border-sm d-none"></span>
-          Post Assignment
-        </button>
-        <div id="assignmentError" class="text-danger mt-2"></div>
-      </form>
-      <div>
-        <h5>Assignments (per class)</h5>
-        <div id="assignmentAdminList"></div>
       </div>
-    </section>
-  </main>
+    </div>
+  </div>
+
+  <!-- Student Detail Modal Container (loaded by JS) -->
+  <div id="studentDetailModalContainer"></div>
 
   <div id="toast-container" class="position-fixed top-0 end-0 p-3"></div>
 
