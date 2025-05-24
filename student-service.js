@@ -26,42 +26,14 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 const storage = getStorage(app);
 
-// --- BATCH CREATE ADMIN USERS IN FIRESTORE (RUN ONCE & THEN COMMENT OUT) ---
-// Add your admin UID and email in the array below:
-const adminAccounts = [
-  { uid: "OvlzMg2DkBPDjOvByaPTcu6c89m2", email: "praiseola22@gmail.com" },
-  { uid: "fbMRfLMiUtezXublDEhSCqHCT4d2", email: "thelattergloryacademy@gmail.com" },
-  { uid: "SdqsLC8UihYZsN4fkEpfFifjzpy1", email: "praix25@gmail.com" }
-];
-
-async function createAdminDocs() {
-  for (const admin of adminAccounts) {
-    try {
-      await setDoc(doc(db, "users", admin.uid), {
-        email: admin.email,
-        role: "admin",
-        createdAt: new Date().toISOString()
-      });
-      console.log(`Admin Firestore doc created for: ${admin.email}`);
-    } catch (err) {
-      console.error(`Failed for ${admin.email}:`, err);
-    }
-  }
-}
-
-// --- UNCOMMENT THE NEXT LINE, run once, then comment/remove after admins are created ---
- createAdminDocs();
-
 // --- Helper Functions ---
 
-// Generate Matric Number
 function generateMatricNumber(fullName, studentClass) {
   const firstLetter = fullName.trim()[0].toUpperCase();
   const randomDigits = Math.floor(Math.random() * 90 + 10); // two digits
   return `LGA/${studentClass}/${firstLetter}${randomDigits}`;
 }
 
-// Show Notification Toast
 function showNotification(message, type = 'primary', timeout = 4000) {
   const toastEl = document.getElementById('mainToast');
   const toastBody = document.getElementById('mainToastBody');
@@ -72,7 +44,6 @@ function showNotification(message, type = 'primary', timeout = 4000) {
   toast.show();
 }
 
-// Error Logger (console and toast)
 function logError(context, err) {
   console.error(`[${context}]`, err);
   showNotification(`Error: ${err.message || err}`, "danger", 6000);
@@ -168,13 +139,81 @@ async function loadProfile() {
         <div class="mb-2"><b>Matric Number:</b> ${student.matricNumber || '-'}</div>
         <div class="mb-2"><b>Class:</b> ${student.class || '-'}</div>
         <div class="mb-2"><b>Gender:</b> ${student.gender || '-'}</div>
-        <div class="mb-2"><b>Points:</b> ${student.points || 0}</div>
+        <div class="mb-2"><b>Points:</b> <span id="points-value">${student.points || 0}</span></div>
         <div class="mb-2"><b>Account Created:</b> <span>${student.createdAt || '-'}</span></div>
       </div>
     `;
   } catch (err) {
     logError("Profile Load", err);
     profileContent.innerHTML = `<div class="text-danger">Error loading profile.</div>`;
+  }
+}
+
+// --- Notification System ---
+async function loadNotifications() {
+  const notifList = document.getElementById('notifications-list');
+  if (!notifList) return;
+  notifList.innerHTML = `<div class="text-center py-3">Loading notifications...</div>`;
+  try {
+    const snap = await getDocs(query(collection(db, "notifications"), orderBy("createdAt", "desc")));
+    if (snap.empty) {
+      notifList.innerHTML = `<div class="text-muted">No notifications yet.</div>`;
+      return;
+    }
+    let html = "";
+    snap.forEach(docSnap => {
+      const n = docSnap.data();
+      if (n.type === "points") {
+        html += `
+          <div class="alert alert-success mb-2">
+            <b>${n.student?.name}</b> from <b>${n.student?.class}</b> got <b>${n.points} points</b> for <i>${n.reason}</i>
+          </div>
+        `;
+      } else {
+        // General notification
+        html += `
+          <div class="alert alert-info mb-2">
+            ${n.message}
+          </div>
+        `;
+      }
+    });
+    notifList.innerHTML = html;
+  } catch (err) {
+    notifList.innerHTML = `<div class="text-danger">Failed to load notifications.</div>`;
+    logError("Notifications Load", err);
+  }
+}
+
+// --- Leaderboard Loader (no chart, just data for now) ---
+async function loadLeaderboard() {
+  const leaderboardDiv = document.getElementById('leaderboard-list');
+  if (!leaderboardDiv) return;
+  leaderboardDiv.innerHTML = `<div class="text-center py-3">Loading leaderboard...</div>`;
+  try {
+    // Get all students, order by points descending
+    const snap = await getDocs(query(collection(db, "students"), orderBy("points", "desc")));
+    if (snap.empty) {
+      leaderboardDiv.innerHTML = `<div class="text-muted">No students yet.</div>`;
+      return;
+    }
+    let html = "<h5>Top Students</h5>";
+    let rank = 1;
+    snap.forEach(docSnap => {
+      const s = docSnap.data();
+      html += `
+        <div class="d-flex align-items-center mb-1">
+          <span class="badge bg-secondary me-2">${rank++}</span>
+          <img src="${s.passportUrl || 'https://placehold.co/40x40?text=No+Photo'}" class="rounded-circle me-2" style="width:40px;height:40px;object-fit:cover;">
+          <span class="fw-bold">${s.name}</span> &mdash; <span class="text-muted ms-1">${s.class}</span>
+          <span class="ms-auto badge bg-primary">${s.points || 0} pts</span>
+        </div>
+      `;
+    });
+    leaderboardDiv.innerHTML = html;
+  } catch (err) {
+    leaderboardDiv.innerHTML = `<div class="text-danger">Failed to load leaderboard.</div>`;
+    logError("Leaderboard Load", err);
   }
 }
 
@@ -224,19 +263,19 @@ if (logoutBtnNav) {
 
 let studentProfile = null;
 
-// --- ROLE CHECKER AND REDIRECT LOGIC ---
+// --- ROLE CHECKER AND REDIRECT LOGIC (checks 'admins' collection now) ---
 onAuthStateChanged(auth, async (user) => {
   showPortalUI(!!user);
   if (user) {
-    // ---- ROLE CHECKER FOR ADMIN ----
+    // ---- ROLE CHECKER FOR ADMIN (checks 'admins' collection by UID) ----
     try {
-      const userDoc = await getDoc(doc(db, "users", user.uid));
-      if (userDoc.exists() && userDoc.data().role === "admin") {
+      const adminDoc = await getDoc(doc(db, "admins", user.uid));
+      if (adminDoc.exists()) {
         window.location.href = "admin.html";
         return; // Stop further student logic
       }
     } catch (err) {
-      logError("Role Check", err);
+      logError("Admin Check", err);
     }
     // --- STUDENT LOGIC (if not admin) ---
     const studentsSnap = await getDocs(collection(db, "students"));
@@ -247,10 +286,16 @@ onAuthStateChanged(auth, async (user) => {
     });
     loadProfile();
     loadAssignments();
+    loadNotifications();
+    loadLeaderboard();
   } else {
     studentProfile = null;
     if (profileContent) profileContent.innerHTML = '';
     if (assignmentsList) assignmentsList.innerHTML = '';
+    const notifList = document.getElementById('notifications-list');
+    if (notifList) notifList.innerHTML = '';
+    const leaderboardDiv = document.getElementById('leaderboard-list');
+    if (leaderboardDiv) leaderboardDiv.innerHTML = '';
   }
 });
 
@@ -325,7 +370,7 @@ async function loadAssignments() {
   }
 }
 
-// Assignment submission
+// Assignment submission and points/notification
 window.submitAssignment = async function (e, assignmentId) {
   e.preventDefault();
   const answer = e.target[0].value;
@@ -339,8 +384,29 @@ window.submitAssignment = async function (e, assignmentId) {
       submittedAt: serverTimestamp(),
       approved: false // admin will update this
     });
+    // Award points for assignment submission
+    const pointsForAssignment = 2;
+    const studentRef = doc(db, "students", studentProfile.matricNumber);
+    await setDoc(studentRef, { points: (studentProfile.points || 0) + pointsForAssignment }, { merge: true });
+    // Add points notification
+    await setDoc(doc(collection(db, "notifications")), {
+      type: "points",
+      message: `${studentProfile.name} from ${studentProfile.class} got ${pointsForAssignment} points for submitting an assignment`,
+      student: {
+        name: studentProfile.name,
+        matricNumber: studentProfile.matricNumber,
+        passportUrl: studentProfile.passportUrl || "",
+        class: studentProfile.class
+      },
+      points: pointsForAssignment,
+      reason: "submitting an assignment",
+      createdAt: new Date().toISOString()
+    });
     e.target.reset();
-    showNotification("Assignment submitted! Await admin approval.", "success");
+    showNotification("Assignment submitted! Await admin approval. You earned 2 points.", "success");
+    loadProfile();
+    loadNotifications();
+    loadLeaderboard();
   } catch (err) {
     logError("Assignment Submit", err);
   }
