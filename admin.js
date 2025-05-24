@@ -115,7 +115,7 @@ function buttonLoader(btn, loading = true, text = "") {
 async function checkAdminAuth() {
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
-      window.location.href = "login.html";
+      window.location.href = "portal.html";
       return;
     }
     // Check admin in users collection
