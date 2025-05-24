@@ -35,10 +35,9 @@ const matricDiv = document.getElementById('matricNumberDisplay');
 const matricNameSpan = document.getElementById('matricStudentName');
 const matricEmailSpan = document.getElementById('matricStudentEmail');
 const matricNumberSpan = document.getElementById('matricNumberValue');
-const adminContent = document.getElementById('adminContent');
 const logoutBtnAdmin = document.getElementById('logoutBtnAdmin');
 const toastContainer = document.getElementById('toast-container');
-const adminGreetingDiv = document.getElementById('adminGreeting');
+const adminContent = document.getElementById('adminContent');
 
 // Assignments
 const assignmentForm = document.getElementById('assignmentForm');
@@ -64,8 +63,7 @@ const galleryPreview = document.getElementById('galleryPreview');
 const galleryPreviewType = document.getElementById('galleryPreviewType');
 
 // Students
-const studentsList = document.getElementById('studentsList');
-const probationKey = "probation"; // field in student doc
+const studentsList = document.getElementById('studentsClassList') || document.getElementById('studentsList');
 
 // --- Utility Functions ---
 function showToast(message, type = 'success') {
@@ -73,8 +71,6 @@ function showToast(message, type = 'success') {
   const toast = document.createElement('div');
   toast.className = `toast align-items-center text-bg-${type} border-0 show mb-2`;
   toast.setAttribute('role', 'alert');
-  toast.setAttribute('aria-live', 'assertive');
-  toast.setAttribute('aria-atomic', 'true');
   toast.innerHTML = `
     <div class="d-flex">
       <div class="toast-body">${message}</div>
@@ -92,17 +88,6 @@ function logError(context, err) {
   console.error(`[${context}]`, err);
   showToast(`Error: ${err.message || err}`, "danger");
 }
-function buttonLoader(btn, loading = true, text = "") {
-  if (!btn) return;
-  if (loading) {
-    btn.disabled = true;
-    btn.dataset.originalText = btn.innerHTML;
-    btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> ${text || btn.textContent.trim()}`;
-  } else {
-    btn.disabled = false;
-    btn.innerHTML = btn.dataset.originalText || text || "";
-  }
-}
 function generateMatricNumber(fullName, studentClass) {
   const firstLetter = fullName.trim()[0].toUpperCase();
   const randomDigits = Math.floor(Math.random() * 90 + 10);
@@ -114,13 +99,23 @@ function generatePassword(length = 8) {
   for (let i = 0; i < length; ++i) pass += chars[Math.floor(Math.random() * chars.length)];
   return pass;
 }
+function buttonLoader(btn, loading = true, text = "") {
+  if (!btn) return;
+  if (loading) {
+    btn.disabled = true;
+    btn.dataset.originalText = btn.innerHTML;
+    btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> ${text || btn.textContent.trim()}`;
+  } else {
+    btn.disabled = false;
+    btn.innerHTML = btn.dataset.originalText || text || "";
+  }
+}
 
 // --- ADMIN AUTH & ACCESS GUARD ---
-let adminUser = null;
 async function checkAdminAuth() {
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
-      window.location.href = "login.html"; // redirect if not logged in
+      window.location.href = "login.html";
       return;
     }
     // Check admin in users collection
@@ -130,12 +125,10 @@ async function checkAdminAuth() {
       window.location.href = "login.html";
       return;
     }
-    adminUser = user;
-    // Show greeting
+    // Welcome greeting
     let name = user.displayName || user.email || userDoc.data().email || "Admin";
     let greetingTarget = document.getElementById("adminGreeting");
     if (!greetingTarget) {
-      // fallback: create one at top
       greetingTarget = document.createElement('div');
       greetingTarget.className = "mb-3";
       greetingTarget.id = "adminGreeting";
@@ -146,7 +139,6 @@ async function checkAdminAuth() {
     loadAllStudents();
     loadAdminAssignments();
     loadGalleryPreview('gallery');
-    // ...add other initializations as needed
   });
 }
 checkAdminAuth();
@@ -174,12 +166,10 @@ if (adminRegisterForm) {
     const gender = document.getElementById('studentGender').value;
     const passportFile = document.getElementById('studentPassport').files[0];
     const passwordField = document.getElementById('studentPassword');
-    // Use password if provided, else generate
     const password = passwordField && passwordField.value ? passwordField.value : generatePassword(8);
 
     if (!email || !fullName || !studentClass || !gender) {
-      adminRegisterError.textContent = "All fields are required.";
-      adminRegisterError.style.display = "block";
+      showToast("All fields are required.", "danger");
       return;
     }
 
@@ -190,7 +180,6 @@ if (adminRegisterForm) {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(userCredential.user, { displayName: fullName });
 
-      // Upload passport
       let passportUrl = "";
       if (passportFile) {
         const imgRef = storageRef(storage, `passports/${matricNumber}_${Date.now()}.jpg`);
@@ -198,7 +187,6 @@ if (adminRegisterForm) {
         passportUrl = await getDownloadURL(imgRef);
       }
 
-      // Create student document with role: "student"
       await setDoc(doc(db, "students", matricNumber), {
         matricNumber,
         name: fullName,
@@ -213,30 +201,22 @@ if (adminRegisterForm) {
         role: "student"
       });
 
-      // Show info to admin
+      // Show the details in the modal and with toast
       matricNameSpan.textContent = fullName;
       matricEmailSpan.textContent = email;
       matricNumberSpan.textContent = matricNumber;
       matricDiv.style.display = 'block';
-
-      adminRegisterSuccess.innerHTML = `Student registered!<br>
-        <b>Matric Number:</b> ${matricNumber}<br>
-        <b>Password:</b> <span style="font-family:monospace">${password}</span>
-        <br>Give these to the student.`;
-      adminRegisterSuccess.style.display = "block";
+      showToast(`Student registered! Matric: ${matricNumber}, Password: ${password}`, "success");
       adminRegisterForm.reset();
       if (typeof loadAllStudents === "function") loadAllStudents();
     } catch (err) {
-      adminRegisterError.textContent = err.message;
-      adminRegisterError.style.display = "block";
+      showToast("Registration failed: " + err.message, "danger");
     }
   });
 }
 
 // --- STUDENT MANAGEMENT ---
-// Load all students (with search and freeze/unfreeze)
 async function loadAllStudents() {
-  const studentsList = document.getElementById('studentsClassList') || document.getElementById('studentsList');
   if (!studentsList) return;
   studentsList.innerHTML = '<div class="text-center"><span class="spinner-border spinner-border-sm"></span> Loading...</div>';
   try {
@@ -333,7 +313,7 @@ window.viewStudentDetail = async function(studentId) {
 // Freeze/Unfreeze (probation)
 window.toggleProbation = async function(studentId, status) {
   const isFrozen = status === "frozen";
-  const msg = isFrozen ? "Unfreeze this account (allow login/portal access)?" : "Freeze this account (prevent login/portal access, glass effect)?";
+  const msg = isFrozen ? "Unfreeze this account (allow login)?" : "Freeze this account (prevent login/portal access, glass effect)?";
   if (!confirm(msg)) return;
   try {
     await updateDoc(doc(db, "students", studentId), { status: isFrozen ? "active" : "frozen" });
@@ -391,7 +371,7 @@ window.adminDeleteStudent = function(studentId, studentEmail) {
   modalEl.addEventListener('hidden.bs.modal', () => modalEl.remove());
 };
 
-// --- GALLERY SECTION (same as before, with spinners and toasts) ---
+// --- GALLERY SECTION ---
 if (galleryUploadForm) {
   galleryUploadForm.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -669,9 +649,4 @@ window.approveSubmission = async function (assignmentId, submissionId, studentEm
   } catch (e) {
     logError("ApproveSubmission", e);
   }
-};
-
-// --- FUTURE: Result Collation Hook ---
-window.collateResults = function() {
-  showToast("Result collation coming soon!", "info");
 };
