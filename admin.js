@@ -1,4 +1,4 @@
-// --- Firebase Imports ---
+// ---- Firebase Imports & Config ----
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import {
   getFirestore, collection, addDoc, getDocs, query, orderBy, doc, updateDoc, deleteDoc, serverTimestamp, setDoc, where, getDoc
@@ -10,7 +10,6 @@ import {
   getStorage, ref as storageRef, uploadBytes, getDownloadURL
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
-// --- Firebase config ---
 const firebaseConfig = {
   apiKey: "AIzaSyDgReNsNbU6-Cnx-ej0HPcHSrCXVppohJQ",
   authDomain: "latter-glory.firebaseapp.com",
@@ -21,13 +20,12 @@ const firebaseConfig = {
   measurementId: "G-5G1BYM7Q3Y"
 };
 
-// --- Firebase init ---
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 const storage = getStorage(app);
 
-// --- DOM Elements ---
+// ---- DOM Elements ----
 const adminRegisterForm = document.getElementById('adminRegisterForm');
 const adminRegisterError = document.getElementById('adminRegisterError');
 const adminRegisterSuccess = document.getElementById('adminRegisterSuccess');
@@ -38,8 +36,6 @@ const matricNumberSpan = document.getElementById('matricNumberValue');
 const logoutBtnAdmin = document.getElementById('logoutBtnAdmin');
 const toastContainer = document.getElementById('toast-container');
 const adminContent = document.getElementById('adminContent');
-
-// Assignments
 const assignmentForm = document.getElementById('assignmentForm');
 const assignmentTitle = document.getElementById('assignmentTitle');
 const assignmentDesc = document.getElementById('assignmentDesc');
@@ -49,8 +45,6 @@ const postAssignmentBtn = document.getElementById('postAssignmentBtn');
 const assignmentSpinner = document.getElementById('assignmentSpinner');
 const assignmentError = document.getElementById('assignmentError');
 const assignmentAdminList = document.getElementById('assignmentAdminList');
-
-// Gallery
 const galleryUploadForm = document.getElementById('galleryUploadForm');
 const galleryType = document.getElementById('galleryType');
 const galleryImage = document.getElementById('galleryImage');
@@ -61,11 +55,9 @@ const uploadSpinner = document.getElementById('uploadSpinner');
 const uploadError = document.getElementById('uploadError');
 const galleryPreview = document.getElementById('galleryPreview');
 const galleryPreviewType = document.getElementById('galleryPreviewType');
-
-// Students
 const studentsList = document.getElementById('studentsClassList') || document.getElementById('studentsList');
 
-// --- Utility Functions ---
+// ---- Utility Functions ----
 function showToast(message, type = 'success') {
   if (!toastContainer) return;
   const toast = document.createElement('div');
@@ -111,21 +103,53 @@ function buttonLoader(btn, loading = true, text = "") {
   }
 }
 
-// --- ADMIN AUTH & ACCESS GUARD ---
+// ---- Overview Stats ----
+async function loadOverviewStats() {
+  const statsDiv = document.getElementById('overviewStats');
+  if (!statsDiv) return;
+  statsDiv.innerHTML = '<div class="text-center"><span class="spinner-border spinner-border-sm"></span> Loading...</div>';
+  try {
+    // Students
+    const studentsSnap = await getDocs(collection(db, 'students'));
+    const totalStudents = studentsSnap.size;
+    // Assignments
+    const assignmentsSnap = await getDocs(collection(db, 'assignments'));
+    const totalAssignments = assignmentsSnap.size;
+    // Classes
+    const classSet = new Set();
+    studentsSnap.forEach(doc => classSet.add(doc.data().class));
+    // Admins
+    const adminsSnap = await getDocs(collection(db, 'users'));
+    let totalAdmins = 0;
+    adminsSnap.forEach(doc => { if(doc.data().role === "admin") totalAdmins++; });
+
+    statsDiv.innerHTML = `
+      <div class="row g-3">
+        <div class="col-md-3"><div class="card p-3 text-center"><div class="fw-bold fs-3">${totalStudents}</div><div>Total Students</div></div></div>
+        <div class="col-md-3"><div class="card p-3 text-center"><div class="fw-bold fs-3">${classSet.size}</div><div>Classes</div></div></div>
+        <div class="col-md-3"><div class="card p-3 text-center"><div class="fw-bold fs-3">${totalAssignments}</div><div>Assignments</div></div></div>
+        <div class="col-md-3"><div class="card p-3 text-center"><div class="fw-bold fs-3">${totalAdmins}</div><div>Admins</div></div></div>
+      </div>
+    `;
+  } catch (err) {
+    statsDiv.innerHTML = `<div class="text-danger">Failed to load overview stats.</div>`;
+    logError("OverviewStats", err);
+  }
+}
+
+// ---- ADMIN AUTH & ACCESS GUARD ----
 async function checkAdminAuth() {
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
-      window.location.href = "portal.html";
+      window.location.href = "login.html";
       return;
     }
-    // Check admin in users collection
     const userDoc = await getDoc(doc(db, "users", user.uid));
     if (!userDoc.exists() || userDoc.data().role !== "admin") {
       await signOut(auth);
       window.location.href = "login.html";
       return;
     }
-    // Welcome greeting
     let name = user.displayName || user.email || userDoc.data().email || "Admin";
     let greetingTarget = document.getElementById("adminGreeting");
     if (!greetingTarget) {
@@ -135,7 +159,7 @@ async function checkAdminAuth() {
       adminContent?.prepend(greetingTarget);
     }
     greetingTarget.innerHTML = `<div class="alert alert-primary">Welcome Admin <b>${name}</b></div>`;
-    // Load all data
+    loadOverviewStats();
     loadAllStudents();
     loadAdminAssignments();
     loadGalleryPreview('gallery');
@@ -143,7 +167,7 @@ async function checkAdminAuth() {
 }
 checkAdminAuth();
 
-// --- LOGOUT ---
+// ---- LOGOUT ----
 if (logoutBtnAdmin) {
   logoutBtnAdmin.addEventListener('click', async function () {
     buttonLoader(logoutBtnAdmin, true, "Logging out...");
@@ -152,7 +176,7 @@ if (logoutBtnAdmin) {
   });
 }
 
-// --- STUDENT REGISTRATION ---
+// ---- STUDENT REGISTRATION ----
 if (adminRegisterForm) {
   adminRegisterForm.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -176,17 +200,14 @@ if (adminRegisterForm) {
     const matricNumber = generateMatricNumber(fullName, studentClass);
 
     try {
-      // Create Auth user
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(userCredential.user, { displayName: fullName });
-
       let passportUrl = "";
       if (passportFile) {
         const imgRef = storageRef(storage, `passports/${matricNumber}_${Date.now()}.jpg`);
         await uploadBytes(imgRef, passportFile);
         passportUrl = await getDownloadURL(imgRef);
       }
-
       await setDoc(doc(db, "students", matricNumber), {
         matricNumber,
         name: fullName,
@@ -201,7 +222,6 @@ if (adminRegisterForm) {
         role: "student"
       });
 
-      // Show the details in the modal and with toast
       matricNameSpan.textContent = fullName;
       matricEmailSpan.textContent = email;
       matricNumberSpan.textContent = matricNumber;
@@ -209,13 +229,14 @@ if (adminRegisterForm) {
       showToast(`Student registered! Matric: ${matricNumber}, Password: ${password}`, "success");
       adminRegisterForm.reset();
       if (typeof loadAllStudents === "function") loadAllStudents();
+      loadOverviewStats();
     } catch (err) {
       showToast("Registration failed: " + err.message, "danger");
     }
   });
 }
 
-// --- STUDENT MANAGEMENT ---
+// ---- STUDENT MANAGEMENT ----
 async function loadAllStudents() {
   if (!studentsList) return;
   studentsList.innerHTML = '<div class="text-center"><span class="spinner-border spinner-border-sm"></span> Loading...</div>';
@@ -250,7 +271,7 @@ async function loadAllStudents() {
     html += '</div>';
     studentsList.innerHTML = html;
 
-    // Attach search handler
+    // Search handler
     const searchInput = document.getElementById('studentSearchInput');
     if (searchInput) {
       searchInput.addEventListener('input', function () {
@@ -267,13 +288,10 @@ async function loadAllStudents() {
 }
 window.loadAllStudents = loadAllStudents;
 
-// View student detail
 window.viewStudentDetail = async function(studentId) {
   const docSnap = await getDoc(doc(db, "students", studentId));
   if (!docSnap.exists()) return showToast("Student not found.", "danger");
   const student = docSnap.data();
-
-  // Modal
   let modalEl = document.getElementById('studentDetailModal');
   if (modalEl) modalEl.remove();
   modalEl = document.createElement('div');
@@ -310,7 +328,6 @@ window.viewStudentDetail = async function(studentId) {
   modalEl.addEventListener('hidden.bs.modal', () => modalEl.remove());
 };
 
-// Freeze/Unfreeze (probation)
 window.toggleProbation = async function(studentId, status) {
   const isFrozen = status === "frozen";
   const msg = isFrozen ? "Unfreeze this account (allow login)?" : "Freeze this account (prevent login/portal access, glass effect)?";
@@ -324,11 +341,9 @@ window.toggleProbation = async function(studentId, status) {
   }
 };
 
-// Delete Student (admin key required)
 window.adminDeleteStudent = function(studentId, studentEmail) {
   let modalEl = document.getElementById('deleteStudentModal');
   if (modalEl) modalEl.remove();
-
   modalEl = document.createElement('div');
   modalEl.className = 'modal fade';
   modalEl.id = 'deleteStudentModal';
@@ -351,7 +366,6 @@ window.adminDeleteStudent = function(studentId, studentEmail) {
   document.body.appendChild(modalEl);
   const bsModal = new bootstrap.Modal(modalEl);
   bsModal.show();
-
   modalEl.querySelector('#confirmDeleteBtn').onclick = async function() {
     const key = modalEl.querySelector('#adminDeleteKey').value;
     if (key !== 'YOUR_ADMIN_KEY') {
@@ -363,6 +377,7 @@ window.adminDeleteStudent = function(studentId, studentEmail) {
       showToast('Student account deleted.', 'danger');
       bsModal.hide();
       loadAllStudents();
+      loadOverviewStats();
     } catch (e) {
       logError("DeleteStudent", e);
       bsModal.hide();
@@ -371,7 +386,7 @@ window.adminDeleteStudent = function(studentId, studentEmail) {
   modalEl.addEventListener('hidden.bs.modal', () => modalEl.remove());
 };
 
-// --- GALLERY SECTION ---
+// ---- GALLERY SECTION ----
 if (galleryUploadForm) {
   galleryUploadForm.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -382,7 +397,6 @@ if (galleryUploadForm) {
     const caption = galleryCaption.value.trim();
     const date = galleryDate.value;
     const type = galleryType.value;
-
     if (!file || !caption || !date || !type) {
       uploadError.textContent = "All fields are required.";
       uploadBtn.disabled = false;
@@ -458,7 +472,7 @@ if (galleryType) {
 }
 window.addEventListener('DOMContentLoaded', () => loadGalleryPreview('gallery'));
 
-// --- ASSIGNMENTS: POST, LIST, CLOSE, SUBMISSIONS, APPROVE ---
+// ---- ASSIGNMENTS: POST, LIST, CLOSE, SUBMISSIONS, APPROVE ----
 if (assignmentForm) {
   assignmentForm.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -490,6 +504,7 @@ if (assignmentForm) {
       showToast("Assignment posted!", "success");
       assignmentForm.reset();
       loadAdminAssignments();
+      loadOverviewStats();
     } catch (err) {
       assignmentError.textContent = err.message || "Failed to post assignment.";
       logError("AssignmentPost", err);
@@ -553,12 +568,13 @@ window.closeAssignment = async function (id) {
     await updateDoc(doc(db, 'assignments', id), { closed: true });
     showToast("Assignment closed!", "danger");
     loadAdminAssignments();
+    loadOverviewStats();
   } catch (err) {
     logError("CloseAssignment", err);
   }
 };
 
-// --- SUBMISSIONS AND APPROVAL ---
+// ---- ASSIGNMENT SUBMISSIONS & APPROVAL ----
 window.showSubmissions = async function (assignmentId, classVal) {
   let modalEl = document.getElementById('submissionModal');
   if (modalEl) modalEl.remove();
