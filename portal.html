@@ -10,13 +10,18 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="portal-style.css" />
+  <style>
+    .btn-loading span.spinner-border { display: inline-block !important;}
+    .btn-loading svg, .btn-loading i { opacity: 0.5;}
+    .spinner-border {display: none; vertical-align: middle;}
+  </style>
 </head>
 <body>
   <!-- Navbar -->
   <nav class="navbar navbar-expand-lg shadow-sm">
     <div class="container">
       <a class="navbar-brand d-flex align-items-center" href="#">
-        <img src="latter-glory logo.png" alt="Logo">
+        <img src="latter-glory logo.png" alt="Logo" style="height:32px; margin-right:8px;">
         Latter Glory Academy
       </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
@@ -24,23 +29,41 @@
       </button>
       <div class="collapse navbar-collapse" id="navMenu">
         <ul class="navbar-nav ms-auto mb-2 mb-lg-0" id="tabNav">
-          <li class="nav-item"><a class="nav-link scroll-link active" data-bs-toggle="tab" href="#profileTab">Profile</a></li>
-          <li class="nav-item"><a class="nav-link scroll-link" data-bs-toggle="tab" href="#assignmentsTab">Assignments</a></li>
-          <li class="nav-item"><a class="nav-link scroll-link" data-bs-toggle="tab" href="#eventsTab">Events</a></li>
-          <li class="nav-item"><a class="nav-link scroll-link" data-bs-toggle="tab" href="#clubsTab">Clubs</a></li>
-          <li class="nav-item"><a class="nav-link scroll-link" data-bs-toggle="tab" href="#updatesTab">Updates</a></li>
-          <li class="nav-item"><a class="nav-link scroll-link" data-bs-toggle="tab" href="#galleryTab">Gallery</a></li>
-          <li class="nav-item"><a class="nav-link scroll-link" data-bs-toggle="tab" href="#timetableTab">Timetable</a></li>
+          <li class="nav-item"><a class="nav-link scroll-link active" data-bs-toggle="tab" href="#profileTab"><i class="bi bi-person-badge"></i> Profile</a></li>
+          <li class="nav-item"><a class="nav-link scroll-link" data-bs-toggle="tab" href="#assignmentsTab"><i class="bi bi-journal-check"></i> Assignments</a></li>
+          <li class="nav-item"><a class="nav-link scroll-link" data-bs-toggle="tab" href="#eventsTab"><i class="bi bi-calendar-event"></i> Events</a></li>
+          <li class="nav-item"><a class="nav-link scroll-link" data-bs-toggle="tab" href="#clubsTab"><i class="bi bi-people"></i> Clubs</a></li>
+          <li class="nav-item"><a class="nav-link scroll-link" data-bs-toggle="tab" href="#updatesTab"><i class="bi bi-megaphone"></i> Updates</a></li>
+          <li class="nav-item"><a class="nav-link scroll-link" data-bs-toggle="tab" href="#galleryTab"><i class="bi bi-images"></i> Gallery</a></li>
+          <li class="nav-item"><a class="nav-link scroll-link" data-bs-toggle="tab" href="#timetableTab"><i class="bi bi-table"></i> Timetable</a></li>
         </ul>
-        <button id="loginBtnNav" class="btn btn-brand ms-3">Login</button>
-        <button id="logoutBtnNav" class="btn btn-outline-dark ms-3" style="display:none;">Logout</button>
+        <button id="loginBtnNav" class="btn btn-brand ms-3">
+          <svg width="20" height="20" fill="currentColor" class="bi bi-box-arrow-in-right" viewBox="0 0 16 16">
+            <path fill-rule="evenodd" d="M6.364 1.05a.5.5 0 0 1 .636.057L11 5.293V2.5A1.5 1.5 0 0 1 12.5 1h2A1.5 1.5 0 0 1 16 2.5v11A1.5 1.5 0 0 1 14.5 15h-2A1.5 1.5 0 0 1 11 13.5v-2.793l-3.999 4.186a.5.5 0 0 1-.636.057.5.5 0 0 1-.057-.636l4.5-5a.5.5 0 0 1 0-.707l-4.5-5a.5.5 0 0 1 .057-.636z"/>
+          </svg>
+          <span>Login</span>
+          <span class="spinner-border spinner-border-sm ms-2" role="status" aria-hidden="true"></span>
+        </button>
+        <button id="logoutBtnNav" class="btn btn-outline-dark ms-3" style="display:none;">
+          <svg width="20" height="20" fill="currentColor" class="bi bi-box-arrow-right" viewBox="0 0 16 16">
+            <path fill-rule="evenodd" d="M10.146 12.354a.5.5 0 0 0 .708 0l4.5-4.5a.5.5 0 0 0 0-.708l-4.5-4.5a.5.5 0 0 0-.708.708L13.293 7.5H1.5a.5.5 0 0 0 0 1h11.793l-3.147 3.146a.5.5 0 0 0 0 .708z"/>
+          </svg>
+          <span>Logout</span>
+          <span class="spinner-border spinner-border-sm ms-2" role="status" aria-hidden="true"></span>
+        </button>
       </div>
     </div>
   </nav>
 
   <!-- Login Button (center) -->
   <div class="text-center my-4" id="loginBtnMainDiv">
-    <button class="btn btn-brand" data-bs-toggle="modal" data-bs-target="#loginModal" id="loginBtnMain">Login to Access Portal</button>
+    <button class="btn btn-brand" data-bs-toggle="modal" data-bs-target="#loginModal" id="loginBtnMain">
+      <svg width="20" height="20" fill="currentColor" class="bi bi-box-arrow-in-right" viewBox="0 0 16 16">
+        <path fill-rule="evenodd" d="M6.364 1.05a.5.5 0 0 1 .636.057L11 5.293V2.5A1.5 1.5 0 0 1 12.5 1h2A1.5 1.5 0 0 1 16 2.5v11A1.5 1.5 0 0 1 14.5 15h-2A1.5 1.5 0 0 1 11 13.5v-2.793l-3.999 4.186a.5.5 0 0 1-.636.057.5.5 0 0 1-.057-.636l4.5-5a.5.5 0 0 1 0-.707l-4.5-5a.5.5 0 0 1 .057-.636z"/>
+      </svg>
+      <span>Login to Access Portal</span>
+      <span class="spinner-border spinner-border-sm ms-2" role="status" aria-hidden="true"></span>
+    </button>
   </div>
 
   <!-- Login Modal -->
@@ -64,7 +87,13 @@
             <div id="loginError" class="text-danger mt-2" style="display:none;">Invalid credentials. Please try again.</div>
           </div>
           <div class="modal-footer">
-            <button type="submit" class="btn btn-brand w-100">Login</button>
+            <button type="submit" class="btn btn-brand w-100" id="loginSubmitBtn">
+              <svg width="20" height="20" fill="currentColor" class="bi bi-box-arrow-in-right" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M6.364 1.05a.5.5 0 0 1 .636.057L11 5.293V2.5A1.5 1.5 0 0 1 12.5 1h2A1.5 1.5 0 0 1 16 2.5v11A1.5 1.5 0 0 1 14.5 15h-2A1.5 1.5 0 0 1 11 13.5v-2.793l-3.999 4.186a.5.5 0 0 1-.636.057.5.5 0 0 1-.057-.636l4.5-5a.5.5 0 0 1 0-.707l-4.5-5a.5.5 0 0 1 .057-.636z"/>
+              </svg>
+              <span>Login</span>
+              <span class="spinner-border spinner-border-sm ms-2" role="status" aria-hidden="true"></span>
+            </button>
           </div>
         </form>
       </div>
@@ -104,11 +133,11 @@
             <label class="form-label">Gender</label>
             <div>
               <input type="radio" name="gender" value="Male" id="genderMale" required>
-              <label for="genderMale">Male</label>
+              <label for="genderMale"><i class="bi bi-gender-male"></i> Male</label>
               <input type="radio" name="gender" value="Female" id="genderFemale" required>
-              <label for="genderFemale">Female</label>
+              <label for="genderFemale"><i class="bi bi-gender-female"></i> Female</label>
               <input type="radio" name="gender" value="Other" id="genderOther" required>
-              <label for="genderOther">Other</label>
+              <label for="genderOther"><i class="bi bi-gender-ambiguous"></i> Other</label>
             </div>
           </div>
           <div class="mb-3">
@@ -122,7 +151,13 @@
           <div id="registerError" class="text-danger mt-2" style="display:none;"></div>
         </div>
         <div class="modal-footer">
-          <button type="submit" class="btn btn-brand w-100">Register</button>
+          <button type="submit" class="btn btn-brand w-100" id="registerSubmitBtn">
+            <svg width="20" height="20" fill="currentColor" class="bi bi-person-plus" viewBox="0 0 16 16">
+              <path d="M8 7a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM2 14s-1 0-1-1 1-4 7-4 7 3 7 4-1 1-1 1H2zm12-7v1h-3v1h3v1h1V9h3V8h-3V7h-1z"/>
+            </svg>
+            <span>Register</span>
+            <span class="spinner-border spinner-border-sm ms-2" role="status" aria-hidden="true"></span>
+          </button>
         </div>
       </form>
     </div>
@@ -135,6 +170,7 @@
       <section id="profileTab" class="tab-pane fade show active" data-aos="fade-up">
         <h2 class="tab-title"><i class="bi bi-person-badge"></i> Profile</h2>
         <div id="profileContent"></div>
+        <div class="mt-4" id="leaderboard-list"></div>
       </section>
       <!-- Assignments Section -->
       <section id="assignmentsTab" class="tab-pane fade" data-aos="fade-up">
@@ -154,6 +190,7 @@
       <!-- Updates Section -->
       <section id="updatesTab" class="tab-pane fade" data-aos="fade-up">
         <span class="tab-title"><i class="bi bi-megaphone"></i> Updates</span>
+        <div id="notifications-list" class="mb-3"></div>
         <div id="updates-list" class="row g-4"></div>
       </section>
       <!-- Gallery Section -->
@@ -188,7 +225,11 @@
   <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
   <script>
     AOS.init({ once: true, easing: 'ease-out-back' });
-    // ...tab logic, modal blur logic, etc...
+    // Example loader logic for buttons (toggle as needed in your JS)
+    // document.getElementById('loginBtnNav').classList.add('btn-loading');
+    // document.getElementById('logoutBtnNav').classList.add('btn-loading');
+    // document.getElementById('registerSubmitBtn').classList.add('btn-loading');
+    // document.getElementById('loginSubmitBtn').classList.add('btn-loading');
   </script>
   <script type="module" src="student-service.js"></script>
 </body>
