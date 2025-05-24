@@ -239,6 +239,9 @@ if (loginForm) {
   loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     loginError.style.display = "none";
+    // Show loader
+    const btn = document.getElementById('loginSubmitBtn') || loginForm.querySelector('button[type="submit"]');
+    if (btn) btn.classList.add('btn-loading');
     const email = loginForm.email.value.trim();
     const password = loginForm.password.value;
     try {
@@ -250,14 +253,17 @@ if (loginForm) {
       logError("Login", err);
       showNotification('Invalid credentials. Please try again.', 'danger');
     }
+    if (btn) btn.classList.remove('btn-loading');
   });
 }
 
 if (logoutBtnNav) {
   logoutBtnNav.addEventListener('click', async () => {
+    logoutBtnNav.classList.add('btn-loading');
     await signOut(auth);
     showNotification('Logged out.', 'info');
     showPortalUI(false);
+    logoutBtnNav.classList.remove('btn-loading');
   });
 }
 
@@ -271,7 +277,7 @@ onAuthStateChanged(auth, async (user) => {
     try {
       const adminDoc = await getDoc(doc(db, "admins", user.uid));
       if (adminDoc.exists()) {
-        window.location.href = "admin.html";
+        window.location.replace("admin.html");
         return; // Stop further student logic
       }
     } catch (err) {
@@ -336,7 +342,14 @@ async function loadAssignments() {
             ${closed ? "<div class='alert alert-warning mt-2'>Assignment has closed.</div>" : `
               <form onsubmit="window.submitAssignment(event, '${docSnap.id}')">
                 <input type="text" class="form-control mb-2" required placeholder="Enter your answer or link">
-                <button class="btn btn-primary btn-sm">Submit Assignment</button>
+                <button class="btn btn-primary btn-sm">
+                  <svg width="16" height="16" fill="currentColor" class="bi bi-send" viewBox="0 0 16 16">
+                    <path d="M15.964 0.686a.5.5 0 0 1 .036.708l-15 15a.5.5 0 0 1-.708-.708l15-15a.5.5 0 0 1 .672-.036z"/>
+                    <path d="M6.56 11.56l-2.122-2.122A.5.5 0 0 1 5.707 8h7.586a.5.5 0 0 1 .353.854l-2.122 2.122a.5.5 0 0 1-.707 0l-2.121-2.121a.5.5 0 0 1 0-.707z"/>
+                  </svg>
+                  Submit Assignment
+                  <span class="spinner-border spinner-border-sm ms-2" style="display:none;" role="status" aria-hidden="true"></span>
+                </button>
               </form>
             `}
           </div>
@@ -375,6 +388,8 @@ window.submitAssignment = async function (e, assignmentId) {
   e.preventDefault();
   const answer = e.target[0].value;
   if (!answer) return;
+  const btn = e.target.querySelector('button');
+  if (btn) btn.classList.add('btn-loading');
   const user = auth.currentUser;
   if (!user || !studentProfile) return;
   try {
@@ -410,4 +425,14 @@ window.submitAssignment = async function (e, assignmentId) {
   } catch (err) {
     logError("Assignment Submit", err);
   }
+  if (btn) btn.classList.remove('btn-loading');
 };
+
+async function loadProfile() {
+  if (!profileContent) return;
+  profileContent.innerHTML = `
+    <div class="d-flex justify-content-center align-items-center py-5">
+      <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+    </div>`;
+  // ...rest of the loading logic
+}
