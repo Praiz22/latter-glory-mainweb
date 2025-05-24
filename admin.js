@@ -26,6 +26,11 @@ const auth = getAuth(app);
 const storage = getStorage(app);
 
 // ---- DOM Elements ----
+const adminContent = document.getElementById('adminContent');
+const logoutBtnAdmin = document.getElementById('logoutBtnAdmin');
+const toastContainer = document.getElementById('toast-container');
+
+// Registration Modal
 const adminRegisterForm = document.getElementById('adminRegisterForm');
 const adminRegisterError = document.getElementById('adminRegisterError');
 const adminRegisterSuccess = document.getElementById('adminRegisterSuccess');
@@ -33,9 +38,8 @@ const matricDiv = document.getElementById('matricNumberDisplay');
 const matricNameSpan = document.getElementById('matricStudentName');
 const matricEmailSpan = document.getElementById('matricStudentEmail');
 const matricNumberSpan = document.getElementById('matricNumberValue');
-const logoutBtnAdmin = document.getElementById('logoutBtnAdmin');
-const toastContainer = document.getElementById('toast-container');
-const adminContent = document.getElementById('adminContent');
+
+// Assignments
 const assignmentForm = document.getElementById('assignmentForm');
 const assignmentTitle = document.getElementById('assignmentTitle');
 const assignmentDesc = document.getElementById('assignmentDesc');
@@ -44,7 +48,9 @@ const assignmentDueHours = document.getElementById('assignmentDueHours');
 const postAssignmentBtn = document.getElementById('postAssignmentBtn');
 const assignmentSpinner = document.getElementById('assignmentSpinner');
 const assignmentError = document.getElementById('assignmentError');
-const assignmentAdminList = document.getElementById('assignmentAdminList');
+const assignmentAdminList = document.getElementById('adminAssignmentClassList');
+
+// Gallery
 const galleryUploadForm = document.getElementById('galleryUploadForm');
 const galleryType = document.getElementById('galleryType');
 const galleryImage = document.getElementById('galleryImage');
@@ -55,7 +61,9 @@ const uploadSpinner = document.getElementById('uploadSpinner');
 const uploadError = document.getElementById('uploadError');
 const galleryPreview = document.getElementById('galleryPreview');
 const galleryPreviewType = document.getElementById('galleryPreviewType');
-const studentsList = document.getElementById('studentsClassList') || document.getElementById('studentsList');
+
+// Students
+const studentsList = document.getElementById('studentsClassList');
 
 // ---- Utility Functions ----
 function showToast(message, type = 'success') {
@@ -109,16 +117,12 @@ async function loadOverviewStats() {
   if (!statsDiv) return;
   statsDiv.innerHTML = '<div class="text-center"><span class="spinner-border spinner-border-sm"></span> Loading...</div>';
   try {
-    // Students
     const studentsSnap = await getDocs(collection(db, 'students'));
     const totalStudents = studentsSnap.size;
-    // Assignments
     const assignmentsSnap = await getDocs(collection(db, 'assignments'));
     const totalAssignments = assignmentsSnap.size;
-    // Classes
     const classSet = new Set();
     studentsSnap.forEach(doc => classSet.add(doc.data().class));
-    // Admins
     const adminsSnap = await getDocs(collection(db, 'users'));
     let totalAdmins = 0;
     adminsSnap.forEach(doc => { if(doc.data().role === "admin") totalAdmins++; });
