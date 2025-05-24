@@ -26,12 +26,25 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 const storage = getStorage(app);
 
-// --- Helper Functions ---
+// --- UI Helper Functions ---
 
-function generateMatricNumber(fullName, studentClass) {
-  const firstLetter = fullName.trim()[0].toUpperCase();
-  const randomDigits = Math.floor(Math.random() * 90 + 10); // two digits
-  return `LGA/${studentClass}/${firstLetter}${randomDigits}`;
+function showPortalUI(isLoggedIn) {
+  const tabNav = document.getElementById('tabNav');
+  const mainContent = document.getElementById('mainContent');
+  const loginBtnNav = document.getElementById('loginBtnNav');
+  const logoutBtnNav = document.getElementById('logoutBtnNav');
+  const loginBtnMainDiv = document.getElementById('loginBtnMainDiv');
+  if (tabNav) tabNav.style.display = isLoggedIn ? '' : 'none';
+  if (mainContent) mainContent.style.display = isLoggedIn ? '' : 'none';
+  if (loginBtnNav) loginBtnNav.style.display = isLoggedIn ? 'none' : '';
+  if (logoutBtnNav) logoutBtnNav.style.display = isLoggedIn ? '' : 'none';
+  if (loginBtnMainDiv) loginBtnMainDiv.style.display = isLoggedIn ? 'none' : '';
+}
+
+function setButtonLoading(btn, isLoading = true) {
+  if (!btn) return;
+  if (isLoading) btn.classList.add('btn-loading');
+  else btn.classList.remove('btn-loading');
 }
 
 function showNotification(message, type = 'primary', timeout = 4000) {
@@ -49,6 +62,11 @@ function logError(context, err) {
   showNotification(`Error: ${err.message || err}`, "danger", 6000);
 }
 
+// --- DOMContentLoaded: Hide UI until login state resolved ---
+document.addEventListener('DOMContentLoaded', () => {
+  showPortalUI(false);
+});
+
 // --- Registration ---
 const registerForm = document.getElementById('registerForm');
 const registerError = document.getElementById('registerError');
@@ -57,6 +75,8 @@ if (registerForm) {
   registerForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (registerError) registerError.style.display = "none";
+    const btn = document.getElementById('registerSubmitBtn') || registerForm.querySelector('button[type="submit"]');
+    setButtonLoading(btn, true);
 
     const fullName = registerForm.studentName.value.trim();
     const email = registerForm.studentEmail.value.trim().toLowerCase();
@@ -64,28 +84,24 @@ if (registerForm) {
     const studentClass = registerForm.studentClass.value;
     const gender = registerForm.querySelector('input[name="gender"]:checked')?.value || '';
     const passportFile = registerForm.passport.files[0];
-
     if (!email || !password || !fullName || !studentClass || !gender) {
       if (registerError) {
         registerError.textContent = "All fields are required.";
         registerError.style.display = "block";
       }
+      setButtonLoading(btn, false);
       return;
     }
-
     const matricNumber = generateMatricNumber(fullName, studentClass);
-
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(userCredential.user, { displayName: fullName });
-
       let passportUrl = "";
       if (passportFile) {
         const imgRef = storageRef(storage, `passports/${matricNumber}_${Date.now()}.jpg`);
         await uploadBytes(imgRef, passportFile);
         passportUrl = await getDownloadURL(imgRef);
       }
-
       await setDoc(doc(db, "students", matricNumber), {
         matricNumber,
         name: fullName,
@@ -97,7 +113,6 @@ if (registerForm) {
         createdAt: new Date().toISOString(),
         points: 0
       });
-
       showNotification("Registration successful! You can now log in.", "success");
       registerForm.reset();
       bootstrap.Modal.getInstance(document.getElementById('registerModal')).hide();
@@ -108,21 +123,25 @@ if (registerForm) {
       }
       logError("Registration", err);
     }
+    setButtonLoading(btn, false);
   });
 }
 
-// --- Profile Section (NO delete button for students) ---
+// --- Profile Section ---
 const profileContent = document.getElementById('profileContent');
-
 async function loadProfile() {
   if (!profileContent) return;
-  profileContent.innerHTML = `<div class="text-center w-100 py-3">Loading...</div>`;
+  profileContent.innerHTML = `
+    <div class="d-flex justify-content-center align-items-center py-5">
+      <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+    </div>`;
   try {
     const user = auth.currentUser;
     if (!user) {
       profileContent.innerHTML = `<div class="text-danger">You are not logged in.</div>`;
       return;
     }
+    // Find student by email
     const q = query(collection(db, "students"), where("email", "==", user.email));
     const querySnap = await getDocs(q);
     if (querySnap.empty) {
@@ -130,7 +149,6 @@ async function loadProfile() {
       return;
     }
     const student = querySnap.docs[0].data();
-
     profileContent.innerHTML = `
       <div class="d-flex flex-column align-items-center justify-content-center">
         <img src="${student.passportUrl || 'https://placehold.co/100x100?text=No+Photo'}" class="profile-avatar mb-3" alt="Student Passport">
@@ -153,7 +171,10 @@ async function loadProfile() {
 async function loadNotifications() {
   const notifList = document.getElementById('notifications-list');
   if (!notifList) return;
-  notifList.innerHTML = `<div class="text-center py-3">Loading notifications...</div>`;
+  notifList.innerHTML = `
+    <div class="d-flex justify-content-center align-items-center py-5">
+      <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+    </div>`;
   try {
     const snap = await getDocs(query(collection(db, "notifications"), orderBy("createdAt", "desc")));
     if (snap.empty) {
@@ -170,12 +191,7 @@ async function loadNotifications() {
           </div>
         `;
       } else {
-        // General notification
-        html += `
-          <div class="alert alert-info mb-2">
-            ${n.message}
-          </div>
-        `;
+        html += `<div class="alert alert-info mb-2">${n.message}</div>`;
       }
     });
     notifList.innerHTML = html;
@@ -185,13 +201,15 @@ async function loadNotifications() {
   }
 }
 
-// --- Leaderboard Loader (no chart, just data for now) ---
+// --- Leaderboard Loader ---
 async function loadLeaderboard() {
   const leaderboardDiv = document.getElementById('leaderboard-list');
   if (!leaderboardDiv) return;
-  leaderboardDiv.innerHTML = `<div class="text-center py-3">Loading leaderboard...</div>`;
+  leaderboardDiv.innerHTML = `
+    <div class="d-flex justify-content-center align-items-center py-5">
+      <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+    </div>`;
   try {
-    // Get all students, order by points descending
     const snap = await getDocs(query(collection(db, "students"), orderBy("points", "desc")));
     if (snap.empty) {
       leaderboardDiv.innerHTML = `<div class="text-muted">No students yet.</div>`;
@@ -217,107 +235,20 @@ async function loadLeaderboard() {
   }
 }
 
-// --- Auth State, Login/Logout/Tab Logic ---
-const loginForm = document.getElementById('loginForm');
-const loginModal = document.getElementById('loginModal');
-const loginBtnNav = document.getElementById('loginBtnNav');
-const logoutBtnNav = document.getElementById('logoutBtnNav');
-const loginBtnMainDiv = document.getElementById('loginBtnMainDiv');
-const mainContent = document.getElementById('mainContent');
-const tabNav = document.getElementById('tabNav');
-const loginError = document.getElementById('loginError');
-
-function showPortalUI(isLoggedIn) {
-  if (tabNav) tabNav.style.display = isLoggedIn ? '' : 'none';
-  if (mainContent) mainContent.style.display = isLoggedIn ? '' : 'none';
-  if (loginBtnNav) loginBtnNav.style.display = isLoggedIn ? 'none' : '';
-  if (logoutBtnNav) logoutBtnNav.style.display = isLoggedIn ? '' : 'none';
-  if (loginBtnMainDiv) loginBtnMainDiv.style.display = isLoggedIn ? 'none' : '';
-}
-
-if (loginForm) {
-  loginForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    loginError.style.display = "none";
-    // Show loader
-    const btn = document.getElementById('loginSubmitBtn') || loginForm.querySelector('button[type="submit"]');
-    if (btn) btn.classList.add('btn-loading');
-    const email = loginForm.email.value.trim();
-    const password = loginForm.password.value;
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-      bootstrap.Modal.getInstance(loginModal).hide();
-      showNotification('Login successful!', 'success');
-    } catch (err) {
-      loginError.style.display = "block";
-      logError("Login", err);
-      showNotification('Invalid credentials. Please try again.', 'danger');
-    }
-    if (btn) btn.classList.remove('btn-loading');
-  });
-}
-
-if (logoutBtnNav) {
-  logoutBtnNav.addEventListener('click', async () => {
-    logoutBtnNav.classList.add('btn-loading');
-    await signOut(auth);
-    showNotification('Logged out.', 'info');
-    showPortalUI(false);
-    logoutBtnNav.classList.remove('btn-loading');
-  });
-}
-
-let studentProfile = null;
-
-// --- ROLE CHECKER AND REDIRECT LOGIC (checks 'admins' collection now) ---
-onAuthStateChanged(auth, async (user) => {
-  showPortalUI(!!user);
-  if (user) {
-    // ---- ROLE CHECKER FOR ADMIN (checks 'admins' collection by UID) ----
-    try {
-      const adminDoc = await getDoc(doc(db, "admins", user.uid));
-      if (adminDoc.exists()) {
-        window.location.replace("admin.html");
-        return; // Stop further student logic
-      }
-    } catch (err) {
-      logError("Admin Check", err);
-    }
-    // --- STUDENT LOGIC (if not admin) ---
-    const studentsSnap = await getDocs(collection(db, "students"));
-    studentsSnap.forEach(docSnap => {
-      if ((docSnap.data().email || "").toLowerCase() === user.email.toLowerCase()) {
-        studentProfile = docSnap.data();
-      }
-    });
-    loadProfile();
-    loadAssignments();
-    loadNotifications();
-    loadLeaderboard();
-  } else {
-    studentProfile = null;
-    if (profileContent) profileContent.innerHTML = '';
-    if (assignmentsList) assignmentsList.innerHTML = '';
-    const notifList = document.getElementById('notifications-list');
-    if (notifList) notifList.innerHTML = '';
-    const leaderboardDiv = document.getElementById('leaderboard-list');
-    if (leaderboardDiv) leaderboardDiv.innerHTML = '';
-  }
-});
-
-// --- Assignments (with timer and robust interval logic) ---
+// --- Assignments ---
 const assignmentsList = document.getElementById('assignments-list');
 let assignmentTimers = [];
-
 function clearAssignmentTimers() {
   assignmentTimers.forEach(timer => clearInterval(timer));
   assignmentTimers = [];
 }
-
 async function loadAssignments() {
   if (!assignmentsList || !studentProfile) return;
   clearAssignmentTimers();
-  assignmentsList.innerHTML = '<div class="text-center"><span class="spinner-border spinner-border-sm"></span> Loading...</div>';
+  assignmentsList.innerHTML = `
+    <div class="d-flex justify-content-center align-items-center py-5">
+      <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+    </div>`;
   try {
     const q = query(collection(db, 'assignments'), orderBy('dueDate', 'desc'));
     const snap = await getDocs(q);
@@ -342,20 +273,19 @@ async function loadAssignments() {
             ${closed ? "<div class='alert alert-warning mt-2'>Assignment has closed.</div>" : `
               <form onsubmit="window.submitAssignment(event, '${docSnap.id}')">
                 <input type="text" class="form-control mb-2" required placeholder="Enter your answer or link">
-                <button class="btn btn-primary btn-sm">
+                <button class="btn btn-primary btn-sm" type="submit">
                   <svg width="16" height="16" fill="currentColor" class="bi bi-send" viewBox="0 0 16 16">
                     <path d="M15.964 0.686a.5.5 0 0 1 .036.708l-15 15a.5.5 0 0 1-.708-.708l15-15a.5.5 0 0 1 .672-.036z"/>
                     <path d="M6.56 11.56l-2.122-2.122A.5.5 0 0 1 5.707 8h7.586a.5.5 0 0 1 .353.854l-2.122 2.122a.5.5 0 0 1-.707 0l-2.121-2.121a.5.5 0 0 1 0-.707z"/>
                   </svg>
-                  Submit Assignment
-                  <span class="spinner-border spinner-border-sm ms-2" style="display:none;" role="status" aria-hidden="true"></span>
+                  <span>Submit Assignment</span>
+                  <span class="spinner-border spinner-border-sm ms-2" role="status" aria-hidden="true"></span>
                 </button>
               </form>
             `}
           </div>
         </div>
       `;
-      // Timer updater (ONE interval per assignment)
       if (!closed) {
         setTimeout(() => {
           const timerElem = document.getElementById(timerId);
@@ -378,8 +308,8 @@ async function loadAssignments() {
     });
     assignmentsList.innerHTML = html;
   } catch (err) {
-    logError("Assignments Load", err);
     assignmentsList.innerHTML = "<div class='text-danger p-2'>Failed to load assignments.</div>";
+    logError("Assignments Load", err);
   }
 }
 
@@ -389,7 +319,7 @@ window.submitAssignment = async function (e, assignmentId) {
   const answer = e.target[0].value;
   if (!answer) return;
   const btn = e.target.querySelector('button');
-  if (btn) btn.classList.add('btn-loading');
+  setButtonLoading(btn, true);
   const user = auth.currentUser;
   if (!user || !studentProfile) return;
   try {
@@ -397,13 +327,11 @@ window.submitAssignment = async function (e, assignmentId) {
       studentEmail: user.email,
       answer,
       submittedAt: serverTimestamp(),
-      approved: false // admin will update this
+      approved: false
     });
-    // Award points for assignment submission
     const pointsForAssignment = 2;
     const studentRef = doc(db, "students", studentProfile.matricNumber);
     await setDoc(studentRef, { points: (studentProfile.points || 0) + pointsForAssignment }, { merge: true });
-    // Add points notification
     await setDoc(doc(collection(db, "notifications")), {
       type: "points",
       message: `${studentProfile.name} from ${studentProfile.class} got ${pointsForAssignment} points for submitting an assignment`,
@@ -425,14 +353,102 @@ window.submitAssignment = async function (e, assignmentId) {
   } catch (err) {
     logError("Assignment Submit", err);
   }
-  if (btn) btn.classList.remove('btn-loading');
+  setButtonLoading(btn, false);
 };
 
-async function loadProfile() {
-  if (!profileContent) return;
-  profileContent.innerHTML = `
-    <div class="d-flex justify-content-center align-items-center py-5">
-      <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
-    </div>`;
-  // ...rest of the loading logic
+// --- Tab logic: let Bootstrap handle it! ---
+// No extra JS needed. Bootstrap JS handles tab switching via data attributes.
+
+// --- Login/Logout Handlers ---
+const loginForm = document.getElementById('loginForm');
+const loginModal = document.getElementById('loginModal');
+const loginBtnNav = document.getElementById('loginBtnNav');
+const logoutBtnNav = document.getElementById('logoutBtnNav');
+const loginBtnMainDiv = document.getElementById('loginBtnMainDiv');
+const loginError = document.getElementById('loginError');
+let studentProfile = null;
+
+if (loginForm) {
+  loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    loginError.style.display = "none";
+    const btn = document.getElementById('loginSubmitBtn') || loginForm.querySelector('button[type="submit"]');
+    setButtonLoading(btn, true);
+    const email = loginForm.email.value.trim();
+    const password = loginForm.password.value;
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      bootstrap.Modal.getInstance(loginModal).hide();
+      showNotification('Login successful!', 'success');
+      showPortalUI(true);
+      // Optionally, switch to profile tab after login
+      const tabTrigger = document.querySelector('[data-bs-toggle="tab"][href="#profileTab"]');
+      if (tabTrigger) new bootstrap.Tab(tabTrigger).show();
+    } catch (err) {
+      loginError.style.display = "block";
+      logError("Login", err);
+      showNotification('Invalid credentials. Please try again.', 'danger');
+    }
+    setButtonLoading(btn, false);
+  });
+}
+
+if (logoutBtnNav) {
+  logoutBtnNav.addEventListener('click', async () => {
+    setButtonLoading(logoutBtnNav, true);
+    await signOut(auth);
+    showNotification('Logged out.', 'info');
+    showPortalUI(false);
+    setButtonLoading(logoutBtnNav, false);
+    // Optionally, switch to login modal/tab
+  });
+}
+
+// --- Auth State, Role Check and Portal Logic ---
+onAuthStateChanged(auth, async (user) => {
+  showPortalUI(!!user);
+  if (user) {
+    // --- Admin redirect check ---
+    try {
+      const adminDoc = await getDoc(doc(db, "admins", user.uid));
+      if (adminDoc.exists()) {
+        window.location.replace("admin.html");
+        return;
+      }
+    } catch (err) {
+      logError("Admin Check", err);
+    }
+    // --- Student logic ---
+    // Find and set student profile
+    const studentsSnap = await getDocs(collection(db, "students"));
+    studentProfile = null;
+    studentsSnap.forEach(docSnap => {
+      if ((docSnap.data().email || "").toLowerCase() === user.email.toLowerCase()) {
+        studentProfile = docSnap.data();
+      }
+    });
+    loadProfile();
+    loadAssignments();
+    loadNotifications();
+    loadLeaderboard();
+    // Always default to profile tab on login
+    const tabTrigger = document.querySelector('[data-bs-toggle="tab"][href="#profileTab"]');
+    if (tabTrigger) new bootstrap.Tab(tabTrigger).show();
+  } else {
+    studentProfile = null;
+    showPortalUI(false);
+    if (profileContent) profileContent.innerHTML = '';
+    if (assignmentsList) assignmentsList.innerHTML = '';
+    const notifList = document.getElementById('notifications-list');
+    if (notifList) notifList.innerHTML = '';
+    const leaderboardDiv = document.getElementById('leaderboard-list');
+    if (leaderboardDiv) leaderboardDiv.innerHTML = '';
+  }
+});
+
+// --- Matric number generator ---
+function generateMatricNumber(fullName, studentClass) {
+  const firstLetter = fullName.trim()[0].toUpperCase();
+  const randomDigits = Math.floor(Math.random() * 90 + 10); // two digits
+  return `LGA/${studentClass}/${firstLetter}${randomDigits}`;
 }
