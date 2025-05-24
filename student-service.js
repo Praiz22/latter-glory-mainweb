@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import {
-  getFirestore, collection, doc, setDoc, getDoc, getDocs, query, where, orderBy, serverTimestamp
+  getFirestore, collection, doc, setDoc, getDoc, getDocs, query, where, orderBy, serverTimestamp, updateDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import {
   getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword, updateProfile
@@ -26,8 +26,36 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 const storage = getStorage(app);
 
-// --- UI Helper Functions ---
-
+// --- Utility Functions (shared logic with admin.js) ---
+function generateMatricNumber(fullName, studentClass) {
+  const firstLetter = fullName.trim()[0].toUpperCase();
+  const randomDigits = Math.floor(Math.random() * 90 + 10);
+  return `LGA/${studentClass}/${firstLetter}${randomDigits}`;
+}
+function generatePassword(length = 8) {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let pass = "";
+  for (let i = 0; i < length; ++i) pass += chars[Math.floor(Math.random() * chars.length)];
+  return pass;
+}
+function showNotification(message, type = 'primary', timeout = 4000) {
+  const toastEl = document.getElementById('mainToast');
+  const toastBody = document.getElementById('mainToastBody');
+  if (!toastEl || !toastBody) return;
+  toastBody.textContent = message;
+  toastEl.className = `toast align-items-center text-bg-${type} border-0`;
+  const toast = new bootstrap.Toast(toastEl, { delay: timeout });
+  toast.show();
+}
+function logError(context, err) {
+  console.error(`[${context}]`, err);
+  showNotification(`Error: ${err.message || err}`, "danger", 6000);
+}
+function setButtonLoading(btn, isLoading = true) {
+  if (!btn) return;
+  if (isLoading) btn.classList.add('btn-loading');
+  else btn.classList.remove('btn-loading');
+}
 function showPortalUI(isLoggedIn) {
   const tabNav = document.getElementById('tabNav');
   const mainContent = document.getElementById('mainContent');
@@ -41,27 +69,6 @@ function showPortalUI(isLoggedIn) {
   if (loginBtnMainDiv) loginBtnMainDiv.style.display = isLoggedIn ? 'none' : '';
 }
 
-function setButtonLoading(btn, isLoading = true) {
-  if (!btn) return;
-  if (isLoading) btn.classList.add('btn-loading');
-  else btn.classList.remove('btn-loading');
-}
-
-function showNotification(message, type = 'primary', timeout = 4000) {
-  const toastEl = document.getElementById('mainToast');
-  const toastBody = document.getElementById('mainToastBody');
-  if (!toastEl || !toastBody) return;
-  toastBody.textContent = message;
-  toastEl.className = `toast align-items-center text-bg-${type} border-0`;
-  const toast = new bootstrap.Toast(toastEl, { delay: timeout });
-  toast.show();
-}
-
-function logError(context, err) {
-  console.error(`[${context}]`, err);
-  showNotification(`Error: ${err.message || err}`, "danger", 6000);
-}
-
 // --- DOMContentLoaded: Hide UI until login state resolved ---
 document.addEventListener('DOMContentLoaded', () => {
   showPortalUI(false);
@@ -70,7 +77,6 @@ document.addEventListener('DOMContentLoaded', () => {
 // --- Registration ---
 const registerForm = document.getElementById('registerForm');
 const registerError = document.getElementById('registerError');
-
 if (registerForm) {
   registerForm.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -80,10 +86,11 @@ if (registerForm) {
 
     const fullName = registerForm.studentName.value.trim();
     const email = registerForm.studentEmail.value.trim().toLowerCase();
-    const password = registerForm.registerPassword.value;
+    let password = registerForm.registerPassword.value;
     const studentClass = registerForm.studentClass.value;
     const gender = registerForm.querySelector('input[name="gender"]:checked')?.value || '';
     const passportFile = registerForm.passport.files[0];
+
     if (!email || !password || !fullName || !studentClass || !gender) {
       if (registerError) {
         registerError.textContent = "All fields are required.";
@@ -92,6 +99,9 @@ if (registerForm) {
       setButtonLoading(btn, false);
       return;
     }
+    // Optionally, force generate password if not provided
+    if (!password) password = generatePassword(8);
+
     const matricNumber = generateMatricNumber(fullName, studentClass);
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -111,7 +121,9 @@ if (registerForm) {
         email,
         uid: userCredential.user.uid,
         createdAt: new Date().toISOString(),
-        points: 0
+        points: 0,
+        status: "active",
+        role: "student"
       });
       showNotification("Registration successful! You can now log in.", "success");
       registerForm.reset();
@@ -129,6 +141,7 @@ if (registerForm) {
 
 // --- Profile Section ---
 const profileContent = document.getElementById('profileContent');
+let studentProfile = null;
 async function loadProfile() {
   if (!profileContent) return;
   profileContent.innerHTML = `
@@ -149,6 +162,18 @@ async function loadProfile() {
       return;
     }
     const student = querySnap.docs[0].data();
+    studentProfile = student;
+    // Handle frozen accounts
+    if (student.status === "frozen") {
+      profileContent.innerHTML = `
+        <div class="alert alert-warning text-center">
+          <b>Your account has been frozen by the administrator.</b><br>
+          You cannot access the portal until it is unfrozen.
+        </div>`;
+      showPortalUI(false);
+      await signOut(auth);
+      return;
+    }
     profileContent.innerHTML = `
       <div class="d-flex flex-column align-items-center justify-content-center">
         <img src="${student.passportUrl || 'https://placehold.co/100x100?text=No+Photo'}" class="profile-avatar mb-3" alt="Student Passport">
@@ -313,7 +338,7 @@ async function loadAssignments() {
   }
 }
 
-// Assignment submission and points/notification
+// Assignment submission and points/notification (points are only awarded after admin approval!)
 window.submitAssignment = async function (e, assignmentId) {
   e.preventDefault();
   const answer = e.target[0].value;
@@ -323,30 +348,15 @@ window.submitAssignment = async function (e, assignmentId) {
   const user = auth.currentUser;
   if (!user || !studentProfile) return;
   try {
+    // Submissions will be approved by admin before points are awarded!
     await setDoc(doc(db, 'assignments', assignmentId, 'submissions', user.uid), {
       studentEmail: user.email,
       answer,
       submittedAt: serverTimestamp(),
       approved: false
     });
-    const pointsForAssignment = 2;
-    const studentRef = doc(db, "students", studentProfile.matricNumber);
-    await setDoc(studentRef, { points: (studentProfile.points || 0) + pointsForAssignment }, { merge: true });
-    await setDoc(doc(collection(db, "notifications")), {
-      type: "points",
-      message: `${studentProfile.name} from ${studentProfile.class} got ${pointsForAssignment} points for submitting an assignment`,
-      student: {
-        name: studentProfile.name,
-        matricNumber: studentProfile.matricNumber,
-        passportUrl: studentProfile.passportUrl || "",
-        class: studentProfile.class
-      },
-      points: pointsForAssignment,
-      reason: "submitting an assignment",
-      createdAt: new Date().toISOString()
-    });
+    showNotification("Assignment submitted! Await admin approval.", "success");
     e.target.reset();
-    showNotification("Assignment submitted! Await admin approval. You earned 2 points.", "success");
     loadProfile();
     loadNotifications();
     loadLeaderboard();
@@ -356,9 +366,6 @@ window.submitAssignment = async function (e, assignmentId) {
   setButtonLoading(btn, false);
 };
 
-// --- Tab logic: let Bootstrap handle it! ---
-// No extra JS needed. Bootstrap JS handles tab switching via data attributes.
-
 // --- Login/Logout Handlers ---
 const loginForm = document.getElementById('loginForm');
 const loginModal = document.getElementById('loginModal');
@@ -366,7 +373,6 @@ const loginBtnNav = document.getElementById('loginBtnNav');
 const logoutBtnNav = document.getElementById('logoutBtnNav');
 const loginBtnMainDiv = document.getElementById('loginBtnMainDiv');
 const loginError = document.getElementById('loginError');
-let studentProfile = null;
 
 if (loginForm) {
   loginForm.addEventListener('submit', async (e) => {
@@ -381,7 +387,6 @@ if (loginForm) {
       bootstrap.Modal.getInstance(loginModal).hide();
       showNotification('Login successful!', 'success');
       showPortalUI(true);
-      // Optionally, switch to profile tab after login
       const tabTrigger = document.querySelector('[data-bs-toggle="tab"][href="#profileTab"]');
       if (tabTrigger) new bootstrap.Tab(tabTrigger).show();
     } catch (err) {
@@ -400,15 +405,14 @@ if (logoutBtnNav) {
     showNotification('Logged out.', 'info');
     showPortalUI(false);
     setButtonLoading(logoutBtnNav, false);
-    // Optionally, switch to login modal/tab
   });
 }
 
 // --- Auth State, Role Check and Portal Logic ---
-onAuthStateChanged(auth, async (user) => {
+onAuthStateChanged(auth, async user => {
   showPortalUI(!!user);
   if (user) {
-    // --- Admin redirect check ---
+    // Admin redirect check
     try {
       const adminDoc = await getDoc(doc(db, "admins", user.uid));
       if (adminDoc.exists()) {
@@ -418,8 +422,7 @@ onAuthStateChanged(auth, async (user) => {
     } catch (err) {
       logError("Admin Check", err);
     }
-    // --- Student logic ---
-    // Find and set student profile
+    // Student logic
     const studentsSnap = await getDocs(collection(db, "students"));
     studentProfile = null;
     studentsSnap.forEach(docSnap => {
@@ -445,10 +448,3 @@ onAuthStateChanged(auth, async (user) => {
     if (leaderboardDiv) leaderboardDiv.innerHTML = '';
   }
 });
-
-// --- Matric number generator ---
-function generateMatricNumber(fullName, studentClass) {
-  const firstLetter = fullName.trim()[0].toUpperCase();
-  const randomDigits = Math.floor(Math.random() * 90 + 10); // two digits
-  return `LGA/${studentClass}/${firstLetter}${randomDigits}`;
-}
