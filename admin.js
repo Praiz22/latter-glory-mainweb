@@ -1,7 +1,7 @@
 // --- Firebase Imports ---
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import {
-  getFirestore, collection, addDoc, getDocs, query, orderBy, doc, updateDoc, deleteDoc, serverTimestamp, setDoc, where
+  getFirestore, collection, addDoc, getDocs, query, orderBy, doc, updateDoc, deleteDoc, serverTimestamp, setDoc, where, getDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import {
   getAuth, onAuthStateChanged, signOut, createUserWithEmailAndPassword, updateProfile
@@ -27,126 +27,18 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 const storage = getStorage(app);
 
-// --- Batch create admin users in Firestore by UID (run ONCE, then comment/remove) ---
-const adminAccounts = [
-  { uid: "OvlzMg2DkBPDjOvByaPTcu6c89m2", email: "praiseola22@gmail.com" },
-  { uid: "fbMRfLMiUtezXublDEhSCqHCT4d2", email: "thelattergloryacademy@gmail.com" },
-  { uid: "SdqsLC8UihYZsN4fkEpfFifjzpy1", email: "praix25@gmail.com" }
-];
-
-async function createAdminDocs() {
-  for (const admin of adminAccounts) {
-    try {
-      await setDoc(doc(db, "users", admin.uid), {
-        email: admin.email,
-        role: "admin",
-        createdAt: new Date().toISOString()
-      });
-      console.log(`Admin Firestore doc created for: ${admin.email}`);
-    } catch (err) {
-      console.error(`Failed for ${admin.email}:`, err);
-    }
-  }
-}
-// --- UNCOMMENT THE NEXT LINE, run once, then comment/remove after admins are created ---
-// createAdminDocs();
-
-// --- Helper to generate matric number ---
-function generateMatricNumber(fullName, studentClass) {
-  const firstLetter = fullName.trim()[0].toUpperCase();
-  const randomDigits = Math.floor(Math.random() * 90 + 10); // two digits
-  return `LGA/${studentClass}/${firstLetter}${randomDigits}`;
-}
-
 // --- DOM Elements ---
 const adminRegisterForm = document.getElementById('adminRegisterForm');
 const adminRegisterError = document.getElementById('adminRegisterError');
 const adminRegisterSuccess = document.getElementById('adminRegisterSuccess');
-
-// --- Student Registration ---
-if (adminRegisterForm) {
-  adminRegisterForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    adminRegisterError.style.display = "none";
-    adminRegisterSuccess.style.display = "none";
-
-    const fullName = document.getElementById('studentName').value.trim();
-    const email = document.getElementById('studentEmail').value.trim().toLowerCase();
-    const studentClass = document.getElementById('studentClass').value.trim();
-    const gender = document.getElementById('studentGender').value;
-    const passportFile = document.getElementById('studentPassport').files[0];
-    const tempPassword = `LGA${Math.floor(Math.random() * 90000 + 10000)}`; // example password
-
-    if (!email || !fullName || !studentClass || !gender) {
-      adminRegisterError.textContent = "All fields are required.";
-      adminRegisterError.style.display = "block";
-      return;
-    }
-
-    const matricNumber = generateMatricNumber(fullName, studentClass);
-
-    try {
-      // Create Auth user
-      const userCredential = await createUserWithEmailAndPassword(auth, email, tempPassword);
-      await updateProfile(userCredential.user, { displayName: fullName });
-
-      // Upload passport
-      let passportUrl = "";
-      if (passportFile) {
-        const imgRef = storageRef(storage, `passports/${matricNumber}_${Date.now()}.jpg`);
-        await uploadBytes(imgRef, passportFile);
-        passportUrl = await getDownloadURL(imgRef);
-      }
-
-      // Create student document with role: "student"
-      await setDoc(doc(db, "students", matricNumber), {
-        matricNumber,
-        name: fullName,
-        class: studentClass,
-        gender,
-        passportUrl,
-        email,
-        uid: userCredential.user.uid,
-        createdAt: new Date().toISOString(),
-        points: 0,
-        probation: false,
-        role: "student"
-      });
-
-      adminRegisterSuccess.innerHTML = `Student registered!<br>
-        <b>Matric Number:</b> ${matricNumber}<br>
-        <b>Temp Password:</b> <span style="font-family:monospace">${tempPassword}</span>`;
-      adminRegisterSuccess.style.display = "block";
-      adminRegisterForm.reset();
-      if (typeof loadAllStudents === "function") loadAllStudents(); // Refresh students list if available
-    } catch (err) {
-      adminRegisterError.textContent = err.message;
-      adminRegisterError.style.display = "block";
-    }
-  });
-}
-
-// --- Utility: Example Admin Auth State Redirect (optional, use in your login page) ---
-// onAuthStateChanged(auth, async (user) => {
-//   if (user) {
-//     const userDoc = await getDoc(doc(db, "users", user.uid));
-//     if (userDoc.exists() && userDoc.data().role === "admin") {
-//       window.location.href = "admin.html";
-//     } else {
-//       window.location.href = "student.html";
-//     }
-//   }
-// });
-// --- Firebase init ---
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
-const storage = getStorage(app);
-
-// --- DOM Elements ---
+const matricDiv = document.getElementById('matricNumberDisplay');
+const matricNameSpan = document.getElementById('matricStudentName');
+const matricEmailSpan = document.getElementById('matricStudentEmail');
+const matricNumberSpan = document.getElementById('matricNumberValue');
 const adminContent = document.getElementById('adminContent');
 const logoutBtnAdmin = document.getElementById('logoutBtnAdmin');
 const toastContainer = document.getElementById('toast-container');
+const adminGreetingDiv = document.getElementById('adminGreeting');
 
 // Assignments
 const assignmentForm = document.getElementById('assignmentForm');
@@ -173,7 +65,6 @@ const galleryPreviewType = document.getElementById('galleryPreviewType');
 
 // Students
 const studentsList = document.getElementById('studentsList');
-const studentSearchInput = document.getElementById('studentSearchInput');
 const probationKey = "probation"; // field in student doc
 
 // --- Utility Functions ---
@@ -212,29 +103,140 @@ function buttonLoader(btn, loading = true, text = "") {
     btn.innerHTML = btn.dataset.originalText || text || "";
   }
 }
+function generateMatricNumber(fullName, studentClass) {
+  const firstLetter = fullName.trim()[0].toUpperCase();
+  const randomDigits = Math.floor(Math.random() * 90 + 10);
+  return `LGA/${studentClass}/${firstLetter}${randomDigits}`;
+}
+function generatePassword(length = 8) {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let pass = "";
+  for (let i = 0; i < length; ++i) pass += chars[Math.floor(Math.random() * chars.length)];
+  return pass;
+}
 
-// --- Admin Auth State ---
-onAuthStateChanged(auth, (user) => {
-  if (user) {
+// --- ADMIN AUTH & ACCESS GUARD ---
+let adminUser = null;
+async function checkAdminAuth() {
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      window.location.href = "login.html"; // redirect if not logged in
+      return;
+    }
+    // Check admin in users collection
+    const userDoc = await getDoc(doc(db, "users", user.uid));
+    if (!userDoc.exists() || userDoc.data().role !== "admin") {
+      await signOut(auth);
+      window.location.href = "login.html";
+      return;
+    }
+    adminUser = user;
+    // Show greeting
+    let name = user.displayName || user.email || userDoc.data().email || "Admin";
+    let greetingTarget = document.getElementById("adminGreeting");
+    if (!greetingTarget) {
+      // fallback: create one at top
+      greetingTarget = document.createElement('div');
+      greetingTarget.className = "mb-3";
+      greetingTarget.id = "adminGreeting";
+      adminContent?.prepend(greetingTarget);
+    }
+    greetingTarget.innerHTML = `<div class="alert alert-primary">Welcome Admin <b>${name}</b></div>`;
+    // Load all data
     loadAllStudents();
     loadAdminAssignments();
     loadGalleryPreview('gallery');
-    // Add other initializations here as needed
-  } else {
-    if (adminContent) adminContent.innerHTML = `<div class="alert alert-warning">You must be logged in as an admin to view this page.</div>`;
-  }
-});
+    // ...add other initializations as needed
+  });
+}
+checkAdminAuth();
+
+// --- LOGOUT ---
 if (logoutBtnAdmin) {
-  logoutBtnAdmin.addEventListener('click', async function() {
+  logoutBtnAdmin.addEventListener('click', async function () {
     buttonLoader(logoutBtnAdmin, true, "Logging out...");
     await signOut(auth);
-    window.location.reload();
+    window.location.href = "login.html";
+  });
+}
+
+// --- STUDENT REGISTRATION ---
+if (adminRegisterForm) {
+  adminRegisterForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    adminRegisterError.style.display = "none";
+    adminRegisterSuccess.style.display = "none";
+    matricDiv.style.display = "none";
+
+    const fullName = document.getElementById('studentName').value.trim();
+    const email = document.getElementById('studentEmail').value.trim().toLowerCase();
+    const studentClass = document.getElementById('studentClass').value.trim();
+    const gender = document.getElementById('studentGender').value;
+    const passportFile = document.getElementById('studentPassport').files[0];
+    const passwordField = document.getElementById('studentPassword');
+    // Use password if provided, else generate
+    const password = passwordField && passwordField.value ? passwordField.value : generatePassword(8);
+
+    if (!email || !fullName || !studentClass || !gender) {
+      adminRegisterError.textContent = "All fields are required.";
+      adminRegisterError.style.display = "block";
+      return;
+    }
+
+    const matricNumber = generateMatricNumber(fullName, studentClass);
+
+    try {
+      // Create Auth user
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      await updateProfile(userCredential.user, { displayName: fullName });
+
+      // Upload passport
+      let passportUrl = "";
+      if (passportFile) {
+        const imgRef = storageRef(storage, `passports/${matricNumber}_${Date.now()}.jpg`);
+        await uploadBytes(imgRef, passportFile);
+        passportUrl = await getDownloadURL(imgRef);
+      }
+
+      // Create student document with role: "student"
+      await setDoc(doc(db, "students", matricNumber), {
+        matricNumber,
+        name: fullName,
+        class: studentClass,
+        gender,
+        passportUrl,
+        email,
+        uid: userCredential.user.uid,
+        createdAt: new Date().toISOString(),
+        points: 0,
+        status: "active",
+        role: "student"
+      });
+
+      // Show info to admin
+      matricNameSpan.textContent = fullName;
+      matricEmailSpan.textContent = email;
+      matricNumberSpan.textContent = matricNumber;
+      matricDiv.style.display = 'block';
+
+      adminRegisterSuccess.innerHTML = `Student registered!<br>
+        <b>Matric Number:</b> ${matricNumber}<br>
+        <b>Password:</b> <span style="font-family:monospace">${password}</span>
+        <br>Give these to the student.`;
+      adminRegisterSuccess.style.display = "block";
+      adminRegisterForm.reset();
+      if (typeof loadAllStudents === "function") loadAllStudents();
+    } catch (err) {
+      adminRegisterError.textContent = err.message;
+      adminRegisterError.style.display = "block";
+    }
   });
 }
 
 // --- STUDENT MANAGEMENT ---
-// Load all students
+// Load all students (with search and freeze/unfreeze)
 async function loadAllStudents() {
+  const studentsList = document.getElementById('studentsClassList') || document.getElementById('studentsList');
   if (!studentsList) return;
   studentsList.innerHTML = '<div class="text-center"><span class="spinner-border spinner-border-sm"></span> Loading...</div>';
   try {
@@ -248,18 +250,18 @@ async function loadAllStudents() {
     snap.forEach(docSnap => {
       const s = docSnap.data();
       html += `
-        <div class="list-group-item d-flex justify-content-between align-items-center">
+        <div class="list-group-item d-flex justify-content-between align-items-center ${s.status === 'frozen' ? 'glass-blur' : ''}">
           <div>
             <b>${s.name}</b>
             <span class="text-muted small ms-2">${s.class}</span>
             <br>
             <span class="text-secondary">${s.matricNumber}</span><br>
             <span class="text-secondary">${s.email}</span>
-            ${s[probationKey] ? '<span class="badge bg-warning text-dark ms-2">On Probation</span>' : ''}
+            ${s.status === 'frozen' ? '<span class="badge bg-info text-dark ms-2">Frozen</span>' : ''}
           </div>
           <div>
             <button class="btn btn-sm btn-outline-info me-2" onclick="window.viewStudentDetail('${docSnap.id}')">View</button>
-            <button class="btn btn-sm btn-outline-warning me-2" onclick="window.toggleProbation('${docSnap.id}', ${!!s[probationKey]})">${s[probationKey] ? "Unfreeze" : "Freeze"}</button>
+            <button class="btn btn-sm btn-outline-warning me-2" onclick="window.toggleProbation('${docSnap.id}', '${s.status}')">${s.status === 'frozen' ? "Unfreeze" : "Freeze"}</button>
             <button class="btn btn-sm btn-outline-danger" onclick="window.adminDeleteStudent('${docSnap.id}', '${s.email}')">Delete</button>
           </div>
         </div>
@@ -273,7 +275,7 @@ async function loadAllStudents() {
     if (searchInput) {
       searchInput.addEventListener('input', function () {
         const val = this.value.toLowerCase();
-        document.querySelectorAll('#studentsList .list-group-item').forEach(item => {
+        document.querySelectorAll('.list-group-item').forEach(item => {
           item.style.display = item.textContent.toLowerCase().includes(val) ? '' : 'none';
         });
       });
@@ -285,12 +287,11 @@ async function loadAllStudents() {
 }
 window.loadAllStudents = loadAllStudents;
 
-// View student detail modal
+// View student detail
 window.viewStudentDetail = async function(studentId) {
-  const snap = await getDocs(query(collection(db, "students")));
-  let student = null;
-  snap.forEach(docSnap => { if (docSnap.id === studentId) student = docSnap.data(); });
-  if (!student) return showToast("Student not found.", "danger");
+  const docSnap = await getDoc(doc(db, "students", studentId));
+  if (!docSnap.exists()) return showToast("Student not found.", "danger");
+  const student = docSnap.data();
 
   // Modal
   let modalEl = document.getElementById('studentDetailModal');
@@ -301,7 +302,7 @@ window.viewStudentDetail = async function(studentId) {
   modalEl.tabIndex = -1;
   modalEl.innerHTML = `
     <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
+      <div class="modal-content ${student.status === 'frozen' ? 'glass-blur' : ''}">
         <div class="modal-header">
           <h5 class="modal-title">Student Details</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -314,9 +315,9 @@ window.viewStudentDetail = async function(studentId) {
           <div>Class: ${student.class}</div>
           <div>Gender: ${student.gender}</div>
           <div>Points: ${student.points || 0}</div>
-          <div>Status: ${student[probationKey] ? '<span class="text-warning">On Probation</span>' : '<span class="text-success">Active</span>'}</div>
+          <div>Status: ${student.status === 'frozen' ? '<span class="text-info">Frozen</span>' : '<span class="text-success">Active</span>'}</div>
           <div class="mt-3">
-            <button class="btn btn-outline-warning me-2" onclick="window.toggleProbation('${studentId}', ${!!student[probationKey]})">${student[probationKey] ? "Unfreeze Account" : "Freeze Account"}</button>
+            <button class="btn btn-outline-warning me-2" onclick="window.toggleProbation('${studentId}', '${student.status}')">${student.status === 'frozen' ? "Unfreeze Account" : "Freeze Account"}</button>
             <button class="btn btn-outline-danger" onclick="window.adminDeleteStudent('${studentId}', '${student.email}')">Delete Account</button>
           </div>
         </div>
@@ -329,13 +330,14 @@ window.viewStudentDetail = async function(studentId) {
   modalEl.addEventListener('hidden.bs.modal', () => modalEl.remove());
 };
 
-// Probation (Freeze/Unfreeze)
-window.toggleProbation = async function(studentId, isFrozen) {
-  const msg = isFrozen ? "Unfreeze this account (allow login/portal access)?" : "Freeze this account (prevent login/portal access)?";
+// Freeze/Unfreeze (probation)
+window.toggleProbation = async function(studentId, status) {
+  const isFrozen = status === "frozen";
+  const msg = isFrozen ? "Unfreeze this account (allow login/portal access)?" : "Freeze this account (prevent login/portal access, glass effect)?";
   if (!confirm(msg)) return;
   try {
-    await updateDoc(doc(db, "students", studentId), { [probationKey]: !isFrozen });
-    showToast(isFrozen ? "Account unfrozen." : "Account frozen (on probation).", isFrozen ? "success" : "warning");
+    await updateDoc(doc(db, "students", studentId), { status: isFrozen ? "active" : "frozen" });
+    showToast(isFrozen ? "Account unfrozen." : "Account frozen.", isFrozen ? "success" : "info");
     loadAllStudents();
   } catch (err) {
     logError("Probation", err);
@@ -389,7 +391,7 @@ window.adminDeleteStudent = function(studentId, studentEmail) {
   modalEl.addEventListener('hidden.bs.modal', () => modalEl.remove());
 };
 
-// --- GALLERY SECTION ---
+// --- GALLERY SECTION (same as before, with spinners and toasts) ---
 if (galleryUploadForm) {
   galleryUploadForm.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -671,11 +673,5 @@ window.approveSubmission = async function (assignmentId, submissionId, studentEm
 
 // --- FUTURE: Result Collation Hook ---
 window.collateResults = function() {
-  // Placeholder for result collation logic
   showToast("Result collation coming soon!", "info");
 };
-
-document.getElementById('showRegisterFormBtn').onclick = function() {
-  const formSection = document.getElementById('registerFormSection');
-  formSection.style.display = formSection.style.display === 'none' ? '' : 'none';
-}
