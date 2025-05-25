@@ -26,6 +26,13 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 const storage = getStorage(app);
 
+// ---- Secondary Firebase App for Registration ----
+import { initializeApp as initializeApp2 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth as getAuth2, createUserWithEmailAndPassword as createUserWithEmailAndPassword2, updateProfile as updateProfile2, signOut as signOut2 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+const secondaryApp = initializeApp2(firebaseConfig, "Secondary");
+const secondaryAuth = getAuth2(secondaryApp);
+
 // ---- DOM Elements ----
 const adminContent = document.getElementById('adminContent');
 const logoutBtnAdmin = document.getElementById('logoutBtnAdmin');
@@ -218,9 +225,12 @@ if (adminRegisterForm) {
     const matricNumber = generateMatricNumber(fullName, studentClass);
 
     try {
-      // Register student in Auth
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      await updateProfile(userCredential.user, { displayName: fullName });
+          // Register student in Auth
+         // Create student account using secondary Auth instance
+    const userCredential = await createUserWithEmailAndPassword2(secondaryAuth, email, password);
+    await updateProfile2(userCredential.user, { displayName: fullName });
+    // Immediately sign out secondaryAuth so admin stays logged in
+    await signOut2(secondaryAuth);
       let passportUrl = "";
       if (passportFile) {
         const imgRef = storageRef(storage, `passports/${matricNumber}_${Date.now()}.jpg`);
