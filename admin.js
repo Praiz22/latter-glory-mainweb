@@ -145,13 +145,13 @@ async function loadOverviewStats() {
 async function checkAdminAuth() {
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
-      window.location.href = "login.html";
+      window.location.href = "portal.html";
       return;
     }
     const userDoc = await getDoc(doc(db, "users", user.uid));
     if (!userDoc.exists() || userDoc.data().role !== "admin") {
       await signOut(auth);
-      window.location.href = "login.html";
+      window.location.href = "portal.html";
       return;
     }
     let name = user.displayName || user.email || userDoc.data().email || "Admin";
@@ -176,7 +176,7 @@ if (logoutBtnAdmin) {
   logoutBtnAdmin.addEventListener('click', async function () {
     buttonLoader(logoutBtnAdmin, true, "Logging out...");
     await signOut(auth);
-    window.location.href = "login.html";
+    window.location.href = "portal.html";
   });
 }
 
