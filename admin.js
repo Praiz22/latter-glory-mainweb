@@ -33,8 +33,6 @@ const toastContainer = document.getElementById('toast-container');
 
 // Registration Modal
 const adminRegisterForm = document.getElementById('adminRegisterForm');
-const adminRegisterError = document.getElementById('adminRegisterError');
-const adminRegisterSuccess = document.getElementById('adminRegisterSuccess');
 const matricDiv = document.getElementById('matricNumberDisplay');
 const matricNameSpan = document.getElementById('matricStudentName');
 const matricEmailSpan = document.getElementById('matricStudentEmail');
@@ -144,10 +142,10 @@ async function loadOverviewStats() {
 }
 
 // ---- ADMIN AUTH & ACCESS GUARD ----
-async function checkAdminAuth() {
+async function immediateAdminAuth() {
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
-      window.location.href = "portal.html"; // Not logged in
+      window.location.href = "portal.html";
       return;
     }
     let userDoc;
@@ -165,6 +163,8 @@ async function checkAdminAuth() {
       window.location.href = "portal.html";
       return;
     }
+    // Only now show admin UI
+    adminContent.style.display = "";
     let name = user.displayName || user.email || userDoc.data().email || "Admin";
     let greetingTarget = document.getElementById("adminGreeting");
     if (!greetingTarget) {
@@ -180,7 +180,9 @@ async function checkAdminAuth() {
     loadGalleryPreview('gallery');
   });
 }
-checkAdminAuth();
+// Hide all UI by default until auth passes:
+if (adminContent) adminContent.style.display = "none";
+immediateAdminAuth();
 
 // ---- LOGOUT ----
 if (logoutBtnAdmin) {
@@ -195,8 +197,6 @@ if (logoutBtnAdmin) {
 if (adminRegisterForm) {
   adminRegisterForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (adminRegisterError) adminRegisterError.style.display = "none";
-    if (adminRegisterSuccess) adminRegisterSuccess.style.display = "none";
     if (matricDiv) matricDiv.style.display = "none";
 
     const fullName = document.getElementById('studentName').value.trim();
@@ -227,7 +227,7 @@ if (adminRegisterForm) {
       // Add to students collection
       await setDoc(doc(db, "students", matricNumber), {
         matricNumber,
-        registrationNumber: matricNumber, // for compatibility
+        registrationNumber: matricNumber,
         name: fullName,
         class: studentClass,
         gender,
