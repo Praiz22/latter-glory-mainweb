@@ -10,6 +10,7 @@ import {
   getStorage, ref as storageRef, uploadBytes, getDownloadURL
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
+// ---- Firebase Config ----
 const firebaseConfig = {
   apiKey: "AIzaSyDgReNsNbU6-Cnx-ej0HPcHSrCXVppohJQ",
   authDomain: "latter-glory.firebaseapp.com",
@@ -89,7 +90,8 @@ function logError(context, err) {
   showToast(`Error: ${err.message || err}`, "danger");
 }
 function generateMatricNumber(fullName, studentClass) {
-  const firstLetter = fullName.trim()[0].toUpperCase();
+  if (!fullName || !studentClass) return "";
+  const firstLetter = fullName.trim()[0]?.toUpperCase() || "X";
   const randomDigits = Math.floor(Math.random() * 90 + 10);
   return `LGA/${studentClass}/${firstLetter}${randomDigits}`;
 }
@@ -145,11 +147,20 @@ async function loadOverviewStats() {
 async function checkAdminAuth() {
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
+      window.location.href = "portal.html"; // Not logged in
+      return;
+    }
+    let userDoc;
+    try {
+      userDoc = await getDoc(doc(db, "users", user.uid));
+    } catch (e) {
+      showToast("Cannot verify admin status. Try again.", "danger");
+      await signOut(auth);
       window.location.href = "portal.html";
       return;
     }
-    const userDoc = await getDoc(doc(db, "users", user.uid));
     if (!userDoc.exists() || userDoc.data().role !== "admin") {
+      showToast("Access denied: Not an admin.", "danger");
       await signOut(auth);
       window.location.href = "portal.html";
       return;
@@ -184,9 +195,9 @@ if (logoutBtnAdmin) {
 if (adminRegisterForm) {
   adminRegisterForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    adminRegisterError.style.display = "none";
-    adminRegisterSuccess.style.display = "none";
-    matricDiv.style.display = "none";
+    if (adminRegisterError) adminRegisterError.style.display = "none";
+    if (adminRegisterSuccess) adminRegisterSuccess.style.display = "none";
+    if (matricDiv) matricDiv.style.display = "none";
 
     const fullName = document.getElementById('studentName').value.trim();
     const email = document.getElementById('studentEmail').value.trim().toLowerCase();
@@ -204,6 +215,7 @@ if (adminRegisterForm) {
     const matricNumber = generateMatricNumber(fullName, studentClass);
 
     try {
+      // Register student in Auth
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(userCredential.user, { displayName: fullName });
       let passportUrl = "";
@@ -212,8 +224,10 @@ if (adminRegisterForm) {
         await uploadBytes(imgRef, passportFile);
         passportUrl = await getDownloadURL(imgRef);
       }
+      // Add to students collection
       await setDoc(doc(db, "students", matricNumber), {
         matricNumber,
+        registrationNumber: matricNumber, // for compatibility
         name: fullName,
         class: studentClass,
         gender,
@@ -225,13 +239,21 @@ if (adminRegisterForm) {
         status: "active",
         role: "student"
       });
+      // Add to users collection for role management
+      await setDoc(doc(db, "users", userCredential.user.uid), {
+        email,
+        role: "student",
+        matricNumber,
+        name: fullName
+      });
 
-      matricNameSpan.textContent = fullName;
-      matricEmailSpan.textContent = email;
-      matricNumberSpan.textContent = matricNumber;
-      matricDiv.style.display = 'block';
+      if (matricNameSpan) matricNameSpan.textContent = fullName;
+      if (matricEmailSpan) matricEmailSpan.textContent = email;
+      if (matricNumberSpan) matricNumberSpan.textContent = matricNumber;
+      if (matricDiv) matricDiv.style.display = 'block';
+
       showToast(`Student registered! Matric: ${matricNumber}, Password: ${password}`, "success");
-      adminRegisterForm.reset();
+      if (adminRegisterForm) adminRegisterForm.reset();
       if (typeof loadAllStudents === "function") loadAllStudents();
       loadOverviewStats();
     } catch (err) {
@@ -394,17 +416,17 @@ window.adminDeleteStudent = function(studentId, studentEmail) {
 if (galleryUploadForm) {
   galleryUploadForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    uploadError.textContent = '';
-    uploadBtn.disabled = true;
-    uploadSpinner.classList.remove('d-none');
+    if (uploadError) uploadError.textContent = '';
+    if (uploadBtn) uploadBtn.disabled = true;
+    if (uploadSpinner) uploadSpinner.classList.remove('d-none');
     const file = galleryImage.files[0];
     const caption = galleryCaption.value.trim();
     const date = galleryDate.value;
     const type = galleryType.value;
     if (!file || !caption || !date || !type) {
-      uploadError.textContent = "All fields are required.";
-      uploadBtn.disabled = false;
-      uploadSpinner.classList.add('d-none');
+      if (uploadError) uploadError.textContent = "All fields are required.";
+      if (uploadBtn) uploadBtn.disabled = false;
+      if (uploadSpinner) uploadSpinner.classList.add('d-none');
       return;
     }
     try {
@@ -427,11 +449,11 @@ if (galleryUploadForm) {
       galleryUploadForm.reset();
       loadGalleryPreview(type === 'both' ? 'gallery' : type);
     } catch (err) {
-      uploadError.textContent = err.message || "Upload failed.";
+      if (uploadError) uploadError.textContent = err.message || "Upload failed.";
       logError("GalleryUpload", err);
     }
-    uploadBtn.disabled = false;
-    uploadSpinner.classList.add('d-none');
+    if (uploadBtn) uploadBtn.disabled = false;
+    if (uploadSpinner) uploadSpinner.classList.add('d-none');
   });
 }
 async function loadGalleryPreview(which = 'gallery') {
@@ -480,18 +502,18 @@ window.addEventListener('DOMContentLoaded', () => loadGalleryPreview('gallery'))
 if (assignmentForm) {
   assignmentForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    assignmentError.textContent = "";
-    postAssignmentBtn.disabled = true;
-    assignmentSpinner.classList.remove('d-none');
+    if (assignmentError) assignmentError.textContent = "";
+    if (postAssignmentBtn) postAssignmentBtn.disabled = true;
+    if (assignmentSpinner) assignmentSpinner.classList.remove('d-none');
     const title = assignmentTitle.value.trim();
     const description = assignmentDesc.value.trim();
     const classVal = assignmentClass.value;
     const dueHours = parseInt(assignmentDueHours.value);
 
     if (!title || !description || !classVal || !dueHours || dueHours < 1) {
-      assignmentError.textContent = "All fields are required and due hours must be >= 1.";
-      postAssignmentBtn.disabled = false;
-      assignmentSpinner.classList.add('d-none');
+      if (assignmentError) assignmentError.textContent = "All fields are required and due hours must be >= 1.";
+      if (postAssignmentBtn) postAssignmentBtn.disabled = false;
+      if (assignmentSpinner) assignmentSpinner.classList.add('d-none');
       return;
     }
     try {
@@ -510,11 +532,11 @@ if (assignmentForm) {
       loadAdminAssignments();
       loadOverviewStats();
     } catch (err) {
-      assignmentError.textContent = err.message || "Failed to post assignment.";
+      if (assignmentError) assignmentError.textContent = err.message || "Failed to post assignment.";
       logError("AssignmentPost", err);
     }
-    postAssignmentBtn.disabled = false;
-    assignmentSpinner.classList.add('d-none');
+    if (postAssignmentBtn) postAssignmentBtn.disabled = false;
+    if (assignmentSpinner) assignmentSpinner.classList.add('d-none');
   });
 }
 
