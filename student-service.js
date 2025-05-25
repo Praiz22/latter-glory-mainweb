@@ -113,7 +113,8 @@ if (registerForm) {
         passportUrl = await getDownloadURL(imgRef);
       }
       await setDoc(doc(db, "students", matricNumber), {
-        matricNumber,
+        matricNumber,                           // Unified field!
+        registrationNumber: matricNumber,       // For compatibility (optional)
         name: fullName,
         class: studentClass,
         gender,
@@ -353,7 +354,8 @@ window.submitAssignment = async function (e, assignmentId) {
       studentEmail: user.email,
       answer,
       submittedAt: serverTimestamp(),
-      approved: false
+      approved: false,
+      matricNumber: studentProfile.matricNumber // for clarity in submissions
     });
     showNotification("Assignment submitted! Await admin approval.", "success");
     e.target.reset();
@@ -426,6 +428,7 @@ onAuthStateChanged(auth, async user => {
     const studentsSnap = await getDocs(collection(db, "students"));
     studentProfile = null;
     studentsSnap.forEach(docSnap => {
+      // Use matricNumber for all logic!
       if ((docSnap.data().email || "").toLowerCase() === user.email.toLowerCase()) {
         studentProfile = docSnap.data();
       }
