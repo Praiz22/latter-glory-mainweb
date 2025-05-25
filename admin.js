@@ -123,9 +123,9 @@ async function loadOverviewStats() {
     const totalAssignments = assignmentsSnap.size;
     const classSet = new Set();
     studentsSnap.forEach(doc => classSet.add(doc.data().class));
-    const adminsSnap = await getDocs(collection(db, 'users'));
-    let totalAdmins = 0;
-    adminsSnap.forEach(doc => { if(doc.data().role === "admin") totalAdmins++; });
+    // Count admins from /admins
+    const adminsSnap = await getDocs(collection(db, 'admins'));
+    const totalAdmins = adminsSnap.size;
 
     statsDiv.innerHTML = `
       <div class="row g-3">
@@ -148,24 +148,24 @@ async function immediateAdminAuth() {
       window.location.href = "portal.html";
       return;
     }
-    let userDoc;
+    let adminDoc;
     try {
-      userDoc = await getDoc(doc(db, "users", user.uid));
+      adminDoc = await getDoc(doc(db, "admins", user.uid));
     } catch (e) {
       showToast("Cannot verify admin status. Try again.", "danger");
       await signOut(auth);
       window.location.href = "portal.html";
       return;
     }
-    if (!userDoc.exists() || userDoc.data().role !== "admin") {
+    if (!adminDoc.exists() || adminDoc.data().role !== "admin") {
       showToast("Access denied: Not an admin.", "danger");
       await signOut(auth);
       window.location.href = "portal.html";
       return;
     }
     // Only now show admin UI
-    adminContent.style.display = "";
-    let name = user.displayName || user.email || userDoc.data().email || "Admin";
+    if (adminContent) adminContent.style.display = "";
+    let name = user.displayName || user.email || adminDoc.data().email || "Admin";
     let greetingTarget = document.getElementById("adminGreeting");
     if (!greetingTarget) {
       greetingTarget = document.createElement('div');
@@ -238,13 +238,6 @@ if (adminRegisterForm) {
         points: 0,
         status: "active",
         role: "student"
-      });
-      // Add to users collection for role management
-      await setDoc(doc(db, "users", userCredential.user.uid), {
-        email,
-        role: "student",
-        matricNumber,
-        name: fullName
       });
 
       if (matricNameSpan) matricNameSpan.textContent = fullName;
@@ -394,7 +387,7 @@ window.adminDeleteStudent = function(studentId, studentEmail) {
   bsModal.show();
   modalEl.querySelector('#confirmDeleteBtn').onclick = async function() {
     const key = modalEl.querySelector('#adminDeleteKey').value;
-    if (key !== 'YOUR_ADMIN_KEY') {
+    if (key !== 'YOUR_ADMIN_KEY') { // <-- SET YOUR ADMIN KEY HERE
       showToast('Invalid admin key!', 'danger');
       return;
     }
