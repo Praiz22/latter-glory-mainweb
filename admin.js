@@ -949,3 +949,20 @@ window.approveSubmission = async function (assignmentId, submissionId, studentEm
     logError("ApproveSubmission", e);
   }
 };
+// After successful setDoc in registration:
+console.log("Student added to Firestore:", matricNumber);
+showToast(`Student registered! Matric: ${matricNumber}, Password: ${password}`, "success");
+
+// Optionally: Utility to reload gallery preview on DOMContentLoaded
+window.addEventListener('DOMContentLoaded', () => loadGalleryPreview('gallery'));
+
+// If you want to expose any of your functions to the window for manual calling in the browser console:
+window.loadAllStudents = loadAllStudents;
+window.viewStudentDetail = window.viewStudentDetail;
+window.toggleProbation = window.toggleProbation;
+window.adminDeleteStudent = window.adminDeleteStudent;
+window.closeAssignment = window.closeAssignment;
+window.showSubmissions = window.showSubmissions;
+window.approveSubmission = window.approveSubmission;
+
+// Done!
