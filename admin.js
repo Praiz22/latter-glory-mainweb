@@ -33,6 +33,7 @@ const toastContainer = document.getElementById('toast-container');
 
 // Registration Modal
 const adminRegisterForm = document.getElementById('adminRegisterForm');
+const registerBtn = document.getElementById('registerSubmitBtn');
 const matricDiv = document.getElementById('matricNumberDisplay');
 const matricNameSpan = document.getElementById('matricStudentName');
 const matricEmailSpan = document.getElementById('matricStudentEmail');
@@ -198,6 +199,7 @@ if (adminRegisterForm) {
   adminRegisterForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (matricDiv) matricDiv.style.display = "none";
+    if (registerBtn) buttonLoader(registerBtn, true, "Registering...");
 
     const fullName = document.getElementById('studentName').value.trim();
     const email = document.getElementById('studentEmail').value.trim().toLowerCase();
@@ -209,6 +211,7 @@ if (adminRegisterForm) {
 
     if (!email || !fullName || !studentClass || !gender) {
       showToast("All fields are required.", "danger");
+      if (registerBtn) buttonLoader(registerBtn, false);
       return;
     }
 
@@ -252,6 +255,7 @@ if (adminRegisterForm) {
     } catch (err) {
       showToast("Registration failed: " + err.message, "danger");
     }
+    if (registerBtn) buttonLoader(registerBtn, false);
   });
 }
 
