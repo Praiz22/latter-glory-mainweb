@@ -1,13 +1,10 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import {
-  getFirestore, collection, doc, setDoc, getDoc, getDocs, query, where, orderBy, serverTimestamp, updateDoc
+  getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, serverTimestamp, setDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import {
-  getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword, updateProfile
+  getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import {
-  getStorage, ref as storageRef, uploadBytes, getDownloadURL
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
 // --- Firebase config ---
 const firebaseConfig = {
@@ -24,20 +21,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
-const storage = getStorage(app);
 
-// --- Utility Functions (shared logic with admin.js) ---
-function generateMatricNumber(fullName, studentClass) {
-  const firstLetter = fullName.trim()[0].toUpperCase();
-  const randomDigits = Math.floor(Math.random() * 90 + 10);
-  return `LGA/${studentClass}/${firstLetter}${randomDigits}`;
-}
-function generatePassword(length = 8) {
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  let pass = "";
-  for (let i = 0; i < length; ++i) pass += chars[Math.floor(Math.random() * chars.length)];
-  return pass;
-}
+// --- Utility Functions ---
 function showNotification(message, type = 'primary', timeout = 4000) {
   const toastEl = document.getElementById('mainToast');
   const toastBody = document.getElementById('mainToastBody');
@@ -73,72 +58,6 @@ function showPortalUI(isLoggedIn) {
 document.addEventListener('DOMContentLoaded', () => {
   showPortalUI(false);
 });
-
-// --- Registration ---
-const registerForm = document.getElementById('registerForm');
-const registerError = document.getElementById('registerError');
-if (registerForm) {
-  registerForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    if (registerError) registerError.style.display = "none";
-    const btn = document.getElementById('registerSubmitBtn') || registerForm.querySelector('button[type="submit"]');
-    setButtonLoading(btn, true);
-
-    const fullName = registerForm.studentName.value.trim();
-    const email = registerForm.studentEmail.value.trim().toLowerCase();
-    let password = registerForm.registerPassword.value;
-    const studentClass = registerForm.studentClass.value;
-    const gender = registerForm.querySelector('input[name="gender"]:checked')?.value || '';
-    const passportFile = registerForm.passport.files[0];
-
-    if (!email || !password || !fullName || !studentClass || !gender) {
-      if (registerError) {
-        registerError.textContent = "All fields are required.";
-        registerError.style.display = "block";
-      }
-      setButtonLoading(btn, false);
-      return;
-    }
-    // Optionally, force generate password if not provided
-    if (!password) password = generatePassword(8);
-
-    const matricNumber = generateMatricNumber(fullName, studentClass);
-    try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      await updateProfile(userCredential.user, { displayName: fullName });
-      let passportUrl = "";
-      if (passportFile) {
-        const imgRef = storageRef(storage, `passports/${matricNumber}_${Date.now()}.jpg`);
-        await uploadBytes(imgRef, passportFile);
-        passportUrl = await getDownloadURL(imgRef);
-      }
-      await setDoc(doc(db, "students", matricNumber), {
-        matricNumber,                           // Unified field!
-        registrationNumber: matricNumber,       // For compatibility (optional)
-        name: fullName,
-        class: studentClass,
-        gender,
-        passportUrl,
-        email,
-        uid: userCredential.user.uid,
-        createdAt: new Date().toISOString(),
-        points: 0,
-        status: "active",
-        role: "student"
-      });
-      showNotification("Registration successful! You can now log in.", "success");
-      registerForm.reset();
-      bootstrap.Modal.getInstance(document.getElementById('registerModal')).hide();
-    } catch (err) {
-      if (registerError) {
-        registerError.textContent = err.message;
-        registerError.style.display = "block";
-      }
-      logError("Registration", err);
-    }
-    setButtonLoading(btn, false);
-  });
-}
 
 // --- Profile Section ---
 const profileContent = document.getElementById('profileContent');
@@ -428,7 +347,6 @@ onAuthStateChanged(auth, async user => {
     const studentsSnap = await getDocs(collection(db, "students"));
     studentProfile = null;
     studentsSnap.forEach(docSnap => {
-      // Use matricNumber for all logic!
       if ((docSnap.data().email || "").toLowerCase() === user.email.toLowerCase()) {
         studentProfile = docSnap.data();
       }
@@ -437,7 +355,6 @@ onAuthStateChanged(auth, async user => {
     loadAssignments();
     loadNotifications();
     loadLeaderboard();
-    // Always default to profile tab on login
     const tabTrigger = document.querySelector('[data-bs-toggle="tab"][href="#profileTab"]');
     if (tabTrigger) new bootstrap.Tab(tabTrigger).show();
   } else {
