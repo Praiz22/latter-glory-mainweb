@@ -288,6 +288,26 @@ strong {
   width: 100%;
 }
 
+.gallery-float-btn {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  background: none;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  box-shadow: 0 2px 10px #0002;
+  transition: transform 0.2s;
+}
+.gallery-float-btn:hover {
+  transform: scale(1.1);
+}
 .div-separator span {
   position: absolute;
   top: 50%;
