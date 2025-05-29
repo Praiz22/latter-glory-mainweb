@@ -3,267 +3,329 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Latter Glory Academy Futuristic Gallery</title>
+  <title>Latter Glory Academy Gallery</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.0/css/all.min.css" />
   <style>
     :root {
-      --primary: #0ff;
-      --secondary: #1a1f2b;
-      --accent: #1a98ff;
-      --bg-glass: rgba(20,30,40,0.85);
-      --card-glass: rgba(10,15,30,0.92);
-      --white: #fff;
-      --neon-shadow: 0 0 18px #0ff7, 0 0 36px #1a98ff55;
-      --neon-hover: 0 0 36px #0ffb, 0 0 48px #1a98ff88;
-      --border-radius: 22px;
+      --primary: #b71c1c;
+      --secondary: #fff;
+      --accent: #e91e63;
+      --dark: #222;
+      --light: #fff;
+      --footer-bg: #b71c1c;
+      --footer-text: #fff;
+      --border-radius: 20px;
+      --shadow: 0 2px 16px 0 rgba(183, 28, 28, 0.14);
+      --pink-fun: #fce4ec;
+      --like: #e91e63;
     }
     body {
       font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #171c28 60%, #11192a 100%);
-      color: var(--white);
+      background: var(--secondary);
+      color: var(--dark);
       margin: 0;
       min-height: 100vh;
       overflow-x: hidden;
     }
     header {
-      background: var(--accent);
-      color: var(--white);
+      background: var(--primary);
+      color: var(--light);
       text-align: center;
-      font-size: 2.5rem;
+      font-size: 2.2rem;
       font-weight: 700;
-      letter-spacing: 2px;
+      letter-spacing: 1.5px;
       padding: 2rem 1rem 1.2rem 1rem;
       border-bottom-left-radius: var(--border-radius);
       border-bottom-right-radius: var(--border-radius);
-      box-shadow: var(--neon-shadow);
-      margin-bottom: 2rem;
+      box-shadow: var(--shadow);
+      margin-bottom: 1.3rem;
       text-transform: uppercase;
     }
     .gallery-container {
-      max-width: 1300px;
+      max-width: 1200px;
       margin: 0 auto;
-      padding: 1.2rem;
-      background: var(--bg-glass);
+      padding: 1.2rem 1rem;
+      background: var(--pink-fun);
       border-radius: var(--border-radius);
-      box-shadow: var(--neon-shadow);
+      box-shadow: var(--shadow);
       position: relative;
-      min-height: 340px;
+      min-height: 300px;
     }
     .gallery-slider {
       display: flex;
-      gap: 2.2rem;
+      gap: 2rem;
       overflow-x: auto;
       scroll-snap-type: x mandatory;
       padding-bottom: 1.5rem;
       scrollbar-width: thin;
-      scrollbar-color: var(--primary) #1a1f2b;
+      scrollbar-color: var(--accent) #fce4ec;
     }
-    .gallery-slider::-webkit-scrollbar {
-      height: 10px;
-    }
+    .gallery-slider::-webkit-scrollbar { height: 12px; }
     .gallery-slider::-webkit-scrollbar-thumb {
-      background: var(--primary);
+      background: var(--accent);
       border-radius: 10px;
     }
     .gallery-item {
-      flex: 0 0 340px;
+      flex: 0 0 280px;
       scroll-snap-align: center;
-      background: var(--card-glass);
-      border-radius: 18px;
-      box-shadow: var(--neon-shadow);
-      transition: transform 0.35s cubic-bezier(.3,2,.6,1), box-shadow 0.3s;
+      background: var(--secondary);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      transition: transform 0.24s cubic-bezier(.3,1.7,.6,1), box-shadow 0.24s;
       position: relative;
       overflow: hidden;
       display: flex;
       flex-direction: column;
       align-items: stretch;
-      min-width: 260px;
-      max-width: 340px;
+      min-width: 220px;
+      max-width: 90vw;
+      border: 4px solid #fff;
     }
     .gallery-item:hover {
-      transform: scale(1.045) rotateY(6deg);
-      box-shadow: var(--neon-hover);
+      transform: scale(1.045) rotateZ(-2deg);
+      box-shadow: 0 6px 24px 0 #e91e6360;
       z-index: 2;
+      border-color: var(--accent);
     }
     .gallery-img {
       width: 100%;
-      height: 230px;
+      height: 180px;
       object-fit: cover;
-      border-radius: 14px 14px 8px 8px;
-      animation: futuristic-fadein 1s;
-      background: #222;
-    }
-    @keyframes futuristic-fadein {
-      from { opacity: 0; filter: blur(12px);}
-      to { opacity: 1; filter: blur(0);}
+      border-radius: 12px 12px 8px 8px;
+      background: #eee;
+      transition: filter 0.18s;
+      cursor: pointer;
     }
     .gallery-caption {
       color: var(--primary);
-      margin: 1rem 1rem 0.25rem 1rem;
+      margin: 0.7rem 1rem 0.4rem 1rem;
       font-weight: 600;
-      font-size: 1.11rem;
+      font-size: 1.05rem;
       min-height: 28px;
-      text-shadow: 0 1px 8px #1a98ff66;
+      text-shadow: 0 1px 8px #e91e6399;
     }
     .gallery-date {
-      color: #bce5ff;
-      font-size: 0.89rem;
-      margin: 0 1rem 0.75rem 1rem;
+      color: #b71c1ccc;
+      font-size: 0.95rem;
+      margin: 0 1rem 0.5rem 1rem;
       text-align: right;
     }
     .gallery-share {
       position: absolute;
-      top: 16px; right: 18px;
-      background: var(--primary);
-      color: var(--secondary);
+      top: 12px; right: 16px;
+      background: var(--accent);
+      color: var(--light);
       border: none;
       border-radius: 50%;
-      width: 39px; height: 39px;
+      width: 33px; height: 33px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 1.28rem;
-      box-shadow: 0 0 10px var(--primary);
-      opacity: 0.84;
+      font-size: 1.17rem;
+      box-shadow: 0 0 10px #e91e6344;
+      opacity: 0.86;
       cursor: pointer;
       z-index: 10;
       transition: background 0.2s, box-shadow 0.2s;
     }
     .gallery-share:hover {
-      background: var(--accent);
-      color: var(--white);
-      box-shadow: var(--neon-hover);
+      background: var(--primary);
+      color: var(--light);
       opacity: 1;
     }
     /* Upload Button */
     .upload-btn {
       position: fixed; bottom: 2.2rem; right: 2.2rem;
-      background: var(--accent); color: var(--white);
+      background: var(--accent); color: var(--light);
       border-radius: 50%; width: 60px; height: 60px;
       font-size: 2rem; border: none;
-      box-shadow: var(--neon-shadow);
+      box-shadow: 0 2px 18px #e91e6360;
       z-index: 1200;
       cursor: pointer;
-      transition: background 0.22s, box-shadow 0.22s, scale 0.15s;
+      transition: background 0.18s, box-shadow 0.18s, scale 0.15s;
       display: flex; align-items: center; justify-content: center;
     }
     .upload-btn:hover {
-      background: var(--primary); color: var(--secondary);
-      box-shadow: var(--neon-hover);
+      background: var(--primary);
+      color: var(--light);
       scale: 1.09;
     }
     /* Modal Style */
     .modal-bg {
       position: fixed; z-index: 1500; inset: 0;
-      background: rgba(10,18,38,0.75);
+      background: rgba(183,28,28,0.14);
       display: none; align-items: center; justify-content: center;
     }
     .modal-bg.active { display: flex; }
     .modal-content {
-      background: var(--bg-glass);
+      background: var(--secondary);
       border-radius: var(--border-radius);
-      box-shadow: var(--neon-shadow);
+      box-shadow: var(--shadow);
       padding: 2rem 2.5rem 2rem 2.5rem;
-      min-width: 330px;
+      min-width: 320px;
+      max-width: 94vw;
       position: relative;
-      animation: futuristic-fadein 0.4s;
+      animation: popin 0.3s;
+    }
+    @keyframes popin {
+      from { transform: scale(0.88); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
     }
     .modal-content h2 {
       margin: 0 0 1rem 0;
       color: var(--primary);
       text-align: center;
-      font-size: 1.5rem;
+      font-size: 1.35rem;
       letter-spacing: 1px;
     }
     .modal-content label {
       display: block;
-      margin-bottom: 0.4rem;
-      color: var(--white);
+      margin-bottom: 0.3rem;
+      color: var(--primary);
       font-weight: 500;
     }
-    .modal-content input[type="file"] {
+    .modal-content input[type="file"], .modal-content input[type="password"], .modal-content input[type="text"] {
       width: 100%;
-      background: #191a28;
+      background: #fce4ec;
       color: var(--primary);
-      border: 1px solid var(--primary);
+      border: 1.5px solid var(--accent);
       border-radius: 7px;
       margin-bottom: 1rem;
-      padding: 6px;
-    }
-    .modal-content input[type="text"] {
-      width: 100%;
-      background: #191a28;
-      color: var(--white);
-      border: 1px solid var(--primary);
-      border-radius: 7px;
-      margin-bottom: 1.2rem;
-      padding: 0.7rem 1rem;
+      padding: 0.6rem 0.7rem;
       font-size: 1rem;
     }
     .modal-content button[type="submit"] {
       background: var(--accent);
-      color: var(--white);
+      color: var(--light);
       border: none;
       border-radius: 7px;
       padding: 0.7rem 2.2rem;
       font-size: 1.07rem;
       font-weight: 600;
       cursor: pointer;
-      box-shadow: var(--neon-shadow);
-      transition: background 0.22s, box-shadow 0.22s;
+      box-shadow: 0 1px 8px #e91e6355;
+      transition: background 0.18s;
       margin-top: 0.5rem;
     }
     .modal-content button[type="submit"]:hover {
       background: var(--primary);
-      color: var(--secondary);
-      box-shadow: var(--neon-hover);
+      color: var(--light);
     }
     .modal-close {
-      position: absolute; top: 13px; right: 18px;
-      background: transparent; color: var(--primary);
+      position: absolute; top: 8px; right: 14px;
+      background: transparent; color: var(--accent);
       border: none; font-size: 1.45rem; cursor: pointer;
     }
     /* Toast */
     .toast-container {
       position: fixed;
-      top: 1.5rem; right: 1.5rem;
+      top: 1.1rem; right: 1.2rem;
       z-index: 1600;
       display: flex; flex-direction: column; gap: 0.5rem;
     }
     .toast {
       background: var(--accent);
-      color: var(--white);
-      border-radius: 10px;
-      padding: 0.9rem 1.6rem;
+      color: var(--light);
+      border-radius: 8px;
+      padding: 0.8rem 1.3rem;
       font-size: 1rem;
-      min-width: 180px;
-      box-shadow: var(--neon-shadow);
+      min-width: 160px;
+      box-shadow: 0 1px 12px #e91e6355;
       opacity: 0.96;
-      animation: futuristic-fadein 0.7s;
+      animation: popin 0.7s;
     }
-    .toast.toast-success { background: var(--primary); color: var(--secondary);}
-    .toast.toast-error { background: #e32c6d; color: var(--white);}
+    .toast.toast-success { background: var(--primary); color: var(--light);}
+    .toast.toast-error { background: #b71c1c; color: var(--light);}
+    /* Image Modal */
+    .img-modal-bg {
+      position: fixed; z-index: 1700; inset: 0;
+      background: rgba(239, 51, 145, 0.12);
+      display: none; align-items: center; justify-content: center;
+    }
+    .img-modal-bg.active { display: flex; }
+    .img-modal-content {
+      background: var(--secondary);
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      padding: 1.5rem;
+      max-width: 95vw;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      animation: popin 0.24s;
+    }
+    .img-modal-content img {
+      max-width: 76vw;
+      max-height: 48vh;
+      border-radius: 16px;
+      margin-bottom: 1rem;
+      background: #eee;
+    }
+    .img-modal-caption {
+      color: var(--primary);
+      font-size: 1.17rem;
+      font-weight: 600;
+      margin-bottom: 0.6rem;
+    }
+    .img-modal-date {
+      color: #b71c1caa;
+      font-size: 0.97rem;
+      margin-bottom: 1.2rem;
+    }
+    .img-modal-actions {
+      display: flex;
+      gap: 1.4rem;
+      align-items: center;
+      margin-top: 0.7rem;
+      justify-content: center;
+    }
+    .img-modal-actions button {
+      background: var(--pink-fun);
+      color: var(--accent);
+      border: none;
+      border-radius: 50%;
+      width: 46px; height: 46px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.45rem;
+      cursor: pointer;
+      box-shadow: 0 1px 8px #e91e6340;
+      transition: background 0.18s, color 0.18s;
+    }
+    .img-modal-actions button.liked, .img-modal-actions button:hover.love-btn {
+      background: var(--like);
+      color: #fff;
+    }
+    .img-modal-close {
+      position: absolute; top: 7px; right: 18px;
+      background: transparent; color: var(--accent);
+      border: none; font-size: 1.9rem; cursor: pointer;
+    }
+    /* Footer */
     footer {
-      background: var(--accent);
-      color: var(--white);
+      background: var(--footer-bg);
+      color: var(--footer-text);
       text-align: center;
-      padding: 1rem;
+      padding: 1.1rem;
       font-weight: 600;
       border-top-left-radius: var(--border-radius);
       border-top-right-radius: var(--border-radius);
-      box-shadow: var(--neon-shadow);
-      margin-top: 3rem;
+      box-shadow: var(--shadow);
+      margin-top: 2.5rem;
       margin-bottom: 0;
     }
     /* Responsive */
     @media (max-width: 900px) {
-      header { font-size: 1.6rem; }
-      .gallery-item { flex: 0 0 90vw; min-width: 220px; max-width: 98vw;}
-      .gallery-img { height: 36vw; min-height: 150px; max-height: 220px;}
-      .gallery-slider { gap: 1.2rem; }
+      header { font-size: 1.3rem; }
+      .gallery-item { flex: 0 0 82vw; min-width: 170px; max-width: 98vw;}
+      .gallery-img { height: 26vw; min-height: 100px; max-height: 180px;}
+      .gallery-slider { gap: 1rem; }
     }
     @media (max-width: 600px) {
       .gallery-container { padding: 0.2rem; }
-      .modal-content { padding: 1.2rem 0.6rem; min-width: 90vw;}
+      .modal-content { padding: 1.1rem 0.5rem; min-width: 90vw;}
+      .img-modal-content { padding: 0.7rem; }
+      .img-modal-content img { max-width: 92vw; max-height: 38vh;}
     }
   </style>
 </head>
@@ -280,10 +342,22 @@
   <button class="upload-btn" id="uploadBtn" title="Upload New Image">
     <i class="fas fa-upload"></i>
   </button>
-  <!-- Modal Upload Form -->
+  <!-- Password Modal -->
+  <div class="modal-bg" id="pwModal">
+    <div class="modal-content">
+      <button class="modal-close" id="closePwModal" title="Close">&times;</button>
+      <h2>Admin Access Required</h2>
+      <form id="pwForm" autocomplete="off">
+        <label for="pwInput">Enter Admin Password</label>
+        <input type="password" id="pwInput" required placeholder="Admin password" />
+        <button type="submit">Continue</button>
+      </form>
+    </div>
+  </div>
+  <!-- Upload Modal -->
   <div class="modal-bg" id="uploadModal">
     <div class="modal-content">
-      <button class="modal-close" id="closeModal" title="Close">&times;</button>
+      <button class="modal-close" id="closeUploadModal" title="Close">&times;</button>
       <h2>Upload Image</h2>
       <form id="uploadForm" autocomplete="off">
         <label for="imgInput">Image</label>
@@ -292,6 +366,19 @@
         <input type="text" id="captionInput" maxlength="80" placeholder="Enter a caption" required />
         <button type="submit">Upload</button>
       </form>
+    </div>
+  </div>
+  <!-- Image Modal -->
+  <div class="img-modal-bg" id="imgModal">
+    <div class="img-modal-content">
+      <button class="img-modal-close" id="closeImgModal" title="Close">&times;</button>
+      <img id="modalImg" src="" alt="Gallery Image" />
+      <div class="img-modal-caption" id="modalCaption"></div>
+      <div class="img-modal-date" id="modalDate"></div>
+      <div class="img-modal-actions">
+        <button id="modalShareBtn" title="Share"><i class="fas fa-share-alt"></i></button>
+        <button id="modalLoveBtn" class="love-btn" title="Like"><i class="fas fa-heart"></i></button>
+      </div>
     </div>
   </div>
   <div class="toast-container" id="toastContainer"></div>
@@ -323,12 +410,28 @@
     // --- DOM REFS ---
     const gallerySlider = document.getElementById('gallerySlider');
     const uploadBtn = document.getElementById('uploadBtn');
+    const pwModal = document.getElementById('pwModal');
+    const closePwModal = document.getElementById('closePwModal');
+    const pwForm = document.getElementById('pwForm');
+    const pwInput = document.getElementById('pwInput');
     const uploadModal = document.getElementById('uploadModal');
-    const closeModal = document.getElementById('closeModal');
+    const closeUploadModal = document.getElementById('closeUploadModal');
     const uploadForm = document.getElementById('uploadForm');
     const imgInput = document.getElementById('imgInput');
     const captionInput = document.getElementById('captionInput');
     const toastContainer = document.getElementById('toastContainer');
+    // Image modal
+    const imgModal = document.getElementById('imgModal');
+    const closeImgModal = document.getElementById('closeImgModal');
+    const modalImg = document.getElementById('modalImg');
+    const modalCaption = document.getElementById('modalCaption');
+    const modalDate = document.getElementById('modalDate');
+    const modalShareBtn = document.getElementById('modalShareBtn');
+    const modalLoveBtn = document.getElementById('modalLoveBtn');
+
+    let currentModalImgUrl = '';
+    let currentModalCaption = '';
+    let currentModalDate = '';
 
     // --- TOAST ---
     function showToast(msg, type = "success") {
@@ -339,20 +442,35 @@
       setTimeout(() => { toast.remove(); }, 4200);
     }
 
-    // --- MODAL OPEN/CLOSE ---
-    uploadBtn.onclick = () => { uploadModal.classList.add('active'); };
-    closeModal.onclick = () => { uploadModal.classList.remove('active'); };
+    // --- MODAL HANDLING ---
+    uploadBtn.onclick = () => { pwModal.classList.add('active'); pwInput.value=''; };
+    closePwModal.onclick = () => { pwModal.classList.remove('active'); };
+    pwModal.onclick = (e) => { if (e.target === pwModal) pwModal.classList.remove('active'); };
+    closeUploadModal.onclick = () => { uploadModal.classList.remove('active'); };
     uploadModal.onclick = (e) => { if (e.target === uploadModal) uploadModal.classList.remove('active'); };
+    closeImgModal.onclick = () => { imgModal.classList.remove('active'); };
+    imgModal.onclick = (e) => { if (e.target === imgModal) imgModal.classList.remove('active'); };
+
+    pwForm.onsubmit = (e) => {
+      e.preventDefault();
+      if (pwInput.value === 'lattergloryadmin2025') {
+        pwModal.classList.remove('active');
+        setTimeout(() => uploadModal.classList.add('active'), 150);
+      } else {
+        showToast('Incorrect password.', 'error');
+        pwInput.value = '';
+      }
+    };
 
     // --- GALLERY LOAD ---
     async function loadGallery() {
-      gallerySlider.innerHTML = "<div style='color:#0ff;padding:2rem;'>Loading gallery...</div>";
+      gallerySlider.innerHTML = "<div style='color:#b71c1c;padding:2rem;'>Loading gallery...</div>";
       try {
         const galleryCol = collection(db, 'gallery');
         const q = query(galleryCol, orderBy('date', 'desc'));
         const snapshot = await getDocs(q);
         if (snapshot.empty) {
-          gallerySlider.innerHTML = "<div style='color:#1a98ff;padding:2rem;'>No gallery items yet. Be the first to upload!</div>";
+          gallerySlider.innerHTML = "<div style='color:#e91e63;padding:2rem;'>No gallery items yet. Be the first to upload!</div>";
           return;
         }
         gallerySlider.innerHTML = "";
@@ -361,7 +479,7 @@
           gallerySlider.appendChild(createGalleryItem(data));
         });
       } catch (err) {
-        gallerySlider.innerHTML = "<div style='color:#e32c6d;padding:2rem;'>Failed to load gallery.</div>";
+        gallerySlider.innerHTML = "<div style='color:#b71c1c;padding:2rem;'>Failed to load gallery.</div>";
       }
     }
 
@@ -374,6 +492,10 @@
       img.className = "gallery-img";
       img.src = data.imageUrl;
       img.alt = data.caption || 'Gallery image';
+      img.tabIndex = 0;
+      // Open modal on click
+      img.onclick = () => openImgModal(data);
+      img.onkeydown = (e) => { if (e.key === "Enter") openImgModal(data); };
       // Caption
       const caption = document.createElement('div');
       caption.className = "gallery-caption";
@@ -391,7 +513,8 @@
       shareBtn.className = "gallery-share";
       shareBtn.innerHTML = "<i class='fas fa-share-alt'></i>";
       shareBtn.title = "Share this image";
-      shareBtn.onclick = () => {
+      shareBtn.onclick = (ev) => {
+        ev.stopPropagation();
         if (navigator.share) {
           navigator.share({
             title: "Latter Glory Academy",
@@ -424,7 +547,6 @@
         showToast('Please provide image and caption!', 'error');
         return;
       }
-      // Disable form
       uploadForm.querySelector('button[type="submit"]').disabled = true;
       showToast('Uploading...', 'success');
       try {
@@ -447,6 +569,44 @@
       } finally {
         uploadForm.querySelector('button[type="submit"]').disabled = false;
       }
+    };
+
+    // --- IMAGE MODAL ---
+    function openImgModal(data) {
+      modalImg.src = data.imageUrl;
+      modalCaption.textContent = data.caption || "";
+      let dt = data.date;
+      if (dt && typeof dt.toDate === "function") dt = dt.toDate();
+      else if(dt && dt.seconds) dt = new Date(dt.seconds*1000);
+      else dt = new Date();
+      modalDate.textContent = "Uploaded: " + dt.toLocaleDateString();
+      currentModalImgUrl = data.imageUrl;
+      currentModalCaption = data.caption || "";
+      currentModalDate = modalDate.textContent;
+      imgModal.classList.add('active');
+      // Reset love state (optional: store likes per user/image in localStorage or backend)
+      modalLoveBtn.classList.remove('liked');
+    }
+    // Share in Modal
+    modalShareBtn.onclick = () => {
+      if (navigator.share) {
+        navigator.share({
+          title: "Latter Glory Academy",
+          text: currentModalCaption,
+          url: currentModalImgUrl
+        }).then(()=> showToast('Image shared!', 'success'))
+          .catch(()=> showToast('Share cancelled or failed.', 'error'));
+      } else {
+        navigator.clipboard.writeText(currentModalImgUrl).then(() => {
+          showToast('Image URL copied!', 'success');
+        }).catch(() => {
+          showToast('Failed to copy URL.', 'error');
+        });
+      }
+    };
+    // Like Button in Modal
+    modalLoveBtn.onclick = () => {
+      modalLoveBtn.classList.toggle('liked');
     };
 
     // --- INITIALIZE ---
