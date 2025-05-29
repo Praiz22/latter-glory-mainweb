@@ -3,286 +3,271 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Latter Glory Academy Gallery</title>
+  <title>Latter Glory Gallery</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.0/css/all.min.css" />
   <style>
     :root {
-      --primary: #b71c1c;
-      --secondary: #fff;
-      --accent: #e91e63;
-      --dark: #222;
-      --light: #fff;
-      --footer-bg: #b71c1c;
-      --footer-text: #fff;
-      --border-radius: 20px;
-      --shadow: 0 2px 16px 0 rgba(183, 28, 28, 0.14);
-      --pink-fun: #fce4ec;
-      --like: #e91e63;
+      --primary-color: #b71c1c;
+      --secondary-color: #ffe4e1;
+      --accent-color: #e91e63;
+      --dark-color: #000000;
+      --light-color: #ffffff;
     }
     body {
+      background: var(--light-color);
       font-family: 'Poppins', sans-serif;
-      background: var(--secondary);
-      color: var(--dark);
-      margin: 0;
+      color: var(--dark-color);
+      position: relative;
       min-height: 100vh;
-      overflow-x: hidden;
+      padding-bottom: 100px;
     }
     header {
-      background: var(--primary);
-      color: var(--light);
       text-align: center;
-      font-size: 2.2rem;
+      margin-bottom: 2rem;
+      background: var(--light-color);
+      padding: 1rem 0 0.5rem 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+      color: var(--dark-color);
+      border-bottom-left-radius: 20px;
+      border-bottom-right-radius: 20px;
+    }
+    header h1 {
       font-weight: 700;
-      letter-spacing: 1.5px;
-      padding: 2rem 1rem 1.2rem 1rem;
-      border-bottom-left-radius: var(--border-radius);
-      border-bottom-right-radius: var(--border-radius);
-      box-shadow: var(--shadow);
-      margin-bottom: 1.3rem;
+      font-size: 2.5rem;
+      color: var(--primary-color);
+      margin-bottom: 0.3rem;
       text-transform: uppercase;
+      letter-spacing: 2px;
+      animation: fadeInDown 1s ease;
+    }
+    header p {
+      font-size: 1.1rem;
+      color: var(--dark-color);
+      animation: fadeInUp 1s ease;
+      animation-delay: 0.5s;
     }
     .gallery-container {
       max-width: 1200px;
       margin: 0 auto;
-      padding: 1.2rem 1rem;
-      background: var(--pink-fun);
-      border-radius: var(--border-radius);
-      box-shadow: var(--shadow);
-      position: relative;
+      padding: 2rem 1rem;
+      background: var(--secondary-color);
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(183, 28, 28, 0.10);
       min-height: 300px;
     }
-    .gallery-slider {
+    .gallery-grid {
       display: flex;
-      gap: 2rem;
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
-      padding-bottom: 1.5rem;
-      scrollbar-width: thin;
-      scrollbar-color: var(--accent) #fce4ec;
+      flex-wrap: wrap;
+      gap: 2.2rem;
+      justify-content: center;
+      align-items: stretch;
     }
-    .gallery-slider::-webkit-scrollbar { height: 12px; }
-    .gallery-slider::-webkit-scrollbar-thumb {
-      background: var(--accent);
-      border-radius: 10px;
-    }
-    .gallery-item {
-      flex: 0 0 280px;
-      scroll-snap-align: center;
-      background: var(--secondary);
+    .gallery-card {
+      background: var(--light-color);
       border-radius: 16px;
-      box-shadow: var(--shadow);
-      transition: transform 0.24s cubic-bezier(.3,1.7,.6,1), box-shadow 0.24s;
+      box-shadow: 0 2px 12px #e91e6333;
+      padding: 1rem 1rem 0.7rem;
+      width: 260px;
       position: relative;
-      overflow: hidden;
       display: flex;
       flex-direction: column;
-      align-items: stretch;
-      min-width: 220px;
-      max-width: 90vw;
-      border: 4px solid #fff;
+      align-items: center;
+      transition: transform 0.18s, box-shadow 0.18s;
+      border: 3px solid #fff;
     }
-    .gallery-item:hover {
-      transform: scale(1.045) rotateZ(-2deg);
-      box-shadow: 0 6px 24px 0 #e91e6360;
+    .gallery-card:hover {
+      transform: translateY(-7px) scale(1.02);
+      box-shadow: 0 6px 24px 0 #e91e6344;
+      border-color: var(--accent-color);
       z-index: 2;
-      border-color: var(--accent);
     }
     .gallery-img {
       width: 100%;
-      height: 180px;
+      height: 170px;
       object-fit: cover;
-      border-radius: 12px 12px 8px 8px;
-      background: #eee;
-      transition: filter 0.18s;
+      border-radius: 10px;
       cursor: pointer;
+      box-shadow: 0 2px 10px #e91e6330;
+      transition: filter 0.15s;
+      background: #eee;
     }
     .gallery-caption {
-      color: var(--primary);
-      margin: 0.7rem 1rem 0.4rem 1rem;
+      color: var(--primary-color);
       font-weight: 600;
-      font-size: 1.05rem;
-      min-height: 28px;
-      text-shadow: 0 1px 8px #e91e6399;
+      font-size: 1.06rem;
+      margin: 0.8rem 0 0.1rem;
+      text-align: center;
+      min-height: 24px;
     }
     .gallery-date {
-      color: #b71c1ccc;
-      font-size: 0.95rem;
-      margin: 0 1rem 0.5rem 1rem;
+      color: #b71c1caa;
+      font-size: 0.99rem;
+      margin-bottom: 0.5rem;
       text-align: right;
+      width: 100%;
     }
-    .gallery-share {
-      position: absolute;
-      top: 12px; right: 16px;
-      background: var(--accent);
-      color: var(--light);
+    .gallery-actions {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+      margin-bottom: 0.5rem;
+    }
+    .gallery-share, .gallery-delete {
+      background: var(--accent-color);
+      color: var(--light-color);
       border: none;
       border-radius: 50%;
-      width: 33px; height: 33px;
+      width: 32px; height: 32px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 1.17rem;
-      box-shadow: 0 0 10px #e91e6344;
-      opacity: 0.86;
+      font-size: 1.07rem;
+      opacity: 0.9;
       cursor: pointer;
-      z-index: 10;
-      transition: background 0.2s, box-shadow 0.2s;
+      transition: background 0.18s, color 0.18s;
+      margin-left: 4px;
     }
-    .gallery-share:hover {
-      background: var(--primary);
-      color: var(--light);
+    .gallery-share:hover, .gallery-delete:hover {
+      background: var(--primary-color);
+      color: #fff;
       opacity: 1;
     }
-    /* Upload Button */
+    .gallery-delete {
+      background: #fff3f3;
+      color: #b71c1c;
+      border: 2px solid #e91e63;
+    }
+    .gallery-delete:hover {
+      background: #e91e63;
+      color: #fff;
+    }
     .upload-btn {
       position: fixed; bottom: 2.2rem; right: 2.2rem;
-      background: var(--accent); color: var(--light);
+      background: var(--accent-color); color: var(--light-color);
       border-radius: 50%; width: 60px; height: 60px;
       font-size: 2rem; border: none;
-      box-shadow: 0 2px 18px #e91e6360;
+      box-shadow: 0 2px 18px #e91e6340;
       z-index: 1200;
       cursor: pointer;
-      transition: background 0.18s, box-shadow 0.18s, scale 0.15s;
       display: flex; align-items: center; justify-content: center;
+      transition: background 0.18s, scale 0.12s;
     }
     .upload-btn:hover {
-      background: var(--primary);
-      color: var(--light);
-      scale: 1.09;
+      background: var(--primary-color);
+      color: #fff;
+      scale: 1.08;
     }
-    /* Modal Style */
+    /* Modal */
     .modal-bg {
       position: fixed; z-index: 1500; inset: 0;
-      background: rgba(183,28,28,0.14);
+      background: rgba(233,30,99,0.12);
       display: none; align-items: center; justify-content: center;
     }
     .modal-bg.active { display: flex; }
     .modal-content {
-      background: var(--secondary);
-      border-radius: var(--border-radius);
-      box-shadow: var(--shadow);
-      padding: 2rem 2.5rem 2rem 2.5rem;
+      background: var(--light-color);
+      border-radius: 20px;
+      box-shadow: 0 4px 20px #b71c1c33;
+      padding: 2rem 2.2rem 1.2rem 2.2rem;
       min-width: 320px;
-      max-width: 94vw;
+      max-width: 96vw;
       position: relative;
-      animation: popin 0.3s;
-    }
-    @keyframes popin {
-      from { transform: scale(0.88); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
+      animation: fadeIn 0.18s;
     }
     .modal-content h2 {
-      margin: 0 0 1rem 0;
-      color: var(--primary);
       text-align: center;
-      font-size: 1.35rem;
+      color: var(--primary-color);
+      font-size: 1.25rem;
+      margin-bottom: 1.4rem;
       letter-spacing: 1px;
     }
     .modal-content label {
-      display: block;
+      color: var(--primary-color);
+      font-weight: 600;
       margin-bottom: 0.3rem;
-      color: var(--primary);
-      font-weight: 500;
     }
     .modal-content input[type="file"], .modal-content input[type="password"], .modal-content input[type="text"] {
       width: 100%;
-      background: #fce4ec;
-      color: var(--primary);
-      border: 1.5px solid var(--accent);
+      background: var(--secondary-color);
+      border: 1.5px solid var(--accent-color);
+      color: var(--dark-color);
       border-radius: 7px;
       margin-bottom: 1rem;
       padding: 0.6rem 0.7rem;
       font-size: 1rem;
     }
     .modal-content button[type="submit"] {
-      background: var(--accent);
-      color: var(--light);
+      background: var(--accent-color);
+      color: #fff;
       border: none;
-      border-radius: 7px;
+      border-radius: 8px;
       padding: 0.7rem 2.2rem;
       font-size: 1.07rem;
       font-weight: 600;
       cursor: pointer;
+      margin-top: 0.5rem;
       box-shadow: 0 1px 8px #e91e6355;
       transition: background 0.18s;
-      margin-top: 0.5rem;
     }
     .modal-content button[type="submit"]:hover {
-      background: var(--primary);
-      color: var(--light);
+      background: var(--primary-color);
+      color: #fff;
     }
     .modal-close {
-      position: absolute; top: 8px; right: 14px;
-      background: transparent; color: var(--accent);
-      border: none; font-size: 1.45rem; cursor: pointer;
+      position: absolute; top: 7px; right: 18px;
+      background: transparent; color: var(--accent-color);
+      border: none; font-size: 1.7rem; cursor: pointer;
     }
-    /* Toast */
-    .toast-container {
-      position: fixed;
-      top: 1.1rem; right: 1.2rem;
-      z-index: 1600;
-      display: flex; flex-direction: column; gap: 0.5rem;
-    }
-    .toast {
-      background: var(--accent);
-      color: var(--light);
-      border-radius: 8px;
-      padding: 0.8rem 1.3rem;
-      font-size: 1rem;
-      min-width: 160px;
-      box-shadow: 0 1px 12px #e91e6355;
-      opacity: 0.96;
-      animation: popin 0.7s;
-    }
-    .toast.toast-success { background: var(--primary); color: var(--light);}
-    .toast.toast-error { background: #b71c1c; color: var(--light);}
     /* Image Modal */
     .img-modal-bg {
       position: fixed; z-index: 1700; inset: 0;
-      background: rgba(239, 51, 145, 0.12);
+      background: rgba(233,30,99,0.13);
       display: none; align-items: center; justify-content: center;
     }
     .img-modal-bg.active { display: flex; }
     .img-modal-content {
-      background: var(--secondary);
-      border-radius: var(--border-radius);
-      box-shadow: var(--shadow);
+      background: var(--light-color);
+      border-radius: 20px;
+      box-shadow: 0 4px 18px #e91e6333;
       padding: 1.5rem;
       max-width: 95vw;
-      max-height: 90vh;
+      max-height: 92vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       position: relative;
-      animation: popin 0.24s;
+      animation: fadeIn 0.18s;
     }
     .img-modal-content img {
-      max-width: 76vw;
-      max-height: 48vh;
+      max-width: 78vw;
+      max-height: 46vh;
       border-radius: 16px;
       margin-bottom: 1rem;
       background: #eee;
     }
     .img-modal-caption {
-      color: var(--primary);
-      font-size: 1.17rem;
+      color: var(--primary-color);
+      font-size: 1.11rem;
       font-weight: 600;
-      margin-bottom: 0.6rem;
+      text-align: center;
+      margin-bottom: 0.5rem;
     }
     .img-modal-date {
       color: #b71c1caa;
-      font-size: 0.97rem;
-      margin-bottom: 1.2rem;
+      font-size: 0.95rem;
+      margin-bottom: 1.0rem;
+      text-align: center;
     }
     .img-modal-actions {
       display: flex;
-      gap: 1.4rem;
+      gap: 1.3rem;
       align-items: center;
       margin-top: 0.7rem;
       justify-content: center;
     }
     .img-modal-actions button {
-      background: var(--pink-fun);
-      color: var(--accent);
+      background: var(--secondary-color);
+      color: var(--accent-color);
       border: none;
       border-radius: 50%;
       width: 46px; height: 46px;
@@ -293,56 +278,83 @@
       transition: background 0.18s, color 0.18s;
     }
     .img-modal-actions button.liked, .img-modal-actions button:hover.love-btn {
-      background: var(--like);
+      background: var(--accent-color);
       color: #fff;
     }
     .img-modal-close {
       position: absolute; top: 7px; right: 18px;
-      background: transparent; color: var(--accent);
+      background: transparent; color: var(--accent-color);
       border: none; font-size: 1.9rem; cursor: pointer;
     }
+    .img-modal-actions .delete-btn {
+      color: #b71c1c;
+      background: #fff1f1;
+      border: 2px solid #e91e63;
+    }
+    .img-modal-actions .delete-btn:hover {
+      background: #e91e63 !important;
+      color: #fff !important;
+    }
+    /* Toast */
+    .toast-container {
+      position: fixed;
+      top: 1.1rem; right: 1.2rem;
+      z-index: 1600;
+      display: flex; flex-direction: column; gap: 0.5rem;
+    }
+    .toast {
+      background: var(--accent-color);
+      color: #fff;
+      border-radius: 8px;
+      padding: 0.8rem 1.3rem;
+      font-size: 1rem;
+      min-width: 160px;
+      box-shadow: 0 1px 12px #e91e6355;
+      opacity: 0.96;
+      animation: fadeIn 0.7s;
+    }
+    .toast.toast-success { background: var(--primary-color);}
+    .toast.toast-error { background: #b71c1c;}
     /* Footer */
     footer {
-      background: var(--footer-bg);
-      color: var(--footer-text);
+      background: var(--primary-color);
+      color: #fff;
       text-align: center;
       padding: 1.1rem;
       font-weight: 600;
-      border-top-left-radius: var(--border-radius);
-      border-top-right-radius: var(--border-radius);
-      box-shadow: var(--shadow);
+      border-top-left-radius: 20px;
+      border-top-right-radius: 20px;
+      box-shadow: 0 -3px 10px rgba(183,28,28,0.12);
       margin-top: 2.5rem;
-      margin-bottom: 0;
     }
-    /* Responsive */
     @media (max-width: 900px) {
-      header { font-size: 1.3rem; }
-      .gallery-item { flex: 0 0 82vw; min-width: 170px; max-width: 98vw;}
+      header h1 { font-size: 1.5rem; }
+      .gallery-card { width: 92vw; }
       .gallery-img { height: 26vw; min-height: 100px; max-height: 180px;}
-      .gallery-slider { gap: 1rem; }
+      .gallery-grid { gap: 1rem; }
     }
     @media (max-width: 600px) {
       .gallery-container { padding: 0.2rem; }
       .modal-content { padding: 1.1rem 0.5rem; min-width: 90vw;}
       .img-modal-content { padding: 0.7rem; }
-      .img-modal-content img { max-width: 92vw; max-height: 38vh;}
+      .img-modal-content img { max-width: 94vw; max-height: 38vh;}
     }
   </style>
 </head>
 <body>
-  <header>Latter Glory Academy Gallery</header>
+  <header>
+    <h1>Latter Glory Gallery</h1>
+    <p>Fun moments, creative work, and memories from our community!</p>
+  </header>
   <main>
     <div class="gallery-container">
-      <div class="gallery-slider" id="gallerySlider">
-        <!-- Gallery items will be dynamically inserted here -->
-      </div>
+      <div class="gallery-grid" id="galleryGrid"></div>
     </div>
   </main>
-  <!-- Upload Button -->
   <button class="upload-btn" id="uploadBtn" title="Upload New Image">
     <i class="fas fa-upload"></i>
   </button>
-  <!-- Password Modal -->
+  <!-- Admin Password Modal -->
   <div class="modal-bg" id="pwModal">
     <div class="modal-content">
       <button class="modal-close" id="closePwModal" title="Close">&times;</button>
@@ -368,47 +380,58 @@
       </form>
     </div>
   </div>
-  <!-- Image Modal -->
+  <!-- Modal for viewing full image -->
   <div class="img-modal-bg" id="imgModal">
     <div class="img-modal-content">
       <button class="img-modal-close" id="closeImgModal" title="Close">&times;</button>
       <img id="modalImg" src="" alt="Gallery Image" />
       <div class="img-modal-caption" id="modalCaption"></div>
       <div class="img-modal-date" id="modalDate"></div>
-      <div class="img-modal-actions">
-        <button id="modalShareBtn" title="Share"><i class="fas fa-share-alt"></i></button>
-        <button id="modalLoveBtn" class="love-btn" title="Like"><i class="fas fa-heart"></i></button>
-      </div>
+      <div class="img-modal-actions" id="modalActions"></div>
     </div>
   </div>
   <div class="toast-container" id="toastContainer"></div>
   <footer>
     &copy; 2025 Latter Glory Academy | Powered by Praix Tech
   </footer>
-  <!-- Firebase SDKs -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-    import { getFirestore, collection, getDocs, addDoc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
-    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js";
+  <script>
+    // ---- CONFIG ----
+    const CLOUD_NAME = 'dbat5n77r';
+    const UPLOAD_PRESET = 'gallery_unsigned';
+    const ADMIN_PASSWORD = 'lattergloryadmin2025';
+    const STORAGE_KEY = "lg_admin"; // for session
 
-    // --- CONFIGURE THIS: ---
-    const firebaseConfig = {
-      apiKey: "AIzaSyDgReNsNbU6-Cnx-ej0HPcHSrCXVppohJQ",
-      authDomain: "latter-glory.firebaseapp.com",
-      projectId: "latter-glory",
-      storageBucket: "latter-glory.appspot.com",
-      messagingSenderId: "133970297722",
-      appId: "1:133970297722:web:33758b76625c70930dccc3",
-      measurementId: "G-5G1BYM7Q3Y"
-    };
+    // ---- STORAGE (localStorage for gallery meta) ----
+    // For demo, use localStorage; for production, use a backend or DB!
+    function getGallery() {
+      return JSON.parse(localStorage.getItem("lg_gallery") || "[]");
+    }
+    function setGallery(arr) {
+      localStorage.setItem("lg_gallery", JSON.stringify(arr));
+    }
+    function addGalleryImage(imgObj) {
+      const arr = getGallery();
+      arr.unshift(imgObj);
+      setGallery(arr);
+    }
+    function removeGalleryImage(public_id) {
+      const arr = getGallery().filter(img => img.public_id !== public_id);
+      setGallery(arr);
+    }
 
-    // --- INIT FIREBASE ---
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const storage = getStorage(app);
+    // ---- ADMIN SESSION ----
+    function setAdminSession() {
+      localStorage.setItem(STORAGE_KEY, "true");
+    }
+    function clearAdminSession() {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+    function isAdmin() {
+      return !!localStorage.getItem(STORAGE_KEY);
+    }
 
-    // --- DOM REFS ---
-    const gallerySlider = document.getElementById('gallerySlider');
+    // ---- DOM REFS ----
+    const galleryGrid = document.getElementById('galleryGrid');
     const uploadBtn = document.getElementById('uploadBtn');
     const pwModal = document.getElementById('pwModal');
     const closePwModal = document.getElementById('closePwModal');
@@ -426,23 +449,18 @@
     const modalImg = document.getElementById('modalImg');
     const modalCaption = document.getElementById('modalCaption');
     const modalDate = document.getElementById('modalDate');
-    const modalShareBtn = document.getElementById('modalShareBtn');
-    const modalLoveBtn = document.getElementById('modalLoveBtn');
+    const modalActions = document.getElementById('modalActions');
 
-    let currentModalImgUrl = '';
-    let currentModalCaption = '';
-    let currentModalDate = '';
-
-    // --- TOAST ---
+    // ---- TOAST ----
     function showToast(msg, type = "success") {
       const toast = document.createElement('div');
       toast.className = `toast toast-${type}`;
       toast.innerText = msg;
       toastContainer.appendChild(toast);
-      setTimeout(() => { toast.remove(); }, 4200);
+      setTimeout(() => { toast.remove(); }, 3500);
     }
 
-    // --- MODAL HANDLING ---
+    // ---- MODALS ----
     uploadBtn.onclick = () => { pwModal.classList.add('active'); pwInput.value=''; };
     closePwModal.onclick = () => { pwModal.classList.remove('active'); };
     pwModal.onclick = (e) => { if (e.target === pwModal) pwModal.classList.remove('active'); };
@@ -451,9 +469,11 @@
     closeImgModal.onclick = () => { imgModal.classList.remove('active'); };
     imgModal.onclick = (e) => { if (e.target === imgModal) imgModal.classList.remove('active'); };
 
+    // ---- ADMIN PW ----
     pwForm.onsubmit = (e) => {
       e.preventDefault();
-      if (pwInput.value === 'lattergloryadmin2025') {
+      if (pwInput.value === ADMIN_PASSWORD) {
+        setAdminSession();
         pwModal.classList.remove('active');
         setTimeout(() => uploadModal.classList.add('active'), 150);
       } else {
@@ -462,83 +482,7 @@
       }
     };
 
-    // --- GALLERY LOAD ---
-    async function loadGallery() {
-      gallerySlider.innerHTML = "<div style='color:#b71c1c;padding:2rem;'>Loading gallery...</div>";
-      try {
-        const galleryCol = collection(db, 'gallery');
-        const q = query(galleryCol, orderBy('date', 'desc'));
-        const snapshot = await getDocs(q);
-        if (snapshot.empty) {
-          gallerySlider.innerHTML = "<div style='color:#e91e63;padding:2rem;'>No gallery items yet. Be the first to upload!</div>";
-          return;
-        }
-        gallerySlider.innerHTML = "";
-        snapshot.forEach(doc => {
-          const data = doc.data();
-          gallerySlider.appendChild(createGalleryItem(data));
-        });
-      } catch (err) {
-        gallerySlider.innerHTML = "<div style='color:#b71c1c;padding:2rem;'>Failed to load gallery.</div>";
-      }
-    }
-
-    // --- GALLERY ITEM CREATOR ---
-    function createGalleryItem(data) {
-      const item = document.createElement('div');
-      item.className = "gallery-item";
-      // Image
-      const img = document.createElement('img');
-      img.className = "gallery-img";
-      img.src = data.imageUrl;
-      img.alt = data.caption || 'Gallery image';
-      img.tabIndex = 0;
-      // Open modal on click
-      img.onclick = () => openImgModal(data);
-      img.onkeydown = (e) => { if (e.key === "Enter") openImgModal(data); };
-      // Caption
-      const caption = document.createElement('div');
-      caption.className = "gallery-caption";
-      caption.textContent = data.caption || "";
-      // Date
-      const date = document.createElement('div');
-      date.className = "gallery-date";
-      let dt = data.date;
-      if (dt && typeof dt.toDate === "function") dt = dt.toDate();
-      else if(dt && dt.seconds) dt = new Date(dt.seconds*1000);
-      else dt = new Date();
-      date.textContent = dt.toLocaleDateString();
-      // Share Button
-      const shareBtn = document.createElement('button');
-      shareBtn.className = "gallery-share";
-      shareBtn.innerHTML = "<i class='fas fa-share-alt'></i>";
-      shareBtn.title = "Share this image";
-      shareBtn.onclick = (ev) => {
-        ev.stopPropagation();
-        if (navigator.share) {
-          navigator.share({
-            title: "Latter Glory Academy",
-            text: data.caption || "",
-            url: data.imageUrl
-          }).then(()=> showToast('Image shared!', 'success'))
-            .catch(()=> showToast('Share cancelled or failed.', 'error'));
-        } else {
-          navigator.clipboard.writeText(data.imageUrl).then(() => {
-            showToast('Image URL copied!', 'success');
-          }).catch(() => {
-            showToast('Failed to copy URL.', 'error');
-          });
-        }
-      };
-      // Assemble
-      item.appendChild(img);
-      item.appendChild(shareBtn);
-      item.appendChild(date);
-      item.appendChild(caption);
-      return item;
-    }
-
-    // --- UPLOAD HANDLING ---
+    // ---- CLOUDINARY UPLOAD ----
     uploadForm.onsubmit = async (e) => {
       e.preventDefault();
       const file = imgInput.files[0];
@@ -550,20 +494,29 @@
       uploadForm.querySelector('button[type="submit"]').disabled = true;
       showToast('Uploading...', 'success');
       try {
-        // 1. Upload image to storage
-        const imgRef = ref(storage, 'gallery/' + (Date.now()) + '-' + file.name.replace(/[^a-z0-9.]+/gi, ''));
-        await uploadBytes(imgRef, file);
-        const imageUrl = await getDownloadURL(imgRef);
-        // 2. Add metadata to Firestore
-        await addDoc(collection(db, 'gallery'), {
-          imageUrl,
+        // 1. Upload image to Cloudinary
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', UPLOAD_PRESET);
+        // Optionally, add folder: formData.append('folder', 'gallery');
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+        if (!data.secure_url) throw new Error("Upload failed");
+        // 2. Add to gallery meta
+        const today = new Date();
+        addGalleryImage({
+          url: data.secure_url,
+          public_id: data.public_id,
           caption,
-          date: serverTimestamp()
+          date: today.toISOString()
         });
         showToast('Upload successful!', 'success');
         uploadModal.classList.remove('active');
         uploadForm.reset();
-        loadGallery();
+        renderGallery();
       } catch (err) {
         showToast('Upload failed!', 'error');
       } finally {
@@ -571,48 +524,138 @@
       }
     };
 
-    // --- IMAGE MODAL ---
-    function openImgModal(data) {
-      modalImg.src = data.imageUrl;
-      modalCaption.textContent = data.caption || "";
-      let dt = data.date;
-      if (dt && typeof dt.toDate === "function") dt = dt.toDate();
-      else if(dt && dt.seconds) dt = new Date(dt.seconds*1000);
-      else dt = new Date();
-      modalDate.textContent = "Uploaded: " + dt.toLocaleDateString();
-      currentModalImgUrl = data.imageUrl;
-      currentModalCaption = data.caption || "";
-      currentModalDate = modalDate.textContent;
-      imgModal.classList.add('active');
-      // Reset love state (optional: store likes per user/image in localStorage or backend)
-      modalLoveBtn.classList.remove('liked');
-    }
-    // Share in Modal
-    modalShareBtn.onclick = () => {
-      if (navigator.share) {
-        navigator.share({
-          title: "Latter Glory Academy",
-          text: currentModalCaption,
-          url: currentModalImgUrl
-        }).then(()=> showToast('Image shared!', 'success'))
-          .catch(()=> showToast('Share cancelled or failed.', 'error'));
-      } else {
-        navigator.clipboard.writeText(currentModalImgUrl).then(() => {
-          showToast('Image URL copied!', 'success');
-        }).catch(() => {
-          showToast('Failed to copy URL.', 'error');
-        });
+    // ---- RENDER GALLERY ----
+    function renderGallery() {
+      const gallery = getGallery();
+      galleryGrid.innerHTML = '';
+      if (!gallery.length) {
+        galleryGrid.innerHTML = `<div class="text-center text-muted p-5" style="width:100%">No gallery items yet. Be the first to upload!</div>`;
+        return;
       }
-    };
-    // Like Button in Modal
-    modalLoveBtn.onclick = () => {
-      modalLoveBtn.classList.toggle('liked');
-    };
+      gallery.forEach(imgObj => {
+        const card = document.createElement('div');
+        card.className = "gallery-card";
+        // Image
+        const img = document.createElement('img');
+        img.className = "gallery-img";
+        img.src = imgObj.url;
+        img.alt = imgObj.caption || 'Gallery image';
+        img.tabIndex = 0;
+        // Open modal on click
+        img.onclick = () => openImgModal(imgObj);
+        img.onkeydown = (e) => { if (e.key === "Enter") openImgModal(imgObj); };
+        // Caption
+        const caption = document.createElement('div');
+        caption.className = "gallery-caption";
+        caption.textContent = imgObj.caption || "";
+        // Date
+        const date = document.createElement('div');
+        date.className = "gallery-date";
+        date.textContent = "Uploaded: " + new Date(imgObj.date).toLocaleDateString();
+        // Share Button
+        const actions = document.createElement('div');
+        actions.className = "gallery-actions";
+        const shareBtn = document.createElement('button');
+        shareBtn.className = "gallery-share";
+        shareBtn.innerHTML = "<i class='fas fa-share-alt'></i>";
+        shareBtn.title = "Share this image";
+        shareBtn.onclick = (ev) => {
+          ev.stopPropagation();
+          if (navigator.share) {
+            navigator.share({
+              title: "Latter Glory Academy",
+              text: imgObj.caption || "",
+              url: imgObj.url
+            }).then(()=> showToast('Image shared!', 'success'))
+              .catch(()=> showToast('Share cancelled or failed.', 'error'));
+          } else {
+            navigator.clipboard.writeText(imgObj.url).then(() => {
+              showToast('Image URL copied!', 'success');
+            }).catch(() => {
+              showToast('Failed to copy URL.', 'error');
+            });
+          }
+        };
+        actions.appendChild(shareBtn);
+        // Admin delete
+        if (isAdmin()) {
+          const deleteBtn = document.createElement('button');
+          deleteBtn.className = "gallery-delete";
+          deleteBtn.title = "Delete this image";
+          deleteBtn.innerHTML = "<i class='fas fa-trash'></i>";
+          deleteBtn.onclick = (ev) => {
+            ev.stopPropagation();
+            if (confirm("Delete this image? This only deletes it from this gallery.")) {
+              removeGalleryImage(imgObj.public_id);
+              renderGallery();
+              showToast('Image removed from gallery.', 'success');
+            }
+          };
+          actions.appendChild(deleteBtn);
+        }
+        card.appendChild(img);
+        card.appendChild(actions);
+        card.appendChild(date);
+        card.appendChild(caption);
+        galleryGrid.appendChild(card);
+      });
+    }
 
-    // --- INITIALIZE ---
-    window.addEventListener('DOMContentLoaded', () => {
-      loadGallery();
-    });
+    // ---- IMAGE MODAL ----
+    function openImgModal(imgObj) {
+      modalImg.src = imgObj.url;
+      modalCaption.textContent = imgObj.caption || "";
+      modalDate.textContent = "Uploaded: " + new Date(imgObj.date).toLocaleDateString();
+      modalActions.innerHTML = "";
+      // Share
+      const shareBtn = document.createElement('button');
+      shareBtn.innerHTML = "<i class='fas fa-share-alt'></i>";
+      shareBtn.title = "Share this image";
+      shareBtn.onclick = () => {
+        if (navigator.share) {
+          navigator.share({
+            title: "Latter Glory Academy",
+            text: imgObj.caption || "",
+            url: imgObj.url
+          }).then(()=> showToast('Image shared!', 'success'))
+            .catch(()=> showToast('Share cancelled or failed.', 'error'));
+        } else {
+          navigator.clipboard.writeText(imgObj.url).then(() => {
+            showToast('Image URL copied!', 'success');
+          }).catch(() => {
+            showToast('Failed to copy URL.', 'error');
+          });
+        }
+      };
+      modalActions.appendChild(shareBtn);
+      // Like
+      const loveBtn = document.createElement('button');
+      loveBtn.className = "love-btn";
+      loveBtn.innerHTML = "<i class='fas fa-heart'></i>";
+      loveBtn.title = "Like";
+      loveBtn.onclick = () => loveBtn.classList.toggle('liked');
+      modalActions.appendChild(loveBtn);
+      // Admin delete
+      if (isAdmin()) {
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = "delete-btn";
+        deleteBtn.title = "Delete this image";
+        deleteBtn.innerHTML = "<i class='fas fa-trash'></i>";
+        deleteBtn.onclick = () => {
+          if (confirm("Delete this image? This only deletes it from this gallery.")) {
+            removeGalleryImage(imgObj.public_id);
+            imgModal.classList.remove('active');
+            renderGallery();
+            showToast('Image removed from gallery.', 'success');
+          }
+        };
+        modalActions.appendChild(deleteBtn);
+      }
+      imgModal.classList.add('active');
+    }
+
+    // ---- INIT ----
+    window.addEventListener('DOMContentLoaded', renderGallery);
   </script>
 </body>
 </html>
