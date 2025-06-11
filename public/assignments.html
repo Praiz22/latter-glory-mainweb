@@ -9,17 +9,14 @@
   <meta name="author" content="Praix Tech" />
   <title>Assignment Submission | Latter Glory Academy</title>
 
-  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
 
-  <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
 
-  <!-- Animate.css for animations -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
 
-  <!-- Font Awesome for icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
 
   <style>
@@ -41,19 +38,66 @@
       padding-bottom: 100px;
     }
 
+    /* Preloader Styles */
+    .loader-bg {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity .5s ease-out;
+    }
+
+    .loader-logo-animate {
+      width: 90px;
+      height: 90px;
+      animation: pulseLogo 1.5s infinite cubic-bezier(0.4, 0, 0.6, 1);
+    }
+
+    @keyframes pulseLogo {
+      0% {
+        transform: scale(1);
+        opacity: 0.7;
+      }
+      50% {
+        transform: scale(1.13);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 0.7;
+      }
+    }
+
+    .content-hidden {
+      display: none;
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out;
+    }
+
+    .content-visible {
+      display: block; /* Or flex, grid depending on your layout */
+      opacity: 1;
+    }
+
+    /* Floating SVG shapes - positioned globally */
     .floating-shape-wrapper {
-      position: absolute;
+      position: fixed; /* Use fixed so they float independently of scroll */
       width: 80px;
       height: 80px;
-      z-index: 1;
+      z-index: 5; /* Below modals, above main content */
       cursor: pointer;
       animation: float 6s ease-in-out infinite;
       transition: transform 0.3s ease;
+      pointer-events: none; /* Allows clicks to pass through to elements below */
     }
+
     .floating-shape-wrapper:hover {
       transform: translateY(-15px) scale(1.1);
       animation-play-state: paused;
-      z-index: 10;
     }
 
     .floating-shape {
@@ -61,12 +105,16 @@
       height: 100%;
       object-fit: contain;
       opacity: 0.5;
-      pointer-events: none;
     }
 
     @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-20px); }
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-20px);
+      }
     }
 
     header {
@@ -76,7 +124,7 @@
       z-index: 10;
       background: var(--light-color);
       padding: 1rem 0 0.5rem 0;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       color: var(--dark-color);
     }
 
@@ -97,9 +145,16 @@
       animation-delay: 0.5s;
     }
 
-    .how-to-btn {
+    .header-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 15px; /* Space between buttons */
+      flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
       margin-top: 0.75rem;
       margin-bottom: 1.5rem;
+    }
+
+    .how-to-btn, .assignments-btn {
       font-weight: 600;
       background-color: var(--accent-color);
       color: #fff;
@@ -108,13 +163,13 @@
       border: none;
       box-shadow: 0 3px 10px rgba(233, 30, 99, 0.15);
       transition: background 0.2s;
+      white-space: nowrap; /* Prevent text wrapping */
     }
-    .how-to-btn:hover, .how-to-btn:focus {
+    .how-to-btn:hover, .how-to-btn:focus,
+    .assignments-btn:hover, .assignments-btn:focus {
       background: var(--primary-color);
       color: #fff;
     }
-
-    /* Hide the carousel on the page, it's now inside the modal */
 
     form {
       max-width: 700px;
@@ -187,6 +242,7 @@
       transform: translateY(-50%);
       display: none;
     }
+
     .btn-spinner.show {
       display: inline-block;
     }
@@ -217,6 +273,7 @@
       border-radius: 0 0 10px 10px;
       padding: 0.5rem 0 1.5rem 0;
     }
+
     .modal .carousel-item {
       text-align: center;
       padding: 2rem 1rem 0.5rem 1rem;
@@ -225,9 +282,9 @@
       flex-direction: column;
       align-items: center;
       justify-content: flex-start;
-      /* Animate fadeIn for every slide */
       animation: fadeIn 0.7s;
     }
+
     .modal .carousel-item img.vector {
       width: 180px;
       max-width: 60%;
@@ -237,8 +294,8 @@
       box-shadow: 0 4px 22px 0 rgba(233, 30, 99, 0.09);
       opacity: 0.82;
       animation: bounceIn 1.6s;
-      /* Animate image in every slide */
     }
+
     .modal .carousel-caption {
       position: static;
       padding: 0;
@@ -246,37 +303,76 @@
       color: var(--dark-color);
       text-shadow: none;
     }
+
     .modal .carousel-caption h5 {
       font-size: 1.3rem;
       font-weight: 700;
       color: var(--primary-color);
       margin-bottom: 0.5rem;
-      /* Animate text: fade in down */
       animation: fadeInDown 1.1s;
       text-shadow: 0 2px 16px #fff8, 0 1px 0 #fff;
     }
+
     .modal .carousel-caption p {
       font-size: 1.08rem;
       font-weight: 600;
       color: #222;
       opacity: 0.9;
-      /* Animate text: fade in up */
       animation: fadeInUp 1.3s;
       margin-bottom: 0;
       text-shadow: 0 1px 6px #fff6;
     }
 
-    /* Make text more readable on modal bg */
     .modal .carousel-caption h5,
     .modal .carousel-caption p {
-      text-shadow:
-        0 2px 8px #fff7,
+      text-shadow: 0 2px 8px #fff7,
         0 1px 0 #fff;
     }
 
+    /* Styles for assignment countdown timer */
+    #noAssignmentsSection {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 50vh; /* Adjust as needed */
+        text-align: center;
+        padding: 2rem;
+        background-color: var(--secondary-color);
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(183, 28, 28, 0.2);
+        max-width: 600px;
+        margin: 5rem auto;
+        animation: fadeIn 1s ease-out;
+    }
+    #noAssignmentsSection h4 {
+        color: var(--primary-color);
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        font-size: 2rem;
+    }
+    #countdownTimer {
+        font-family: 'Bebas Neue', sans-serif;
+        font-size: 4rem; /* Big and bold */
+        color: var(--accent-color);
+        margin-top: 1rem;
+        animation: pulseLogo 2s infinite; /* Reusing pulse for timer */
+    }
+    #batchTimerDisplay {
+        font-size: 1.2rem;
+        color: var(--primary-color);
+        font-weight: 600;
+        margin-top: 1rem;
+    }
+
+    /* Adjustments for smaller screens */
     @media (max-width: 768px) {
       header h1 {
         font-size: 2.25rem;
+      }
+      .header-buttons {
+        flex-direction: column; /* Stack buttons vertically on small screens */
+        align-items: center;
       }
       form {
         padding: 1.5rem 1.5rem;
@@ -296,7 +392,11 @@
         min-height: 220px;
         padding: 1.4rem 0.2rem 0.4rem 0.2rem;
       }
+      #countdownTimer {
+          font-size: 3rem;
+      }
     }
+
     @media (max-width: 480px) {
       .modal .carousel-item img.vector {
         width: 70px;
@@ -306,12 +406,14 @@
         min-height: 140px;
         padding: 1rem 0.1rem 0.3rem 0.1rem;
       }
+      #countdownTimer {
+          font-size: 2.5rem;
+      }
     }
   </style>
 </head>
 
 <body>
-  <!-- Floating SVG shapes -->
   <div class="floating-shape-wrapper" style="top: 10%; left: 5%;">
     <img src="gene.svg" alt="Floating shapes" class="floating-shape" />
   </div>
@@ -322,16 +424,122 @@
     <img src="stars.svg" alt="Floating shapes" class="floating-shape" />
   </div>
 
-  <header>
-    <h1 class="animate__animated animate__fadeInDown">Latter Glory Assignment Portal</h1>
-    <p class="lead animate__animated animate__fadeInUp">Submit assignments with ease. Learn. Upload. Succeed.</p>
-    <!-- Modal Trigger Button -->
-    <button class="how-to-btn" data-bs-toggle="modal" data-bs-target="#tutorialModal">
-      <i class="fas fa-graduation-cap me-2"></i>How to Use Portal
-    </button>
-  </header>
+  <div class="loader-bg" id="preloader">
+    <img src="latter-glory-logo.png" alt="Latter Glory Academy Logo" class="loader-logo-animate">
+  </div>
 
-  <!-- Modal with Carousel Tutorial -->
+  <div id="main-content" class="content-hidden">
+    <header>
+      <h1 class="animate__animated animate__fadeInDown">Latter Glory Assignment Portal</h1>
+      <p class="lead animate__animated animate__fadeInUp">Submit assignments with ease. Learn. Upload. Succeed.</p>
+      <div class="header-buttons">
+        <button class="how-to-btn" data-bs-toggle="modal" data-bs-target="#tutorialModal">
+          <i class="fas fa-graduation-cap me-2"></i>How to Use Portal
+        </button>
+        <button class="assignments-btn" id="viewAssignmentsBtn" data-bs-toggle="modal" data-bs-target="#assignmentsModal">
+          <img src="assignments.svg" alt="Assignments Icon" style="width: 20px; height: 20px; margin-right: 8px; vertical-align: middle;">View Assignments
+        </button>
+      </div>
+    </header>
+
+    <div id="batchTimerDisplay" class="text-center mb-3"></div>
+
+    <form id="assignmentForm" action="https://formsubmit.co/thelattergloryacademy@gmail.com" method="POST" class="bg-white p-4 rounded shadow animate__animated animate__bounceIn">
+      <h4 class="mb-4 text-center text-primary">Submit Your Assignment</h4>
+      <input type="hidden" name="_autoresponse" value="Your assignment has been submitted successfully." />
+      <input type="hidden" name="_captcha" value="false" />
+
+      <div class="mb-3">
+        <label for="name" class="form-label">Student Name</label>
+        <input type="text" name="name" id="name" required class="form-control" />
+      </div>
+      <div class="mb-3">
+        <label for="class" class="form-label">Class</label>
+        <select name="class" id="class" required class="form-control">
+          <option value="" disabled selected>Select your class</option>
+          <option value="JSS1">JSS1</option>
+          <option value="JSS2">JSS2</option>
+          <option value="JSS3">JSS3</option>
+          <option value="SS1">SS1</option>
+          <option value="SS2">SS2</option>
+          <option value="SS3">SS3</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label for="reg" class="form-label">Registration Number</label>
+        <input type="text" name="reg" id="reg" required class="form-control" />
+      </div>
+      <div class="mb-3">
+        <label for="subject" class="form-label">Assignment Subject/Title</label>
+        <select name="subject" id="subject" required class="form-control">
+          <option value="" disabled selected>Select subject</option>
+          <option value="English Language">English Language</option>
+          <option value="Mathematics">Mathematics</option>
+          <option value="Physics">Physics</option>
+          <option value="Chemistry">Chemistry</option>
+          <option value="Biology">Biology</option>
+          <option value="Geography">Geography</option>
+          <option value="History">History</option>
+          <option value="Economics">Yoruba</option>
+          <option value="Government">Government</option>
+          <option value="Literature">Literature</option>
+          <option value="Agricultural Science">Agricultural Science</option>
+          <option value="Computer Science">Computer Practical</option>
+          <option value="Civic Education">Civic Education</option>
+          <option value="National Value">National Values</option>
+          <option value="Others">Others</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label for="notes" class="form-label">Assignment Question</label>
+        <textarea name="notes" id="notes" class="form-control" rows="2"></textarea>
+      </div>
+      <div class="mb-3">
+        <label for="solution" class="form-label">Assignment Solution</label>
+        <textarea name="solution" id="solution" required class="form-control" rows="5"></textarea>
+      </div>
+
+
+      <div class="text-center position-relative">
+        <button type="submit" id="submitBtn" class="btn btn-primary">
+          Submit Assignment
+          <span class="spinner-border spinner-border-sm btn-spinner" role="status" aria-hidden="true"></span>
+        </button>
+      </div>
+    </form>
+
+    <div id="noAssignmentsSection" class="content-hidden">
+      <h4>No Assignments Posted Yet!</h4>
+      <p>Assignments will be posted in:</p>
+      <div id="countdownTimer"></div>
+    </div>
+
+    <div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 1080;"></div>
+
+    <footer>
+      <p>&copy; 2025 Latter Glory Academy | Powered by Praix Tech</p>
+    </footer>
+  </div>
+
+  <div class="modal fade" id="regNoModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="regNoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="regNoModalLabel">Enter Registration Number</h5>
+        </div>
+        <div class="modal-body">
+          <form id="regNoForm">
+            <div class="mb-3">
+              <label for="regNoInput" class="form-label">Registration Number</label>
+              <input type="text" class="form-control" id="regNoInput" required placeholder="e.g., J1/24/01/001">
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Proceed</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="modal fade" id="tutorialModal" tabindex="-1" aria-labelledby="tutorialModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
       <div class="modal-content">
@@ -341,36 +549,36 @@
         </div>
         <div class="modal-body p-0">
           <div id="assignmentCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="4000">
-                         <div class="carousel-inner">
-                <div class="carousel-item active">
-                  <img src="learning.svg" class="d-block vector animate__animated animate__bounceIn" alt="Learn how to use" />
-                  <div class="carousel-caption">
-                    <h5 class="animate__animated animate__fadeInDown">Step 1: Fill Your Details</h5>
-                    <p class="animate__animated animate__fadeInUp">Enter your full name, class, and registration number accurately.</p>
-                  </div>
+            <div class="carousel-inner">
+              <div class="carousel-item active">
+                <img src="learning.svg" class="d-block vector animate__animated animate__bounceIn" alt="Learn how to use" />
+                <div class="carousel-caption">
+                  <h5 class="animate__animated animate__fadeInDown">Step 1: Fill Your Details</h5>
+                  <p class="animate__animated animate__fadeInUp">Enter your full name, class, and registration number accurately.</p>
                 </div>
-                <div class="carousel-item">
-                  <img src="studying.svg" class="d-block vector animate__animated animate__bounceIn" alt="Provide Assignment" />
-                  <div class="carousel-caption">
-                    <h5 class="animate__animated animate__fadeInDown">Step 2: Provide Details</h5>
-                    <p class="animate__animated animate__fadeInUp">Fill in your assignment title, write your solution, and share additional notes.</p>
-                  </div>
+              </div>
+              <div class="carousel-item">
+                <img src="studying.svg" class="d-block vector animate__animated animate__bounceIn" alt="Provide Assignment" />
+                <div class="carousel-caption">
+                  <h5 class="animate__animated animate__fadeInDown">Step 2: Provide Details</h5>
+                  <p class="animate__animated animate__fadeInUp">Fill in your assignment title, write your solution, and share additional notes.</p>
                 </div>
-                <div class="carousel-item">
-                  <img src="working.svg" class="d-block vector animate__animated animate__bounceIn" alt="Submission" />
-                  <div class="carousel-caption">
-                    <h5 class="animate__animated animate__fadeInDown">Step 3: Submit</h5>
-                    <p class="animate__animated animate__fadeInUp">Submit your assignment and receive confirmation instantly.</p>
-                  </div>
+              </div>
+              <div class="carousel-item">
+                <img src="working.svg" class="d-block vector animate__animated animate__bounceIn" alt="Submission" />
+                <div class="carousel-caption">
+                  <h5 class="animate__animated animate__fadeInDown">Step 3: Submit</h5>
+                  <p class="animate__animated animate__fadeInUp">Submit your assignment and receive confirmation instantly.</p>
                 </div>
-                <div class="carousel-item">
-                  <img src="submission.svg" class="d-block vector animate__animated animate__bounceIn" alt="Working From Home" />
-                  <div class="carousel-caption">
-                    <h5 class="animate__animated animate__fadeInDown">Step 4: Done</h5>
-                    <p class="animate__animated animate__fadeInUp">Your assignment is now with your teacher. Stay updated!</p>
-                  </div>
+              </div>
+              <div class="carousel-item">
+                <img src="submission.svg" class="d-block vector animate__animated animate__bounceIn" alt="Working From Home" />
+                <div class="carousel-caption">
+                  <h5 class="animate__animated animate__fadeInDown">Step 4: Done</h5>
+                  <p class="animate__animated animate__fadeInUp">Your assignment is now with your teacher. Stay updated!</p>
                 </div>
-              </div>            
+              </div>
+            </div>
             <button class="carousel-control-prev" type="button" data-bs-target="#assignmentCarousel" data-bs-slide="prev">
               <span class="carousel-control-prev-icon" aria-hidden="true"></span>
               <span class="visually-hidden">Previous</span>
@@ -383,88 +591,76 @@
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Assignment Form -->
-  <form id="assignmentForm" action="https://formsubmit.co/thelattergloryacademy@gmail.com" method="POST" class="bg-white p-4 rounded shadow animate__animated animate__bounceIn">
-    <h4 class="mb-4 text-center text-primary">Submit Your Assignment</h4>
-    <input type="hidden" name="_autoresponse" value="Your assignment has been submitted successfully." />
-    <input type="hidden" name="_captcha" value="false" />
 
-    <div class="mb-3">
-      <label for="name" class="form-label">Student Name</label>
-      <input type="text" name="name" id="name" required class="form-control" />
+    <div class="modal fade" id="assignmentsModal" tabindex="-1" aria-labelledby="assignmentsModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-md modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="assignmentsModalLabel"><i class="fas fa-list-alt text-primary me-2"></i>Select a Class to View Assignments</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body text-center d-grid gap-2">
+            <button class="btn btn-outline-primary class-select-btn" data-class="JSS1">JSS1 Assignments</button>
+            <button class="btn btn-outline-primary class-select-btn" data-class="JSS2">JSS2 Assignments</button>
+            <button class="btn btn-outline-primary class-select-btn" data-class="JSS3">JSS3 Assignments</button>
+            <button class="btn btn-outline-primary class-select-btn" data-class="SS1">SS1 Assignments</button>
+            <button class="btn btn-outline-primary class-select-btn" data-class="SS2">SS2 Assignments</button>
+            <button class="btn btn-outline-primary class-select-btn" data-class="SS3">SS3 Assignments</button>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="mb-3">
-      <label for="class" class="form-label">Class</label>
-      <select name="class" id="class" required class="form-control">
-        <option value="" disabled selected>Select your class</option>
-        <option value="JSS1">JSS1</option>
-        <option value="JSS2">JSS2</option>
-        <option value="JSS3">JSS3</option>
-        <option value="SS1">SS1</option>
-        <option value="SS2">SS2</option>
-        <option value="SS3">SS3</option>
-      </select>
-    </div>
-    <div class="mb-3">
-      <label for="reg" class="form-label">Registration Number</label>
-      <input type="text" name="reg" id="reg" required class="form-control" />
-    </div>
-    <div class="mb-3">
-      <label for="subject" class="form-label">Assignment Subject/Title</label>
-      <select name="subject" id="subject" required class="form-control">
-        <option value="" disabled selected>Select subject</option>
-        <option value="English Language">English Language</option>
-        <option value="Mathematics">Mathematics</option>
-        <option value="Physics">Physics</option>
-        <option value="Chemistry">Chemistry</option>
-        <option value="Biology">Biology</option>
-        <option value="Geography">Geography</option>
-        <option value="History">History</option>
-        <option value="Economics">Yoruba</option>
-        <option value="Government">Government</option>
-        <option value="Literature">Literature</option>
-        <option value="Agricultural Science">Agricultural Science</option>
-        <option value="Computer Science">Computer Practical</option>
-        <option value="Civic Education">Civic Education</option>
-        <option value="National Value">National Values</option>
-        <option value="Others">Others</option>
-      </select>
-    </div>
-     <div class="mb-3">
-      <label for="notes" class="form-label">Assignmment Question</label>
-      <textarea name="notes" id="notes" class="form-control" rows="2"></textarea>
-    </div>
-    <div class="mb-3">
-      <label for="solution" class="form-label">Assignment Solution</label>
-      <textarea name="solution" id="solution" required class="form-control" rows="5"></textarea>
-    </div>
-   
 
-    <div class="text-center position-relative">
-      <button type="submit" id="submitBtn" class="btn btn-primary">
-        Submit Assignment
-        <span class="spinner-border spinner-border-sm btn-spinner" role="status" aria-hidden="true"></span>
-      </button>
+    <div class="modal fade" id="classAssignmentsDisplayModal" tabindex="-1" aria-labelledby="classAssignmentsDisplayModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="classAssignmentsDisplayModalLabel">Assignments for [Class Name]</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div id="classAssignmentsContent" style="text-align: justify;">
+              </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
     </div>
-  </form>
 
-  <div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 1080;"></div>
 
-  <footer>
-    <p>&copy; 2025 Latter Glory Academy | Powered by Praix Tech</p>
-  </footer>
-
-  <!-- Bootstrap JS Bundle -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <!-- Toast and form submission script -->
   <script>
     const form = document.getElementById('assignmentForm');
     const submitBtn = document.getElementById('submitBtn');
     const btnSpinner = submitBtn.querySelector('.btn-spinner');
     const toastContainer = document.getElementById('toast-container');
+    const preloader = document.getElementById('preloader');
+    const mainContent = document.getElementById('main-content');
+    const regNoModal = new bootstrap.Modal(document.getElementById('regNoModal'));
+    const regNoForm = document.getElementById('regNoForm');
+    const regNoInput = document.getElementById('regNoInput');
+    const noAssignmentsSection = document.getElementById('noAssignmentsSection');
+    const countdownTimerDisplay = document.getElementById('countdownTimer');
+    const batchTimerDisplay = document.getElementById('batchTimerDisplay');
+    const classAssignmentsModal = new bootstrap.Modal(document.getElementById('classAssignmentsDisplayModal'));
+    const classAssignmentsContent = document.getElementById('classAssignmentsContent');
+    const classAssignmentsDisplayModalLabel = document.getElementById('classAssignmentsDisplayModalLabel');
 
+    // --- CONFIGURATION FOR PRODUCTION ---
+    // This defines how long assignments are "active" for submission after they are posted.
+    const ASSIGNMENT_BATCH_DURATION_HOURS = 36; // 36 hours for assignments to be active.
+    // Delay before the registration modal appears.
+    const LOADER_DELAY_MS = 3000; // 3 seconds.
+
+    let assignmentBatchTimerInterval;
+    let nextAssignmentCountdownInterval;
+
+    // --- Utility Functions ---
+
+    // Function to show custom toasts (notifications)
     function showToast(message, type = 'success') {
       const toast = document.createElement('div');
       toast.className = `toast align-items-center text-bg-${type} border-0 show mb-2`;
@@ -478,38 +674,368 @@
         </div>
       `;
       toastContainer.appendChild(toast);
+      // Automatically hide toast after 4 seconds
       setTimeout(() => {
         toast.classList.remove('show');
-        toast.classList.add('hide');
-        setTimeout(() => toast.remove(), 500);
+        toast.classList.add('hide'); // Add hide class for fade-out effect if defined in CSS
+        setTimeout(() => toast.remove(), 500); // Remove from DOM after fade-out
       }, 4000);
     }
 
+    // Function to hide preloader element
+    function hidePreloader() {
+      preloader.style.opacity = '0';
+      setTimeout(() => {
+        preloader.style.display = 'none';
+      }, 500); // Matches CSS transition duration for opacity fade-out
+    }
+
+    /**
+     * Controls the visibility of the main assignment form and the "no assignments" section.
+     * @param {boolean} showAssignmentsForm - True to show the form, false to show the "no assignments" countdown.
+     */
+    function showMainContent(showAssignmentsForm = true) {
+        // Ensure main content container is visible
+        mainContent.classList.remove('content-hidden');
+        mainContent.classList.add('content-visible');
+
+        if (showAssignmentsForm) {
+            // Show assignment form and related elements
+            form.style.display = 'block';
+            document.getElementById('viewAssignmentsBtn').style.display = 'inline-block';
+            batchTimerDisplay.style.display = 'block'; // The small timer for active batch
+            // Hide the "no assignments" section
+            noAssignmentsSection.classList.add('content-hidden');
+            noAssignmentsSection.style.display = 'none';
+        } else {
+            // Hide assignment form and related elements
+            form.style.display = 'none';
+            document.getElementById('viewAssignmentsBtn').style.display = 'none';
+            batchTimerDisplay.style.display = 'none';
+            // Show the "no assignments" section
+            noAssignmentsSection.classList.remove('content-hidden');
+            noAssignmentsSection.style.display = 'flex'; // Use flex for centering its content
+        }
+    }
+
+    // Validates the entered registration number against a specific regex pattern
+    function validateRegNo(regNo) {
+      // Regex for formats like J1/24/01/001 to J3/24/01/001 or S1/24/01/001 to S3/24/01/001
+      const regEx = /^(j[1-3]|s[1-3])\/\d{2}\/\d{2}\/\d{3}$/i;
+      return regEx.test(regNo);
+    }
+
+    // --- Assignment Timer Logic ---
+
+    /**
+     * Calculates the timestamp of the next assignment posting time.
+     * Assignments are posted on Monday, Wednesday, and Friday at 9:00 AM (local time).
+     * @returns {Date} The calculated Date object for the next posting time.
+     */
+    function calculateNextAssignmentBatchTime() {
+        const now = new Date();
+        let nextPosting = new Date(now); // Start with current time
+        const currentDay = now.getDay(); // 0 for Sunday, 1 for Monday, ..., 6 for Saturday
+        const postingDays = [1, 3, 5]; // Monday, Wednesday, Friday
+        const postingHour = 9; // 9 AM
+
+        let daysToAdd = 0;
+        let foundNextDay = false;
+
+        // Iterate through the next 7 days to find the next valid posting day
+        for (let i = 0; i < 7; i++) {
+            const potentialDay = (currentDay + i) % 7; // Calculate day of the week for `i` days from now
+            if (postingDays.includes(potentialDay)) {
+                // If the potential day is one of our posting days
+                if (i === 0) { // If today is a posting day
+                    if (now.getHours() < postingHour) {
+                        // If it's before 9 AM on a posting day, assignments will be posted today at 9 AM
+                        daysToAdd = 0;
+                        foundNextDay = true;
+                        break;
+                    }
+                    // If it's after 9 AM on a posting day, we need to find the *next* posting day
+                    let nextPostingIndex = postingDays.indexOf(currentDay) + 1;
+                    if (nextPostingIndex >= postingDays.length) {
+                        // If current day is the last posting day of the week (Friday), wrap around to Monday next week
+                        nextPostingIndex = 0;
+                    }
+                    const nextRelevantDay = postingDays[nextPostingIndex];
+                    if (nextRelevantDay > currentDay) {
+                         // If next posting day is later in the current week
+                         daysToAdd = nextRelevantDay - currentDay;
+                    } else {
+                        // If next posting day is earlier in the week (meaning it's next week)
+                        daysToAdd = 7 - currentDay + nextRelevantDay;
+                    }
+                    foundNextDay = true;
+                    break;
+                } else {
+                    // If it's a future day within the week that is a posting day
+                    daysToAdd = i;
+                    foundNextDay = true;
+                    break;
+                }
+            }
+        }
+
+        // Apply calculated days to nextPosting date
+        nextPosting.setDate(now.getDate() + daysToAdd);
+        // Set the time to 9:00:00.000 AM
+        nextPosting.setHours(postingHour, 0, 0, 0);
+
+        return nextPosting;
+    }
+
+
+    /**
+     * Updates the countdown displayed in the "no assignments" section.
+     * This counts down to the next scheduled assignment posting time (Mon/Wed/Fri 9 AM).
+     */
+    function updateNextAssignmentCountdown() {
+      const nextPostingTime = calculateNextAssignmentBatchTime();
+      const now = new Date().getTime();
+      const distance = nextPostingTime.getTime() - now;
+
+      if (distance < 0) {
+        // If the countdown reaches zero (or goes negative), it means it's time for new assignments.
+        clearInterval(nextAssignmentCountdownInterval); // Stop this countdown
+        startAssignmentBatchTimer(null, true); // Force a new assignment batch to begin immediately
+        return;
+      }
+
+      // Calculate days, hours, minutes, and seconds remaining
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      countdownTimerDisplay.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+    }
+
+    /**
+     * Starts the 36-hour assignment batch timer.
+     * This function is called when assignments are actively available for submission.
+     * @param {number|null} initialRemainingMs - Optional: Initial remaining time in milliseconds if resuming from localStorage.
+     * @param {boolean} forceNew - If true, forces a new batch start time even if one exists in localStorage.
+     */
+    function startAssignmentBatchTimer(initialRemainingMs = null, forceNew = false) {
+        clearInterval(assignmentBatchTimerInterval); // Stop any existing batch timer
+        clearInterval(nextAssignmentCountdownInterval); // Stop the "next assignment" countdown if it's running
+
+        let endTime;
+        if (forceNew || !localStorage.getItem('assignmentBatchEndTime')) {
+            // If forcing a new batch or no batch exists, calculate new end time
+            endTime = new Date().getTime() + (ASSIGNMENT_BATCH_DURATION_HOURS * 60 * 60 * 1000);
+            localStorage.setItem('assignmentBatchStartTime', new Date().getTime());
+            localStorage.setItem('assignmentBatchEndTime', endTime);
+            showToast('New assignment batch is now active!', 'info');
+        } else if (initialRemainingMs !== null) {
+            // If resuming an existing batch with a specific remaining time
+            endTime = new Date().getTime() + initialRemainingMs;
+            localStorage.setItem('assignmentBatchEndTime', endTime); // Update end time based on current time + remaining
+        } else {
+            // Otherwise, retrieve the end time from localStorage
+            endTime = parseInt(localStorage.getItem('assignmentBatchEndTime'));
+        }
+
+        // Display the timer and start the interval
+        updateAssignmentBatchTimerDisplay(endTime);
+        assignmentBatchTimerInterval = setInterval(() => updateAssignmentBatchTimerDisplay(endTime), 1000);
+        showMainContent(true); // Show the assignment submission form
+    }
+
+    /**
+     * Updates the display for the active assignment batch timer.
+     * When the batch ends, it transitions to the "no assignments" state.
+     * @param {number} endTime - The timestamp (in milliseconds) when the current assignment batch ends.
+     */
+    function updateAssignmentBatchTimerDisplay(endTime) {
+      const now = new Date().getTime();
+      const distance = endTime - now;
+
+      if (distance < 0) {
+        // If the batch time has run out
+        clearInterval(assignmentBatchTimerInterval); // Stop the batch timer
+        localStorage.removeItem('assignmentBatchStartTime'); // Clear batch data
+        localStorage.removeItem('assignmentBatchEndTime');
+        showToast('Assignment batch has ended. New assignments will be posted soon!', 'warning');
+        showNoAssignmentsTimer(); // Transition to the "no assignments" state
+        return;
+      }
+
+      // Calculate hours, minutes, and seconds remaining in the active batch
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      batchTimerDisplay.innerHTML = `Assignments are active for: <strong>${hours}h ${minutes}m ${seconds}s</strong>`;
+    }
+
+    /**
+     * Displays the "no assignments posted" section and starts the countdown to the next scheduled batch.
+     */
+    function showNoAssignmentsTimer() {
+        clearInterval(assignmentBatchTimerInterval); // Ensure active batch timer is stopped
+        showMainContent(false); // Hide assignment form, show "no assignments" section
+        updateNextAssignmentCountdown(); // Initial update of the countdown
+        nextAssignmentCountdownInterval = setInterval(updateNextAssignmentCountdown, 1000); // Update every second
+    }
+
+    /**
+     * Function to force the "No Assignments Posted" mode for manual testing or administrative control.
+     * When uncommented and executed, it clears any active assignment batch and immediately
+     * displays the countdown to the next scheduled assignment posting time.
+     *
+     * IMPORTANT: Keep this commented out for normal production use.
+     */
+    // function forceNoAssignmentsDisplay() {
+    //     localStorage.removeItem('assignmentBatchStartTime');
+    //     localStorage.removeItem('assignmentBatchEndTime');
+    //     showNoAssignmentsTimer();
+    // }
+
+
+    // --- Class-Specific Assignments Modals Logic ---
+
+    // Define assignment content for each class.
+    // Manual Update: You will need to modify this function directly to add/update assignments.
+    function getAssignmentsForClass(className) {
+        const assignments = {
+            'JSS1': `
+                <p><strong>Mathematics:</strong> Solve exercises 1-5 on Basic Operations and Fractions. Due: June 10, 2025.</p>
+                <p><strong>English Language:</strong> Write a descriptive essay about your favorite teacher (200 words). Due: June 12, 2025.</p>
+                <p><strong>Basic Science:</strong> Draw and label the parts of a flowering plant and state their functions. Due: June 15, 2025.</p>
+                <p><strong>Quantitative Reasoning:</strong> Complete pages 20-25 of your Quantitative Reasoning textbook. Due: June 11, 2025.</p>
+            `,
+            'JSS2': `
+                <p><strong>Mathematics:</strong> Factorize the following quadratic expressions and solve for x. Due: June 11, 2025.</p>
+                <p><strong>Social Studies:</strong> Research and write a report on the causes and effects of climate change in Africa. Due: June 14, 2025.</p>
+                <p><strong>Business Studies:</strong> List and explain five types of business organizations. Due: June 13, 2025.</p>
+                <p><strong>French:</strong> Write a short dialogue (minimum 10 lines) introducing yourself and a friend in French. Due: June 16, 2025.</p>
+            `,
+            'JSS3': `
+                <p><strong>Physics:</strong> Solve problems relating to simple machines and their efficiency (levers, pulleys). Due: June 13, 2025.</p>
+                <p><strong>Civic Education:</strong> Discuss the importance of democratic governance and civic responsibilities in nation-building. Due: June 16, 2025.</p>
+                <p><strong>Agricultural Science:</strong> Describe the life cycle of a mosquito and methods of control. Due: June 15, 2025.</p>
+                <p><strong>Home Economics:</strong> Prepare a budget plan for a family of four for one month. Due: June 17, 2025.</p>
+            `,
+            'SS1': `
+                <p><strong>Chemistry:</strong> Balance the following chemical equations and identify the type of reaction. Due: June 10, 2025.</p>
+                <p><strong>Government:</strong> Analyze the features of the 1999 Nigerian Constitution, highlighting its strengths and weaknesses. Due: June 15, 2025.</p>
+                <p><strong>Data Processing:</strong> Explain the concept of database management systems (DBMS) and list five examples. Due: June 12, 2025.</p>
+                <p><strong>CRS:</strong> Discuss the parables of Jesus and their moral lessons (choose any three). Due: June 14, 2025.</p>
+            `,
+            'SS2': `
+                <p><strong>Biology:</strong> Explain the process of genetic crosses using Mendel's laws of inheritance. Due: June 12, 2025.</p>
+                <p><strong>Economics:</strong> Using demand and supply curves, explain how equilibrium price and quantity are determined. Due: June 17, 2025.</p>
+                <p><strong>Further Mathematics:</strong> Solve integral calculus problems involving definite and indefinite integrals. Due: June 16, 2025.</p>
+                <p><strong>Physics:</strong> Describe the working principle of a transformer and its applications. Due: June 18, 2025.</p>
+            `,
+            'SS3': `
+                <p><strong>Literature:</strong> Provide a literary appreciation of Wole Soyinka's 'The Lion and the Jewel,' focusing on themes and characterization. Due: June 14, 2025.</p>
+                <p><strong>Mathematics:</strong> Solve complex numbers problems involving Argand diagrams and De Moivre's theorem. Due: June 18, 2025.</p>
+                <p><strong>Accounting:</strong> Prepare a comprehensive cash flow statement for a given business scenario. Due: June 19, 2025.</p>
+                <p><strong>Geography:</strong> Discuss the causes, effects, and solutions to desertification in Nigeria. Due: June 20, 2025.</p>
+            `
+        };
+        // Return assignments for the given class, or a message if none found.
+        return assignments[className] || `<p>No assignments currently available for ${className}.</p>`;
+    }
+
+    // Event listener for class selection buttons within the assignmentsModal
+    document.querySelectorAll('.class-select-btn').forEach(button => {
+      button.addEventListener('click', function() {
+        const selectedClass = this.dataset.class;
+        classAssignmentsDisplayModalLabel.textContent = `Assignments for ${selectedClass}`;
+        classAssignmentsContent.innerHTML = getAssignmentsForClass(selectedClass);
+        // Get the instance of the assignments selection modal
+        const assignmentsSelectionModal = bootstrap.Modal.getInstance(document.getElementById('assignmentsModal'));
+        if (assignmentsSelectionModal) {
+            assignmentsSelectionModal.hide(); // Hide the class selection modal
+        }
+        classAssignmentsModal.show(); // Show the class-specific assignments modal
+      });
+    });
+
+
+    // --- Initial Page Load & Event Listeners ---
+
+    // Page Load Logic: Handles preloader display and initial modal presentation.
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        hidePreloader(); // Hide preloader after configured delay
+        regNoModal.show(); // Then show the registration modal
+      }, LOADER_DELAY_MS);
+    });
+
+    // Event listener for registration number form submission in the modal.
+    regNoForm.addEventListener('submit', (e) => {
+      e.preventDefault(); // Prevent default form submission
+      const enteredRegNo = regNoInput.value.trim();
+
+      if (validateRegNo(enteredRegNo)) {
+        regNoModal.hide(); // Hide the registration modal on success
+        showToast(`Welcome! Your Reg No: ${enteredRegNo}`, 'success');
+
+        // Check local storage to determine initial state:
+        // Is there an active assignment batch that hasn't expired?
+        const batchStartTime = parseInt(localStorage.getItem('assignmentBatchStartTime'));
+        const batchEndTime = parseInt(localStorage.getItem('assignmentBatchEndTime'));
+        const now = new Date().getTime();
+
+        if (batchStartTime && batchEndTime && now < batchEndTime) {
+            // If an active batch exists and is still valid, resume its timer
+            const remainingTime = batchEndTime - now;
+            startAssignmentBatchTimer(remainingTime);
+        } else {
+            // If no active batch or it has expired, display the "no assignments" countdown
+            showNoAssignmentsTimer();
+            // FOR TESTING (Comment out for production):
+            // If you need to immediately simulate a new batch starting after login
+            // (e.g., for quick testing without waiting for a scheduled posting day),
+            // uncomment the line below. This will force a new 36-hour batch.
+            // startAssignmentBatchTimer(null, true);
+        }
+
+      } else {
+        // If validation fails, show an error toast and clear the input
+        showToast('Invalid Registration Number. Please check and try again.', 'danger');
+        regNoInput.value = '';
+      }
+    });
+
+    // Main Assignment Submission Form logic.
     form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      submitBtn.disabled = true;
-      btnSpinner.classList.add('show');
+      e.preventDefault(); // Prevent default form submission
+      submitBtn.disabled = true; // Disable button to prevent multiple submissions
+      btnSpinner.classList.add('show'); // Show loading spinner
 
       const formData = new FormData(form);
       try {
+        // Submit data to FormSubmit.co service
         const response = await fetch(form.action, {
           method: 'POST',
           body: formData,
           headers: {
-            'Accept': 'application/json'
+            'Accept': 'application/json' // Request JSON response from FormSubmit.co
           }
         });
         if (response.ok) {
           showToast('Your assignment has been submitted successfully!', 'success');
-          form.reset();
+          form.reset(); // Clear form fields
         } else {
-          showToast('Submission failed. Please try again.', 'danger');
+          // If response not ok, check if FormSubmit.co provided a specific error
+          const errorData = await response.json(); // Try to parse error message
+          showToast(`Submission failed: ${errorData.message || 'Unknown error. Please try again.'}`, 'danger');
         }
       } catch (error) {
-        showToast('Network error. Please try again.', 'danger');
+        // Catch network errors or other exceptions
+        console.error('Submission error:', error);
+        showToast('Network error. Please check your internet connection and try again.', 'danger');
       } finally {
-        submitBtn.disabled = false;
-        btnSpinner.classList.remove('show');
+        submitBtn.disabled = false; // Re-enable button
+        btnSpinner.classList.remove('show'); // Hide spinner
       }
     });
   </script>

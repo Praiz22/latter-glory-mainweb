@@ -1,231 +1,332 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Student Portal | Latter Glory Academy</title>
-  <!-- Bootstrap, AOS, Icons, Fonts -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
-  <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="portal-style.css" />
-  <style>
-    .btn-loading span.spinner-border { display: inline-block !important;}
-    .btn-loading svg, .btn-loading i { opacity: 0.5;}
-    .spinner-border {display: none; vertical-align: middle;}
-  </style>
+    <meta charset="UTF-8">
+    <title>Latter Glory School Student Portal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Latter Glory School Student Portal - Access assignments, CBT, results, attendance, notifications, fees, and support.">
+    <meta name="keywords" content="School Portal, Latter Glory, Student Portal, Assignments, CBT, Results, Attendance, Notifications, Fees, Support">
+    <meta name="author" content="Latter Glory School">
+    <link rel="icon" href="latter-glory-logo.png">
+    <link rel="apple-touch-icon" href="latter-glory-logo.png">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <style>
+        body, html { height: 100%; margin: 0; background: #f4f6f8; }
+        .loader-bg {
+            position: fixed; inset: 0; z-index: 9999;
+            background: #fff; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            transition: opacity .5s;
+        }
+        .loader-logo-animate {
+            width: 90px; height: 90px;
+            animation: pulseLogo 1.5s infinite cubic-bezier(0.4, 0, 0.6, 1);
+        }
+        @keyframes pulseLogo {
+            0% { transform: scale(1) rotate(-4deg); opacity: 0.7; }
+            50% { transform: scale(1.13) rotate(4deg); opacity: 1; }
+            100% { transform: scale(1) rotate(-4deg); opacity: 0.7; }
+        }
+        .fade-out {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .5s;
+        }
+        .portal-center-section {
+            min-height: 100vh; display: flex; align-items: center; justify-content: center;
+        }
+        .glassmorphism {
+            background: rgba(255,255,255,0.82);
+            border-radius: 1rem;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 4px 32px rgba(0,0,0,0.08);
+        }
+        .bg-logo {
+            position: fixed;
+            top: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            height: 300px;
+            background: url('latter-glory-logo.png') no-repeat center center;
+            background-size: contain;
+            opacity: 0.05;
+            z-index: 0;
+            pointer-events: none;
+        }
+        /* New style for frozen account overlay */
+        .frozen-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            z-index: 1050; /* Above modals */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            flex-direction: column;
+            padding: 20px;
+        }
+    </style>
 </head>
-<body>
-  <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg shadow-sm">
-    <div class="container">
-      <a class="navbar-brand d-flex align-items-center" href="#">
-        <img src="latter-glory logo.png" alt="Logo" style="height:32px; margin-right:8px;">
-        Latter Glory Academy
-      </a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navMenu">
-        <ul class="navbar-nav ms-auto mb-2 mb-lg-0" id="tabNav">
-          <li class="nav-item"><a class="nav-link scroll-link active" data-bs-toggle="tab" href="#profileTab"><i class="bi bi-person-badge"></i> Profile</a></li>
-          <li class="nav-item"><a class="nav-link scroll-link" data-bs-toggle="tab" href="#assignmentsTab"><i class="bi bi-journal-check"></i> Assignments</a></li>
-          <li class="nav-item"><a class="nav-link scroll-link" data-bs-toggle="tab" href="#eventsTab"><i class="bi bi-calendar-event"></i> Events</a></li>
-          <li class="nav-item"><a class="nav-link scroll-link" data-bs-toggle="tab" href="#clubsTab"><i class="bi bi-people"></i> Clubs</a></li>
-          <li class="nav-item"><a class="nav-link scroll-link" data-bs-toggle="tab" href="#updatesTab"><i class="bi bi-megaphone"></i> Updates</a></li>
-          <li class="nav-item"><a class="nav-link scroll-link" data-bs-toggle="tab" href="#galleryTab"><i class="bi bi-images"></i> Gallery</a></li>
-          <li class="nav-item"><a class="nav-link scroll-link" data-bs-toggle="tab" href="#timetableTab"><i class="bi bi-table"></i> Timetable</a></li>
-        </ul>
-        <button id="loginBtnNav" class="btn btn-brand ms-3" data-bs-toggle="modal" data-bs-target="#loginModal">
-          <svg width="20" height="20" fill="currentColor" class="bi bi-box-arrow-in-right" viewBox="0 0 16 16">
-            <path fill-rule="evenodd" d="M6.364 1.05a.5.5 0 0 1 .636.057L11 5.293V2.5A1.5 1.5 0 0 1 12.5 1h2A1.5 1.5 0 0 1 16 2.5v11A1.5 1.5 0 0 1 14.5 15h-2A1.5 1.5 0 0 1 11 13.5v-2.793l-3.999 4.186a.5.5 0 0 1-.636.057.5.5 0 0 1-.057-.636l4.5-5a.5.5 0 0 1 0-.707l-4.5-5a.5.5 0 0 1 .057-.636z"/>
-          </svg>
-          <span>Login</span>
-          <span class="spinner-border spinner-border-sm ms-2" role="status" aria-hidden="true"></span>
-        </button>
-        <button id="logoutBtnNav" class="btn btn-outline-dark ms-3" style="display:none;">
-          <svg width="20" height="20" fill="currentColor" class="bi bi-box-arrow-right" viewBox="0 0 16 16">
-            <path fill-rule="evenodd" d="M10.146 12.354a.5.5 0 0 0 .708 0l4.5-4.5a.5.5 0 0 0 0-.708l-4.5-4.5a.5.5 0 0 0-.708.708L13.293 7.5H1.5a.5.5 0 0 0 0 1h11.793l-3.147 3.146a.5.5 0 0 0 0 .708z"/>
-          </svg>
-          <span>Logout</span>
-          <span class="spinner-border spinner-border-sm ms-2" role="status" aria-hidden="true"></span>
-        </button>
-      </div>
+<body class="portal-bg">
+<div class="bg-logo"></div>
+
+<div class="loader-bg" id="loaderBg">
+    <img src="latter-glory-logo.png" class="loader-logo-animate" alt="Latter Glory Logo Loader">
+    <div class="fw-bold text-primary mt-2">Latter Glory School</div>
+    <small class="text-muted">Loading Portal...</small>
+</div>
+
+<div id="studentLoginSection" class="container portal-center-section">
+    <div class="card glassmorphism shadow-lg" style="max-width:400px; margin:auto;">
+        <div class="card-body p-4">
+            <div class="text-center mb-4">
+                <img src="latter-glory-logo.png" alt="Latter Glory Logo" width="70" class="mb-2 rounded-circle border">
+                <h3 class="mb-0">Student Portal Login</h3>
+            </div>
+            <form id="studentLoginForm" autocomplete="on">
+                <div class="mb-3">
+                    <label for="studentLoginEmail" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="studentLoginEmail" required autocomplete="username">
+                </div>
+                <div class="mb-3">
+                    <label for="studentLoginPassword" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="studentLoginPassword" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn btn-primary w-100" id="studentLoginBtn">
+                    <i class="bi bi-door-open me-1"></i>Login
+                </button>
+                <div class="text-danger mt-2 small" id="studentLoginError"></div>
+                <div class="mt-3 text-center">
+                    <a href="#" id="forgotPasswordLink">Forgot Password?</a>
+                </div>
+            </form>
+        </div>
     </div>
-  </nav>
+</div>
 
-  <!-- Login Button (center) -->
-  <div class="text-center my-4" id="loginBtnMainDiv">
-    <button class="btn btn-brand" data-bs-toggle="modal" data-bs-target="#loginModal" id="loginBtnMain">
-      <svg width="20" height="20" fill="currentColor" class="bi bi-box-arrow-in-right" viewBox="0 0 16 16">
-        <path fill-rule="evenodd" d="M6.364 1.05a.5.5 0 0 1 .636.057L11 5.293V2.5A1.5 1.5 0 0 1 12.5 1h2A1.5 1.5 0 0 1 16 2.5v11A1.5 1.5 0 0 1 14.5 15h-2A1.5 1.5 0 0 1 11 13.5v-2.793l-3.999 4.186a.5.5 0 0 1-.636.057.5.5 0 0 1-.057-.636l4.5-5a.5.5 0 0 1 0-.707l-4.5-5a.5.5 0 0 1 .057-.636z"/>
-      </svg>
-      <span>Login to Access Portal</span>
-      <span class="spinner-border spinner-border-sm ms-2" role="status" aria-hidden="true"></span>
-    </button>
-  </div>
+<div id="frozenAccountOverlay" class="frozen-overlay" style="display: none;">
+    <div class="card p-4 shadow-lg" style="max-width: 500px;">
+        <div id="frozenMessageDisplay">
+            </div>
+    </div>
+</div>
 
-  <!-- Login Modal -->
-  <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content shadow-lg">
-        <form id="loginForm" autocomplete="off">
-          <div class="modal-header">
-            <h5 class="modal-title" id="loginModalLabel">Student Login</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <div class="mb-3">
-              <label for="email" class="form-label">Email</label>
-              <input type="email" class="form-control" id="email" required autocomplete="username">
+<div id="studentPortalSection" class="container-fluid py-3" style="display:none;">
+    <div class="row align-items-center mb-3">
+        <div class="col-auto">
+            <img id="studentAvatarDisplay" src="latter-glory-logo.png" class="rounded-circle border" width="60" height="60" alt="Student Avatar">
+        </div>
+        <div class="col">
+            <h5 id="studentNameDisplay" class="mb-0">Student Name</h5>
+            <div class="small text-muted">
+                <span id="studentMatricDisplay"></span> &bull; <span id="studentClassDisplay"></span>
             </div>
-            <div class="mb-3">
-              <label for="password" class="form-label">Password</label>
-              <input type="password" class="form-control" id="password" required autocomplete="current-password">
-            </div>
-            <div id="loginError" class="text-danger mt-2" style="display:none;">Invalid credentials. Please try again.</div>
-          </div>
-          <div class="modal-footer">
-            <button type="submit" class="btn btn-brand w-100" id="loginSubmitBtn">
-              <svg width="20" height="20" fill="currentColor" class="bi bi-box-arrow-in-right" viewBox="0 0 16 16">
-                <path fill-rule="evenodd" d="M6.364 1.05a.5.5 0 0 1 .636.057L11 5.293V2.5A1.5 1.5 0 0 1 12.5 1h2A1.5 1.5 0 0 1 16 2.5v11A1.5 1.5 0 0 1 14.5 15h-2A1.5 1.5 0 0 1 11 13.5v-2.793l-3.999 4.186a.5.5 0 0 1-.636.057.5.5 0 0 1-.057-.636l4.5-5a.5.5 0 0 1 0-.707l-4.5-5a.5.5 0 0 1 .057-.636z"/>
-              </svg>
-              <span>Login</span>
-              <span class="spinner-border spinner-border-sm ms-2" role="status" aria-hidden="true"></span>
+            <span class="badge bg-success mt-1" id="studentPointsDisplay">0 Points</span>
+            <div class="small text-muted mt-1">Last Login: <span id="studentLastLoginDisplay">Never</span></div>
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-danger ms-2" id="logoutBtnStudent">
+                <i class="bi bi-box-arrow-right"></i> Logout
             </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <!-- Register Modal (For new students) -->
-  <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <form id="registerForm" class="modal-content shadow-lg" enctype="multipart/form-data" autocomplete="off">
-        <div class="modal-header">
-          <h5 class="modal-title" id="registerModalLabel">Register as Student</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="modal-body">
-          <div class="mb-3">
-            <label for="studentName" class="form-label">Full Name</label>
-            <input type="text" class="form-control" id="studentName" required>
-          </div>
-          <div class="mb-3">
-            <label for="studentEmail" class="form-label">Student Email</label>
-            <input type="email" class="form-control" id="studentEmail" required>
-          </div>
-          <div class="mb-3">
-            <label for="studentClass" class="form-label">Class</label>
-            <select class="form-select" id="studentClass" required>
-              <option value="">Select</option>
-              <option>JSS1</option>
-              <option>JSS2</option>
-              <option>JSS3</option>
-              <option>SS1</option>
-              <option>SS2</option>
-              <option>SS3</option>
-            </select>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Gender</label>
-            <div>
-              <input type="radio" name="gender" value="Male" id="genderMale" required>
-              <label for="genderMale"><i class="bi bi-gender-male"></i> Male</label>
-              <input type="radio" name="gender" value="Female" id="genderFemale" required>
-              <label for="genderFemale"><i class="bi bi-gender-female"></i> Female</label>
-              <input type="radio" name="gender" value="Other" id="genderOther" required>
-              <label for="genderOther"><i class="bi bi-gender-ambiguous"></i> Other</label>
+    </div>
+
+    <ul class="nav nav-tabs mb-3 portal-tabs" id="portalTabs">
+        <li class="nav-item"><a class="nav-link student-tab-link active" data-tab="tabDashboard" href="#">Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link student-tab-link" data-tab="tabAssignments" href="#">Assignments</a></li>
+        <li class="nav-item"><a class="nav-link student-tab-link" data-tab="tabTests" href="#">CBT Tests</a></li>
+        <li class="nav-item"><a class="nav-link student-tab-link" data-tab="tabAnnouncements" href="#">Announcements</a></li>
+        <li class="nav-item"><a class="nav-link student-tab-link" data-tab="tabNotifications" href="#">Notifications</a></li>
+        <li class="nav-item"><a class="nav-link student-tab-link" data-tab="tabAttendance" href="#">Attendance</a></li>
+        <li class="nav-item"><a class="nav-link student-tab-link" data-tab="tabTranscript" href="#">Results</a></li>
+        <li class="nav-item"><a class="nav-link student-tab-link" data-tab="tabFees" href="#">Fees</a></li>
+        <li class="nav-item"><a class="nav-link student-tab-link" data-tab="tabServiceRequests" href="#">Service Requests</a></li>
+        <li class="nav-item"><a class="nav-link student-tab-link" data-tab="tabLeaderboard" href="#">Leaderboard</a></li>
+        <li class="nav-item"><a class="nav-link student-tab-link" data-tab="tabGallery" href="#">Gallery</a></li>
+    </ul>
+
+    <div id="tabDashboard" class="student-tab-content">
+        <div class="alert alert-info">
+            Welcome to the Latter Glory School Portal! Use the tabs above to access all your academic information, assignments, tests, and more.
+        </div>
+        </div>
+    <div id="tabAssignments" class="student-tab-content" style="display:none;">
+        <h5>Assignments</h5>
+        <div id="assignmentsList">
+            <p class="text-muted">Loading assignments...</p>
+        </div>
+    </div>
+    <div id="tabTests" class="student-tab-content" style="display:none;">
+        <h5>CBT Tests</h5>
+        <div id="testsList">
+            <p class="text-muted">Loading tests...</p>
+        </div>
+    </div>
+    <div id="tabAnnouncements" class="student-tab-content" style="display:none;">
+        <h5>School Announcements</h5>
+        <div id="announcementsList">
+            <p class="text-muted">Loading announcements...</p>
+        </div>
+    </div>
+    <div id="tabNotifications" class="student-tab-content" style="display:none;">
+        <h5>Notifications & Point Updates</h5>
+        <div id="notificationsList">
+            <p class="text-muted">Loading notifications...</p>
+        </div>
+    </div>
+    <div id="tabAttendance" class="student-tab-content" style="display:none;">
+        <h5>Attendance Records</h5>
+        <div id="attendanceList">
+            <p class="text-muted">Loading attendance records...</p>
+            <div class="alert alert-warning">
+                Attendance feature is under development. Please check back later.
             </div>
-          </div>
-          <div class="mb-3">
-            <label for="registerPassword" class="form-label">Password</label>
-            <input type="password" class="form-control" id="registerPassword" required>
-          </div>
-          <div class="mb-3">
-            <label for="passport" class="form-label">Passport Photo</label>
-            <input type="file" class="form-control" id="passport" accept="image/*" required>
-          </div>
-          <div id="registerError" class="text-danger mt-2" style="display:none;"></div>
         </div>
-        <div class="modal-footer">
-          <button type="submit" class="btn btn-brand w-100" id="registerSubmitBtn">
-            <svg width="20" height="20" fill="currentColor" class="bi bi-person-plus" viewBox="0 0 16 16">
-              <path d="M8 7a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM2 14s-1 0-1-1 1-4 7-4 7 3 7 4-1 1-1 1H2zm12-7v1h-3v1h3v1h1V9h3V8h-3V7h-1z"/>
-            </svg>
-            <span>Register</span>
-            <span class="spinner-border spinner-border-sm ms-2" role="status" aria-hidden="true"></span>
-          </button>
+    </div>
+    <div id="tabTranscript" class="student-tab-content" style="display:none;">
+        <h5>Results/Transcript</h5>
+        <div id="transcriptList">
+            <p class="text-muted">Loading results...</p>
+            <div class="alert alert-warning">
+                Results feature is under development. Please check back later.
+            </div>
         </div>
-      </form>
     </div>
-  </div>
-
-  <!-- Main Content (Tabbed Sections) -->
-  <main class="container main-content" id="mainContent" style="display: none;">
-    <div class="tab-content pt-3">
-      <!-- Profile Section -->
-      <section id="profileTab" class="tab-pane fade show active" data-aos="fade-up">
-        <h2 class="tab-title"><i class="bi bi-person-badge"></i> Profile</h2>
-        <div id="profileContent"></div>
-        <div class="mt-4" id="leaderboard-list"></div>
-      </section>
-      <!-- Assignments Section -->
-      <section id="assignmentsTab" class="tab-pane fade" data-aos="fade-up">
-        <span class="tab-title"><i class="bi bi-journal-check"></i> Assignments</span>
-        <div id="assignments-list" class="row g-4"></div>
-      </section>
-      <!-- Events Section -->
-      <section id="eventsTab" class="tab-pane fade" data-aos="fade-up">
-        <span class="tab-title"><i class="bi bi-calendar-event"></i> Events</span>
-        <div id="events-list" class="row g-4"></div>
-      </section>
-      <!-- Clubs Section -->
-      <section id="clubsTab" class="tab-pane fade" data-aos="fade-up">
-        <span class="tab-title"><i class="bi bi-people"></i> Clubs</span>
-        <div id="clubs-list" class="row g-4"></div>
-      </section>
-      <!-- Updates Section -->
-      <section id="updatesTab" class="tab-pane fade" data-aos="fade-up">
-        <span class="tab-title"><i class="bi bi-megaphone"></i> Updates</span>
-        <div id="notifications-list" class="mb-3"></div>
-        <div id="updates-list" class="row g-4"></div>
-      </section>
-      <!-- Gallery Section -->
-      <section id="galleryTab" class="tab-pane fade" data-aos="fade-up">
-        <span class="tab-title"><i class="bi bi-images"></i> Gallery</span>
-        <div id="galleryContent" class="row g-3"></div>
-      </section>
-      <!-- Timetable Section -->
-      <section id="timetableTab" class="tab-pane fade" data-aos="fade-up">
-        <span class="tab-title"><i class="bi bi-table"></i> Timetable</span>
-        <div id="timetableContent"></div>
-      </section>
+    <div id="tabFees" class="student-tab-content" style="display:none;">
+        <h5>School Fees</h5>
+        <div id="feesList">
+            <p class="text-muted">Loading fees records...</p>
+            <div class="alert alert-warning">
+                Fees feature is under development. Please check back later.
+            </div>
+        </div>
     </div>
-  </main>
+    <div id="tabServiceRequests" class="student-tab-content" style="display:none;">
+        <h5>Submit a Service Request</h5>
+        <form id="serviceRequestForm" class="mb-4 p-3 border rounded shadow-sm">
+            <div class="mb-3">
+                <label for="requestType" class="form-label">Type of Request <span class="text-danger">*</span></label>
+                <select class="form-select" id="requestType" required>
+                    <option value="">Select a request type</option>
+                    <option value="Document Request">Document Request (e.g., Transcript, Leaving Certificate)</option>
+                    <option value="Academic Counseling">Academic Counseling</option>
+                    <option value="IT Support">IT Support</option>
+                    <option value="Other">Other (specify in details)</option>
+                </select>
+                <div class="text-danger small" id="requestTypeError"></div>
+            </div>
+            <div class="mb-3">
+                <label for="requestDetails" class="form-label">Details of your Request <span class="text-danger">*</span></label>
+                <textarea class="form-control" id="requestDetails" rows="4" placeholder="Clearly describe your request, including any necessary information like document names, specific issues, etc." required></textarea>
+                <div class="text-danger small" id="requestDetailsError"></div>
+            </div>
+            <button type="submit" class="btn btn-primary" id="submitServiceRequestBtn">
+                <i class="bi bi-send-fill me-1"></i>Submit Request
+            </button>
+            <div class="alert alert-success mt-3" id="serviceRequestSuccess" style="display:none;">
+                Your request has been submitted successfully!
+            </div>
+        </form>
 
-  <!-- Toast Notification Container -->
-  <div aria-live="polite" aria-atomic="true" class="position-fixed bottom-0 end-0 p-3" style="z-index: 1080;">
-    <div id="mainToast" class="toast align-items-center text-bg-dark border-0" role="alert" aria-live="assertive" aria-atomic="true">
-      <div class="d-flex">
-        <div class="toast-body" id="mainToastBody"></div>
-        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-      </div>
+        <h5 class="mt-4">My Past Requests</h5>
+        <div id="myRequestsList">
+            <p class="text-muted">Loading your past service requests...</p>
+        </div>
     </div>
-  </div>
+    <div id="tabLeaderboard" class="student-tab-content" style="display:none;">
+        <h5>School Leaderboard (Top Students by Points)</h5>
+        <div id="leaderboardList">
+            <p class="text-muted">Loading leaderboard...</p>
+        </div>
+    </div>
+    <div id="tabGallery" class="student-tab-content" style="display:none;">
+        <h5>Gallery</h5>
+        <div id="galleryList">
+            <p class="text-muted">Loading gallery images...</p>
+        </div>
+    </div>
+</div>
 
-  <footer>
-    &copy; 2025 Latter Glory Academy. <span style="color:var(--accent);font-weight:700;">Powered by Praix Tech</span>
-  </footer>
+<div id="toast-container" style="position: fixed; bottom: 1rem; right: 1rem; z-index: 9999;"></div>
 
-  <!-- Bootstrap, AOS, and portal JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
-  <script>
-    AOS.init({ once: true, easing: 'ease-out-back' });
-  </script>
-  <script type="module" src="student-service.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script type="module" src="./portal.js"></script>
+<script type="module" src="./student-services.js"></script>
+
+<script type="module">
+    // This script can handle general UI interactions that don't directly
+    // involve fetching/sending data to Firebase via the main modules.
+
+    // Password Reset Link
+    const forgotPasswordLink = document.getElementById("forgotPasswordLink");
+    if (forgotPasswordLink) {
+        forgotPasswordLink.onclick = async function(e) {
+            e.preventDefault();
+            const email = prompt("Enter your registered email to receive a password reset link:");
+            if (email) {
+                try {
+                    // This function is assumed to be in portal.js or a separate auth module
+                    // If not, you'll need to define it or import it from portal.js
+                    const { auth, sendPasswordResetEmail } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
+                    await sendPasswordResetEmail(auth, email);
+                    const toastContainer = document.getElementById('toast-container');
+                    const toastEl = document.createElement('div');
+                    toastEl.className = `toast align-items-center text-white bg-info border-0 show`;
+                    toastEl.setAttribute('role', 'alert');
+                    toastEl.setAttribute('aria-live', 'assertive');
+                    toastEl.setAttribute('aria-atomic', 'true');
+                    toastEl.innerHTML = `
+                        <div class="d-flex">
+                            <div class="toast-body">Password reset link sent to ${email}! Check your inbox.</div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                    `;
+                    toastContainer.append(toastEl);
+                    const bsToast = new bootstrap.Toast(toastEl, { delay: 7000 });
+                    bsToast.show();
+                    toastEl.addEventListener('hidden.bs.toast', () => toastEl.remove());
+
+                } catch (err) {
+                    const toastContainer = document.getElementById('toast-container');
+                    const toastEl = document.createElement('div');
+                    toastEl.className = `toast align-items-center text-white bg-danger border-0 show`;
+                    toastEl.setAttribute('role', 'alert');
+                    toastEl.setAttribute('aria-live', 'assertive');
+                    toastEl.setAttribute('aria-atomic', 'true');
+                    toastEl.innerHTML = `
+                        <div class="d-flex">
+                            <div class="toast-body">Error sending reset link: ${err.message}</div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                    `;
+                    toastContainer.append(toastEl);
+                    const bsToast = new bootstrap.Toast(toastEl, { delay: 7000 });
+                    bsToast.show();
+                    toastEl.addEventListener('hidden.bs.toast', () => toastEl.remove());
+                }
+            }
+        };
+    }
+
+    // Loader/Splash Screen Logic (remains here as it's purely UI)
+    document.addEventListener('DOMContentLoaded', () => {
+        const loaderBg = document.getElementById('loaderBg');
+        if (loaderBg) {
+            setTimeout(() => {
+                loaderBg.classList.add('fade-out');
+                setTimeout(() => { loaderBg.style.display = 'none'; }, 500);
+            }, 1200); // Give a little time for the animation to play
+        }
+    });
+</script>
+
 </body>
 </html>

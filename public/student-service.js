@@ -1,370 +1,205 @@
+// ---- Firebase Imports ----
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import {
-  getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, serverTimestamp, setDoc
+    getFirestore, collection, addDoc, query, where, orderBy, getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import {
-  getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-// --- Firebase config ---
+// ---- Firebase Config (Ensure this matches your main portal.js config) ----
 const firebaseConfig = {
-  apiKey: "AIzaSyDgReNsNbU6-Cnx-ej0HPcHSrCXVppohJQ",
-  authDomain: "latter-glory.firebaseapp.com",
-  projectId: "latter-glory",
-  storageBucket: "latter-glory.appspot.com",
-  messagingSenderId: "133970297722",
-  appId: "1:133970297722:web:33758b76625c70930dccc3",
-  measurementId: "G-5G1BYM7Q3Y"
+    apiKey: "AIzaSyDgReNsNbU6-Cnx-ej0HPcHSrCXVppohJQ",
+    authDomain: "latter-glory.firebaseapp.com",
+    projectId: "latter-glory",
+    storageBucket: "latter-glory.appspot.com",
+    messagingSenderId: "133970297722",
+    appId: "1:133970297722:web:33758b76625c70930dccc3",
+    measurementId: "G-5G1BYM7Q3Y"
 };
 
-// --- Firebase init ---
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-// --- Utility Functions ---
-function showNotification(message, type = 'primary', timeout = 4000) {
-  const toastEl = document.getElementById('mainToast');
-  const toastBody = document.getElementById('mainToastBody');
-  if (!toastEl || !toastBody) return;
-  toastBody.textContent = message;
-  toastEl.className = `toast align-items-center text-bg-${type} border-0`;
-  const toast = new bootstrap.Toast(toastEl, { delay: timeout });
-  toast.show();
-}
-function logError(context, err) {
-  console.error(`[${context}]`, err);
-  showNotification(`Error: ${err.message || err}`, "danger", 6000);
-}
-function setButtonLoading(btn, isLoading = true) {
-  if (!btn) return;
-  if (isLoading) btn.classList.add('btn-loading');
-  else btn.classList.remove('btn-loading');
-}
-function showPortalUI(isLoggedIn) {
-  const tabNav = document.getElementById('tabNav');
-  const mainContent = document.getElementById('mainContent');
-  const loginBtnNav = document.getElementById('loginBtnNav');
-  const logoutBtnNav = document.getElementById('logoutBtnNav');
-  const loginBtnMainDiv = document.getElementById('loginBtnMainDiv');
-  if (tabNav) tabNav.style.display = isLoggedIn ? '' : 'none';
-  if (mainContent) mainContent.style.display = isLoggedIn ? '' : 'none';
-  if (loginBtnNav) loginBtnNav.style.display = isLoggedIn ? 'none' : '';
-  if (logoutBtnNav) logoutBtnNav.style.display = isLoggedIn ? '' : 'none';
-  if (loginBtnMainDiv) loginBtnMainDiv.style.display = isLoggedIn ? 'none' : '';
-}
+// ---- DOM Elements (Assumes these exist in student-portal-ui.html) ----
+const serviceRequestForm = document.getElementById('serviceRequestForm');
+const submitServiceRequestBtn = document.getElementById('submitServiceRequestBtn');
+const requestTypeError = document.getElementById('requestTypeError');
+const requestDetailsError = document.getElementById('requestDetailsError');
+const myRequestsList = document.getElementById('myRequestsList');
+const serviceRequestSuccess = document.getElementById('serviceRequestSuccess');
 
-// --- DOMContentLoaded: Hide UI until login state resolved ---
-document.addEventListener('DOMContentLoaded', () => {
-  showPortalUI(false);
-});
+// Current User Data (will be populated by auth listener)
+let currentStudentUid = null;
+let currentStudentEmail = null;
 
-// --- Profile Section ---
-const profileContent = document.getElementById('profileContent');
-let studentProfile = null;
-async function loadProfile() {
-  if (!profileContent) return;
-  profileContent.innerHTML = `
-    <div class="d-flex justify-content-center align-items-center py-5">
-      <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
-    </div>`;
-  try {
-    const user = auth.currentUser;
-    if (!user) {
-      profileContent.innerHTML = `<div class="text-danger">You are not logged in.</div>`;
-      return;
-    }
-    // Find student by email
-    const q = query(collection(db, "students"), where("email", "==", user.email));
-    const querySnap = await getDocs(q);
-    if (querySnap.empty) {
-      profileContent.innerHTML = `<div class="text-danger">Student profile not found.</div>`;
-      return;
-    }
-    const student = querySnap.docs[0].data();
-    studentProfile = student;
-    // Handle frozen accounts
-    if (student.status === "frozen") {
-      profileContent.innerHTML = `
-        <div class="alert alert-warning text-center">
-          <b>Your account has been frozen by the administrator.</b><br>
-          You cannot access the portal until it is unfrozen.
-        </div>`;
-      showPortalUI(false);
-      await signOut(auth);
-      return;
-    }
-    profileContent.innerHTML = `
-      <div class="d-flex flex-column align-items-center justify-content-center">
-        <img src="${student.passportUrl || 'https://placehold.co/100x100?text=No+Photo'}" class="profile-avatar mb-3" alt="Student Passport">
-        <h4 class="fw-bold mb-1">${student.name || user.displayName || 'No Name'}</h4>
-        <div class="mb-2 text-secondary">${student.email || user.email}</div>
-        <div class="mb-2"><b>Matric Number:</b> ${student.matricNumber || '-'}</div>
-        <div class="mb-2"><b>Class:</b> ${student.class || '-'}</div>
-        <div class="mb-2"><b>Gender:</b> ${student.gender || '-'}</div>
-        <div class="mb-2"><b>Points:</b> <span id="points-value">${student.points || 0}</span></div>
-        <div class="mb-2"><b>Account Created:</b> <span>${student.createdAt || '-'}</span></div>
-      </div>
-    `;
-  } catch (err) {
-    logError("Profile Load", err);
-    profileContent.innerHTML = `<div class="text-danger">Error loading profile.</div>`;
-  }
-}
-
-// --- Notification System ---
-async function loadNotifications() {
-  const notifList = document.getElementById('notifications-list');
-  if (!notifList) return;
-  notifList.innerHTML = `
-    <div class="d-flex justify-content-center align-items-center py-5">
-      <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
-    </div>`;
-  try {
-    const snap = await getDocs(query(collection(db, "notifications"), orderBy("createdAt", "desc")));
-    if (snap.empty) {
-      notifList.innerHTML = `<div class="text-muted">No notifications yet.</div>`;
-      return;
-    }
-    let html = "";
-    snap.forEach(docSnap => {
-      const n = docSnap.data();
-      if (n.type === "points") {
-        html += `
-          <div class="alert alert-success mb-2">
-            <b>${n.student?.name}</b> from <b>${n.student?.class}</b> got <b>${n.points} points</b> for <i>${n.reason}</i>
-          </div>
-        `;
-      } else {
-        html += `<div class="alert alert-info mb-2">${n.message}</div>`;
-      }
-    });
-    notifList.innerHTML = html;
-  } catch (err) {
-    notifList.innerHTML = `<div class="text-danger">Failed to load notifications.</div>`;
-    logError("Notifications Load", err);
-  }
-}
-
-// --- Leaderboard Loader ---
-async function loadLeaderboard() {
-  const leaderboardDiv = document.getElementById('leaderboard-list');
-  if (!leaderboardDiv) return;
-  leaderboardDiv.innerHTML = `
-    <div class="d-flex justify-content-center align-items-center py-5">
-      <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
-    </div>`;
-  try {
-    const snap = await getDocs(query(collection(db, "students"), orderBy("points", "desc")));
-    if (snap.empty) {
-      leaderboardDiv.innerHTML = `<div class="text-muted">No students yet.</div>`;
-      return;
-    }
-    let html = "<h5>Top Students</h5>";
-    let rank = 1;
-    snap.forEach(docSnap => {
-      const s = docSnap.data();
-      html += `
-        <div class="d-flex align-items-center mb-1">
-          <span class="badge bg-secondary me-2">${rank++}</span>
-          <img src="${s.passportUrl || 'https://placehold.co/40x40?text=No+Photo'}" class="rounded-circle me-2" style="width:40px;height:40px;object-fit:cover;">
-          <span class="fw-bold">${s.name}</span> &mdash; <span class="text-muted ms-1">${s.class}</span>
-          <span class="ms-auto badge bg-primary">${s.points || 0} pts</span>
-        </div>
-      `;
-    });
-    leaderboardDiv.innerHTML = html;
-  } catch (err) {
-    leaderboardDiv.innerHTML = `<div class="text-danger">Failed to load leaderboard.</div>`;
-    logError("Leaderboard Load", err);
-  }
-}
-
-// --- Assignments ---
-const assignmentsList = document.getElementById('assignments-list');
-let assignmentTimers = [];
-function clearAssignmentTimers() {
-  assignmentTimers.forEach(timer => clearInterval(timer));
-  assignmentTimers = [];
-}
-async function loadAssignments() {
-  if (!assignmentsList || !studentProfile) return;
-  clearAssignmentTimers();
-  assignmentsList.innerHTML = `
-    <div class="d-flex justify-content-center align-items-center py-5">
-      <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
-    </div>`;
-  try {
-    const q = query(collection(db, 'assignments'), orderBy('dueDate', 'desc'));
-    const snap = await getDocs(q);
-    if (snap.empty) {
-      assignmentsList.innerHTML = "<p>No assignments yet.</p>";
-      return;
-    }
-    let html = "";
-    snap.forEach(docSnap => {
-      const a = docSnap.data();
-      if (a.class !== studentProfile.class) return;
-      const now = new Date();
-      const due = a.dueDate?.toDate ? a.dueDate.toDate() : new Date(a.dueDate);
-      const closed = a.closed || now > due;
-      const timerId = `timer-${docSnap.id}`;
-      html += `
-        <div class="card mb-3">
-          <div class="card-body">
-            <h5>${a.title}</h5>
-            <div>${a.description}</div>
-            <div><b>Due:</b> ${due.toLocaleString()} <span class="assignment-status">${closed ? '<span class="text-danger">Closed</span>' : `<span class="text-success" id="${timerId}"></span>`}</span></div>
-            ${closed ? "<div class='alert alert-warning mt-2'>Assignment has closed.</div>" : `
-              <form onsubmit="window.submitAssignment(event, '${docSnap.id}')">
-                <input type="text" class="form-control mb-2" required placeholder="Enter your answer or link">
-                <button class="btn btn-primary btn-sm" type="submit">
-                  <svg width="16" height="16" fill="currentColor" class="bi bi-send" viewBox="0 0 16 16">
-                    <path d="M15.964 0.686a.5.5 0 0 1 .036.708l-15 15a.5.5 0 0 1-.708-.708l15-15a.5.5 0 0 1 .672-.036z"/>
-                    <path d="M6.56 11.56l-2.122-2.122A.5.5 0 0 1 5.707 8h7.586a.5.5 0 0 1 .353.854l-2.122 2.122a.5.5 0 0 1-.707 0l-2.121-2.121a.5.5 0 0 1 0-.707z"/>
-                  </svg>
-                  <span>Submit Assignment</span>
-                  <span class="spinner-border spinner-border-sm ms-2" role="status" aria-hidden="true"></span>
-                </button>
-              </form>
-            `}
-          </div>
-        </div>
-      `;
-      if (!closed) {
-        setTimeout(() => {
-          const timerElem = document.getElementById(timerId);
-          if (!timerElem) return;
-          function updateTimer() {
-            const left = due - new Date();
-            if (left > 0) {
-              const h = Math.floor(left/3600000), m = Math.floor((left%3600000)/60000), s = Math.floor((left%60000)/1000);
-              timerElem.textContent = `Time left: ${h}h ${m}m ${s}s`;
-            } else {
-              timerElem.textContent = `Closed`;
-              clearInterval(interval);
-            }
-          }
-          updateTimer();
-          const interval = setInterval(updateTimer, 1000);
-          assignmentTimers.push(interval);
-        }, 200);
-      }
-    });
-    assignmentsList.innerHTML = html;
-  } catch (err) {
-    assignmentsList.innerHTML = "<div class='text-danger p-2'>Failed to load assignments.</div>";
-    logError("Assignments Load", err);
-  }
-}
-
-// Assignment submission and points/notification (points are only awarded after admin approval!)
-window.submitAssignment = async function (e, assignmentId) {
-  e.preventDefault();
-  const answer = e.target[0].value;
-  if (!answer) return;
-  const btn = e.target.querySelector('button');
-  setButtonLoading(btn, true);
-  const user = auth.currentUser;
-  if (!user || !studentProfile) return;
-  try {
-    // Submissions will be approved by admin before points are awarded!
-    await setDoc(doc(db, 'assignments', assignmentId, 'submissions', user.uid), {
-      studentEmail: user.email,
-      answer,
-      submittedAt: serverTimestamp(),
-      approved: false,
-      matricNumber: studentProfile.matricNumber // for clarity in submissions
-    });
-    showNotification("Assignment submitted! Await admin approval.", "success");
-    e.target.reset();
-    loadProfile();
-    loadNotifications();
-    loadLeaderboard();
-  } catch (err) {
-    logError("Assignment Submit", err);
-  }
-  setButtonLoading(btn, false);
-};
-
-// --- Login/Logout Handlers ---
-const loginForm = document.getElementById('loginForm');
-const loginModal = document.getElementById('loginModal');
-const loginBtnNav = document.getElementById('loginBtnNav');
-const logoutBtnNav = document.getElementById('logoutBtnNav');
-const loginBtnMainDiv = document.getElementById('loginBtnMainDiv');
-const loginError = document.getElementById('loginError');
-
-if (loginForm) {
-  loginForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    loginError.style.display = "none";
-    const btn = document.getElementById('loginSubmitBtn') || loginForm.querySelector('button[type="submit"]');
-    setButtonLoading(btn, true);
-    const email = loginForm.email.value.trim();
-    const password = loginForm.password.value;
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-      bootstrap.Modal.getInstance(loginModal).hide();
-      showNotification('Login successful!', 'success');
-      showPortalUI(true);
-      const tabTrigger = document.querySelector('[data-bs-toggle="tab"][href="#profileTab"]');
-      if (tabTrigger) new bootstrap.Tab(tabTrigger).show();
-    } catch (err) {
-      loginError.style.display = "block";
-      logError("Login", err);
-      showNotification('Invalid credentials. Please try again.', 'danger');
-    }
-    setButtonLoading(btn, false);
-  });
-}
-
-if (logoutBtnNav) {
-  logoutBtnNav.addEventListener('click', async () => {
-    setButtonLoading(logoutBtnNav, true);
-    await signOut(auth);
-    showNotification('Logged out.', 'info');
-    showPortalUI(false);
-    setButtonLoading(logoutBtnNav, false);
-  });
-}
-
-// --- Auth State, Role Check and Portal Logic ---
-onAuthStateChanged(auth, async user => {
-  showPortalUI(!!user);
-  if (user) {
-    // Admin redirect check
-    try {
-      const adminDoc = await getDoc(doc(db, "admins", user.uid));
-      if (adminDoc.exists()) {
-        window.location.replace("admin.html");
+// ---- Utility Functions (Copied from portal.js for consistency, or import if common file) ----
+function showToast(message, type = "success") {
+    const toastContainer = document.getElementById('toast-container');
+    if (!toastContainer) {
+        console.warn("Toast container not found.");
         return;
-      }
-    } catch (err) {
-      logError("Admin Check", err);
     }
-    // Student logic
-    const studentsSnap = await getDocs(collection(db, "students"));
-    studentProfile = null;
-    studentsSnap.forEach(docSnap => {
-      if ((docSnap.data().email || "").toLowerCase() === user.email.toLowerCase()) {
-        studentProfile = docSnap.data();
-      }
-    });
-    loadProfile();
-    loadAssignments();
-    loadNotifications();
-    loadLeaderboard();
-    const tabTrigger = document.querySelector('[data-bs-toggle="tab"][href="#profileTab"]');
-    if (tabTrigger) new bootstrap.Tab(tabTrigger).show();
-  } else {
-    studentProfile = null;
-    showPortalUI(false);
-    if (profileContent) profileContent.innerHTML = '';
-    if (assignmentsList) assignmentsList.innerHTML = '';
-    const notifList = document.getElementById('notifications-list');
-    if (notifList) notifList.innerHTML = '';
-    const leaderboardDiv = document.getElementById('leaderboard-list');
-    if (leaderboardDiv) leaderboardDiv.innerHTML = '';
-  }
+    const toastEl = document.createElement('div');
+    toastEl.className = `toast align-items-center text-white bg-${type} border-0 show`;
+    toastEl.setAttribute('role', 'alert');
+    toastEl.setAttribute('aria-live', 'assertive');
+    toastEl.setAttribute('aria-atomic', 'true');
+    toastEl.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">${message}</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    `;
+    toastContainer.append(toastEl);
+    const bsToast = new bootstrap.Toast(toastEl, { delay: 5000 });
+    bsToast.show();
+    toastEl.addEventListener('hidden.bs.toast', () => toastEl.remove());
+}
+
+function buttonLoader(btn, loading = true, text = "") {
+    if (!btn) return;
+    if (loading) {
+        btn.disabled = true;
+        btn.dataset.originalText = btn.innerHTML;
+        btn.innerHTML = `<span class="spinner-border spinner-border-sm"></span> ${text || btn.textContent.trim()}`;
+    } else {
+        btn.disabled = false;
+        btn.innerHTML = btn.dataset.originalText || text || "";
+    }
+}
+
+function logError(context, err) {
+    console.error(`Error in ${context}:`, err);
+    showToast(`Error in ${context}: ${err.message}`, "danger");
+}
+
+// ---- Auth State Listener for Service Requests ----
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        currentStudentUid = user.uid;
+        currentStudentEmail = user.email;
+        loadMyServiceRequests(); // Load requests once user is confirmed
+    } else {
+        currentStudentUid = null;
+        currentStudentEmail = null;
+        if (myRequestsList) {
+            myRequestsList.innerHTML = '<div class="alert alert-info text-center">Please log in to view your service requests.</div>';
+        }
+    }
 });
+
+// ---- Handle Service Request Form Submission ----
+if (serviceRequestForm) {
+    serviceRequestForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        if (!currentStudentUid || !currentStudentEmail) {
+            showToast("You must be logged in to submit a service request.", "danger");
+            return;
+        }
+
+        // Clear previous errors
+        requestTypeError.textContent = '';
+        requestDetailsError.textContent = '';
+        serviceRequestSuccess.style.display = 'none';
+
+        const requestType = document.getElementById('requestType').value;
+        const requestDetails = document.getElementById('requestDetails').value.trim();
+
+        let isValid = true;
+        if (!requestType) {
+            requestTypeError.textContent = 'Please select a request type.';
+            isValid = false;
+        }
+        if (!requestDetails) {
+            requestDetailsError.textContent = 'Please provide details for your request.';
+            isValid = false;
+        }
+
+        if (!isValid) {
+            showToast("Please fill in all required fields.", "warning");
+            return;
+        }
+
+        buttonLoader(submitServiceRequestBtn, true, "Submitting...");
+
+        try {
+            await addDoc(collection(db, "serviceRequests"), {
+                studentUid: currentStudentUid,
+                studentEmail: currentStudentEmail,
+                requestType: requestType,
+                details: requestDetails,
+                status: 'pending', // Initial status
+                submittedAt: new Date(),
+                respondedAt: null,
+                response: null
+            });
+
+            serviceRequestForm.reset(); // Clear the form
+            serviceRequestSuccess.style.display = 'block'; // Show success message
+            showToast("Service request submitted successfully!", "success");
+            loadMyServiceRequests(); // Reload requests to show the new one
+        } catch (err) {
+            logError("SubmitServiceRequest", err);
+            showToast("Failed to submit request. Please try again.", "danger");
+            serviceRequestSuccess.style.display = 'none'; // Hide success message on error
+        } finally {
+            buttonLoader(submitServiceRequestBtn, false, "Submit Request");
+        }
+    });
+}
+
+// ---- Load My Service Requests ----
+async function loadMyServiceRequests() {
+    if (!myRequestsList || !currentStudentUid) {
+        if (myRequestsList) myRequestsList.innerHTML = '<div class="alert alert-info text-center">Log in to see your requests.</div>';
+        return;
+    }
+
+    myRequestsList.innerHTML = '<div class="text-center py-3"><span class="spinner-border spinner-border-sm"></span> Loading your requests...</div>';
+
+    try {
+        const q = query(
+            collection(db, "serviceRequests"),
+            where("studentUid", "==", currentStudentUid),
+            orderBy("submittedAt", "desc")
+        );
+        const snap = await getDocs(q);
+
+        let html = `<ul class="list-group">`;
+        if (snap.empty) {
+            html += `<li class="list-group-item text-center text-muted">You haven't submitted any service requests yet.</li>`;
+        } else {
+            snap.forEach(doc => {
+                const request = doc.data();
+                const submittedDate = request.submittedAt ? new Date(request.submittedAt.seconds * 1000).toLocaleString() : "N/A";
+                const statusClass = {
+                    'pending': 'bg-warning text-dark',
+                    'resolved': 'bg-success',
+                    'in-progress': 'bg-info text-dark',
+                    'rejected': 'bg-danger'
+                }[request.status] || 'bg-secondary';
+
+                html += `
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold">${request.requestType}</div>
+                            ${request.details.substring(0, 100)}${request.details.length > 100 ? '...' : ''}
+                            <small class="text-muted d-block mt-1">Submitted: ${submittedDate}</small>
+                            ${request.response ? `<div class="mt-2 alert alert-light p-2 mb-0"><strong>Response:</strong> ${request.response}</div>` : ''}
+                        </div>
+                        <span class="badge ${statusClass} rounded-pill p-2 mt-1">${request.status.replace(/-/g, ' ').toUpperCase()}</span>
+                    </li>
+                `;
+            });
+        }
+        html += `</ul>`;
+        myRequestsList.innerHTML = html;
+    } catch (err) {
+        logError("LoadMyServiceRequests", err);
+        myRequestsList.innerHTML = `<div class="alert alert-danger">Error loading your requests: ${err.message}</div>`;
+    }
+}
+
+// Export functions if needed by other modules (e.g., if loaded dynamically by portal.js)
+// export { loadMyServiceRequests }; // Example, if you need to call this from portal.js's tab logic

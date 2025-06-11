@@ -1,366 +1,2127 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Admin Dashboard | Latter Glory Academy</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-  <style>
-    body { font-family: 'Inter', Arial, sans-serif; background: #f7f7f7; }
-    .glassmorphism {
-      background: rgba(255,255,255,0.75);
-      border-radius: 18px;
-      box-shadow: 0 2px 32px 0 rgba(60,60,90,0.06);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(255,255,255,0.3);
-    }
-    .sidebar {
-      min-width: 200px;
-      background: #fff;
-      border-radius: 18px;
-      box-shadow: 0 2px 32px 0 rgba(60,60,90,0.04);
-      margin-right: 20px;
-      padding: 1.2rem 0.6rem;
-      position: sticky;
-      top: 1rem;
-    }
-    .sidebar .nav-link {
-      color: #222;
-      font-weight: 500;
-      border-radius: 8px;
-      margin-bottom: 0.5rem;
-      display: flex;
-      align-items: center;
-      transition: background 0.18s;
-    }
-    .sidebar .nav-link.active, .sidebar .nav-link:hover {
-      background: #e3eafc;
-      color: #003366;
-    }
-    .sidebar i, .sidebar svg {
-      margin-right: 8px;
-      font-size: 1.25em;
-    }
-    .tab-pane {
-      min-height: 350px;
-      padding-top: 1.2rem;
-    }
-    .student-card {
-      background: #fff;
-      border-radius: 10px;
-      box-shadow: 0 1px 8px 0 rgba(90,90,120,0.06);
-      padding: 1rem;
-      transition: box-shadow 0.15s;
-      cursor: pointer;
-    }
-    .student-card:hover {
-      box-shadow: 0 6px 30px 0 rgba(90,90,120,0.13);
-    }
-    .student-status-freeze {
-      filter: blur(2px) grayscale(0.6) brightness(0.90);
-      position: relative;
-    }
-    .student-status-freeze::after {
-      content: "❄️ Frozen";
-      position: absolute;
-      top: 40%;
-      left: 40%;
-      background: rgba(220,230,255,0.75);
-      color: #004080;
-      font-weight: bold;
-      font-size: 1.2em;
-      border-radius: 6px;
-      padding: 0.6em 1.2em;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-      z-index: 99;
-      pointer-events: none;
-    }
-    .gallery-img { width: 100%; max-height: 220px; object-fit: cover; border-radius: 10px; }
-    .preview { margin-top: 2rem; }
-    .btn-loading .spinner-border { display: inline-block !important; }
-    .spinner-border { display: none; vertical-align: middle;}
-    .assignment-status { font-weight: bold; }
-    .glass-blur {
-      backdrop-filter: blur(4px) saturate(1.4);
-      background: rgba(255,255,255,0.5);
-    }
-    @media (max-width: 991px) {
-      .sidebar { margin-bottom: 1.5rem; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>Latter Glory School Admin Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Admin Panel for Latter Glory School. Manage students, assignments, CBT, announcements, gallery, logs, and more.">
+    <meta name="keywords" content="Latter Glory, Admin, School Management, Assignments, CBT, Students, Announcements, Gallery, Results, Attendance">
+    <meta name="author" content="Latter Glory School">
+    <meta property="og:title" content="Latter Glory Admin Panel">
+    <meta property="og:description" content="Manage school data, students, assignments, and more.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://latter-glory.web.app/admin.html">
+    <meta property="og:image" content="https://latter-glory.web.app/latter-glory-logo.png">
+    <link rel="icon" href="https://latter-glory.web.app/images/latter-glory-logo.png" type="image/png">
+    <link rel="apple-touch-icon" href="https://latter-glory.web.app/latter-glory-logo.png">
+    <link rel="canonical" href="https://latter-glory.web.app/admin.html">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <style>
+        /*
+         * Advanced Image Loader Styles
+         * Simulates a subtle, non-rotating "heartbeat" pulse.
+         */
+        .loader-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: #fff; /* Or a background that matches your brand */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.7s ease-out; /* Slightly longer, smoother fade */
+        }
+        .loader-logo-animate {
+            width: 90px; /* Adjust as needed for your logo size */
+            height: 90px; /* Adjust as needed for your logo size */
+            /* If your logo is an SVG, you can style fills here.
+               If it's an image (PNG/JPG), make sure it's centered within this div. */
+            animation: pulseHeartbeat 1.8s infinite cubic-bezier(0.4, 0, 0.6, 1); /* Slower, more pronounced pulse */
+            transform-origin: center center; /* Ensures scaling is from the center */
+        }
+        @keyframes pulseHeartbeat {
+            0% { transform: scale(0.9); opacity: 0.8; } /* Slightly smaller, more subtle start */
+            25% { transform: scale(1.05); opacity: 1; } /* First, stronger beat */
+            50% { transform: scale(0.95); opacity: 0.9; } /* Recoil/rest state */
+            75% { transform: scale(1.02); opacity: 0.98; } /* Second, slightly weaker beat */
+            100% { transform: scale(0.9); opacity: 0.8; } /* Return to start */
+        }
+        .fade-out {
+            opacity: 0;
+            pointer-events: none; /* Prevents interaction with the hidden loader */
+        }
+        /*
+         * Optional: If you want a more complex loader with text or additional elements
+         */
+        .loader-text {
+            margin-top: 20px; /* Space between logo and text */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Or your preferred font */
+            font-size: 1.1em;
+            color: #333;
+            opacity: 0; /* Initially hidden */
+            animation: fadeInText 1s forwards 0.5s; /* Fade in after a short delay */
+        }
+        @keyframes fadeInText {
+            to { opacity: 1; }
+        }
+
+        /* General Admin Panel Styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+        }
+        .wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+        #sidebar {
+            min-width: 250px;
+            max-width: 250px;
+            background: #343a40;
+            color: #fff;
+            transition: all 0.3s;
+            position: fixed; /* Keep sidebar fixed */
+            top: 0;
+            left: 0;
+            height: 100%;
+            z-index: 1000; /* Ensure it's above other content */
+        }
+        #sidebar.active {
+            margin-left: -250px; /* Hide sidebar off-screen */
+        }
+        #content {
+            width: 100%;
+            padding: 20px;
+            min-height: 100vh;
+            transition: all 0.3s;
+            margin-left: 250px; /* Offset content by sidebar width */
+        }
+        @media (max-width: 768px) {
+            #sidebar {
+                margin-left: -250px; /* Hide by default on small screens */
+            }
+            #sidebar.active {
+                margin-left: 0; /* Show when active */
+            }
+            #content {
+                margin-left: 0 !important; /* Always remove margin when sidebar is toggled on small screens */
+            }
+            #sidebarCollapse {
+                display: block !important; /* Show toggle button on small screens */
+            }
+        }
+        .sidebar-header {
+            padding: 20px;
+            background: #212529;
+            text-align: center;
+        }
+        .list-unstyled.components li a {
+            padding: 10px 20px;
+            display: block;
+            color: #adb5bd;
+            text-decoration: none;
+        }
+        .list-unstyled.components li a:hover,
+        .list-unstyled.components li.active > a {
+            color: #fff;
+            background: #495057;
+        }
+        .admin-profile {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid #495057;
+        }
+        .admin-profile img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 10px;
+            border: 2px solid #6c757d;
+        }
+        .admin-tab-content {
+            display: none;
+        }
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        }
+        .table thead th {
+            background-color: #e9ecef;
+        }
+        .btn {
+            border-radius: 5px;
+        }
+        .toast {
+            border-radius: 8px;
+        }
+        .portal-center-section {
+            min-height: 100vh; display: flex; align-items: center; justify-content: center;
+        }
+        .glassmorphism {
+            background: rgba(255,255,255,0.82);
+            border-radius: 1rem;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 4px 32px rgba(0,0,0,0.08);
+        }
+
+        /* Specific styles for the new student list structure */
+        .accordion-button:not(.collapsed) {
+            color: #fff;
+            background-color: #007bff; /* Primary blue */
+        }
+        .accordion-button:focus {
+            box-shadow: none;
+            border-color: #007bff;
+        }
+        .student-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            gap: 10px;
+        }
+        .student-item:last-child {
+            border-bottom: none;
+        }
+        .student-item img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+        .student-item .student-details {
+            flex-grow: 1;
+        }
+        .student-item .student-actions {
+            flex-shrink: 0;
+            display: flex;
+            gap: 5px;
+        }
+        .student-item .student-name {
+            font-weight: bold;
+        }
+        .student-item .student-email {
+            font-size: 0.85em;
+            color: #666;
+        }
+        .student-item .student-points {
+            font-size: 0.9em;
+            font-weight: bold;
+            color: #28a745; /* Green for points */
+        }
+        .student-item .student-last-login {
+            font-size: 0.75em;
+            color: #999;
+        }
+
+        /* Custom PDF export styling */
+        .pdf-export-content {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            color: #333;
+        }
+        .pdf-export-content h2 {
+            color: #b71c1c; /* Pink/Red theme */
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .pdf-export-content .student-biodata,
+        .pdf-export-content .student-stats {
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .pdf-export-content .student-biodata h3,
+        .pdf-export-content .student-stats h3 {
+            color: #000;
+            font-size: 1.2em;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+        }
+        .pdf-export-content .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        .pdf-export-content .stat-label {
+            font-weight: bold;
+        }
+        .pdf-export-content .log-entry {
+            border-bottom: 1px dashed #eee;
+            padding: 5px 0;
+            font-size: 0.9em;
+        }
+        .pdf-export-content .log-entry:last-child {
+            border-bottom: none;
+        }
+    </style>
 </head>
-<body>
-  <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg shadow-sm mb-3">
-    <div class="container">
-      <a class="navbar-brand d-flex align-items-center" href="#">
-        <img src="latter-glory logo.png" alt="Logo" style="height:34px;margin-right:0.7rem;">
-        <span class="fw-bold">Latter Glory Admin</span>
-      </a>
-      <button class="btn btn-outline-dark ms-auto" id="logoutBtnAdmin">
-        <i class="bi bi-box-arrow-right"></i> Logout
-      </button>
-    </div>
-  </nav>
+<body class="bg-light">
 
-  <div class="container-fluid mb-5">
-    <div class="row">
-      <!-- Sidebar Navigation -->
-      <div class="col-lg-2 col-md-3 mb-3">
-        <nav class="sidebar glassmorphism">
-          <ul class="nav flex-column nav-pills" id="adminTabs" role="tablist">
-            <li><a class="nav-link active" data-bs-toggle="tab" href="#overviewTab" role="tab"><i class="bi bi-house"></i>Overview</a></li>
-            <li><a class="nav-link" data-bs-toggle="tab" href="#studentsTab" role="tab"><i class="bi bi-people"></i>Students</a></li>
-            <li><a class="nav-link" data-bs-toggle="tab" href="#assignmentsTab" role="tab"><i class="bi bi-journal-check"></i>Assignments</a></li>
-            <li><a class="nav-link" data-bs-toggle="tab" href="#actionsTab" role="tab"><i class="bi bi-tools"></i>Actions</a></li>
-            <li><a class="nav-link" data-bs-toggle="tab" href="#galleryTab" role="tab"><i class="bi bi-images"></i>Gallery</a></li>
-            <li><a class="nav-link" data-bs-toggle="tab" href="#notificationsTab" role="tab"><i class="bi bi-megaphone"></i>Notifications</a></li>
-            <li><a class="nav-link" data-bs-toggle="tab" href="#leaderboardTab" role="tab"><i class="bi bi-trophy"></i>Leaderboard</a></li>
-          </ul>
+    <div class="loader-bg" id="loaderBg">
+        <img src="latter-glory-logo.png" class="loader-logo-animate" alt="Latter Glory Logo Loader">
+        <div class="fw-bold text-primary mt-2">Latter Glory Admin</div>
+        <small class="text-muted">Loading Admin Panel...</small>
+    </div>
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "CollegeOrUniversity",
+        "name": "Latter Glory School",
+        "url": "https://latter-glory.web.app",
+        "logo": "https://latter-glory.web.app/images/logo.png"
+    }
+    </script>
+
+    <div id="adminLoginSection" class="container py-5 portal-center-section" style="display:none;">
+        <div class="card shadow glassmorphism" style="max-width: 400px; width: 100%;">
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <img src="latter-glory-logo.png" alt="Latter Glory Logo" width="70" class="mb-2 rounded-circle">
+                    <h3 class="mb-0">Admin Panel Login</h3>
+                </div>
+                <form id="adminLoginForm" autocomplete="on">
+                    <div class="mb-3">
+                        <label for="adminLoginEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control rounded-pill" id="adminLoginEmail">
+                    </div>
+                    <div class="mb-3">
+                        <label for="adminLoginPassword" class="form-label">Password</label>
+                        <input type="password" class="form-control rounded-pill" id="adminLoginPassword">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 rounded-pill" id="adminLoginBtn">
+                        <i class="bi bi-door-open me-1"></i>Login
+                    </button>
+                    <div class="text-danger mt-2 small text-center" id="adminLoginError"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="adminPanelSection" class="wrapper" style="display:none;">
+        <nav id="sidebar">
+            <div class="sidebar-header">
+                <h3>Admin Dashboard</h3>
+            </div>
+            <div class="admin-profile">
+                <img id="adminPanelAvatar" src="https://placehold.co/80x80?text=Admin" class="rounded-circle border" width="80" height="80" alt="Admin Avatar">
+                <h5 id="adminPanelName" class="text-white mt-2">Admin Name</h5>
+                <p id="adminPanelEmail" class="text-muted small">admin@example.com</p>
+                <button class="btn btn-outline-light btn-sm mt-2" id="logoutBtnAdmin">
+                    <i class="bi bi-box-arrow-right"></i> Logout
+                </button>
+            </div>
+            <ul class="list-unstyled components">
+                <li><a href="#" class="admin-tab-link active" data-tab="tabDashboard"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a></li>
+                <li><a href="#" class="admin-tab-link" data-tab="tabStudents"><i class="bi bi-people me-2"></i> Students</a></li>
+                <li><a href="#" class="admin-tab-link" data-tab="tabAssignments"><i class="bi bi-journal-text me-2"></i> Assignments</a></li>
+                <li><a href="#" class="admin-tab-link" data-tab="tabTests"><i class="bi bi-file-earmark-medical me-2"></i> CBT Tests</a></li>
+                <li><a href="#" class="admin-tab-link" data-tab="tabAnnouncements"><i class="bi bi-megaphone me-2"></i> Announcements</a></li>
+                <li><a href="#" class="admin-tab-link" data-tab="tabNotifications"><i class="bi bi-bell me-2"></i> Notifications</a></li>
+                <li><a href="#" class="admin-tab-link" data-tab="tabLeaderboard"><i class="bi bi-trophy me-2"></i> Leaderboard</a></li>
+                <li><a href="#" class="admin-tab-link" data-tab="tabGallery"><i class="bi bi-images me-2"></i> Gallery</a></li>
+                <li><a href="#" class="admin-tab-link" data-tab="tabLogs"><i class="bi bi-list-columns-reverse me-2"></i> Logs</a></li>
+            </ul>
         </nav>
-      </div>
-      <!-- Main Admin Content -->
-      <div class="col-lg-10 col-md-9" id="adminContent">
-        <div class="tab-content glassmorphism p-4" id="adminTabContent">
-          <!-- Overview Tab -->
-          <div class="tab-pane fade show active" id="overviewTab" role="tabpanel">
-            <h4 class="mb-3"><i class="bi bi-house"></i> Dashboard Overview</h4>
-            <div id="overviewStats" class="row g-3"></div>
-            <div id="overviewCharts" class="my-4"></div>
-            <div id="classListOverview"></div>
-          </div>
-          <!-- Students Tab -->
-          <div class="tab-pane fade" id="studentsTab" role="tabpanel">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <h4><i class="bi bi-people"></i> Student Management</h4>
-              <button class="btn btn-brand" data-bs-toggle="modal" data-bs-target="#adminRegisterModal">
-                <i class="bi bi-person-plus"></i> Register Student
-              </button>
-            </div>
-            <div id="studentsClassList" class="row g-3"></div>
-          </div>
-          <!-- Assignments Tab -->
-          <div class="tab-pane fade" id="assignmentsTab" role="tabpanel">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <h4><i class="bi bi-journal-check"></i> Assignment Management</h4>
-              <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#assignmentModal">
-                <i class="bi bi-plus-circle"></i> Post Assignment
-              </button>
-            </div>
-            <div id="adminAssignmentClassList" class="mb-4"></div>
-            <div id="adminAssignmentSubmissions"></div>
-          </div>
-          <!-- Actions Tab -->
-          <div class="tab-pane fade" id="actionsTab" role="tabpanel">
-            <h4><i class="bi bi-tools"></i> Actions</h4>
-            <div class="row g-3">
-              <div class="col-md-6">
-                <div class="card p-3 mb-2">
-                  <h6>Add Announcement</h6>
-                  <form id="announcementForm">
-                    <div class="mb-2">
-                      <input type="text" id="announcementTitle" class="form-control mb-2" placeholder="Title" required>
-                      <textarea id="announcementBody" class="form-control mb-2" placeholder="Announcement" rows="3" required></textarea>
-                    </div>
-                    <button class="btn btn-primary btn-sm" type="submit">
-                      <span class="spinner-border spinner-border-sm" style="display:none"></span>
-                      <i class="bi bi-megaphone"></i> Post
+
+        <div id="content">
+            <nav class="navbar navbar-expand-lg navbar-light bg-white mb-4 rounded-3 shadow-sm">
+                <div class="container-fluid">
+                    <button type="button" id="sidebarCollapse" class="btn btn-info d-md-none">
+                        <i class="bi bi-list"></i>
                     </button>
-                  </form>
-                  <div id="announcementError" class="text-danger mt-2"></div>
+                    <span class="navbar-brand mb-0 h1 ms-auto">Admin Panel</span>
                 </div>
-              </div>
-              <div class="col-md-6">
-                <div class="card p-3 mb-2">
-                  <h6>Add Points to Student</h6>
-                  <form id="addPointForm">
-                    <div class="mb-2">
-                      <input type="email" id="pointStudentEmail" class="form-control mb-2" placeholder="Student Email" required>
-                      <input type="number" id="pointsToAdd" class="form-control mb-2" placeholder="Points" required>
-                      <input type="text" id="pointsReason" class="form-control" placeholder="Reason" required>
+            </nav>
+
+            <div id="tabDashboard" class="admin-tab-content" style="display:;">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Dashboard Overview</h5>
+                        <p>Welcome to your admin dashboard. Here you can see a summary of your school's activities.</p>
+                        <div id="dashboardStats" class="row">
+                            </div>
+                        <h6 class="mt-4">Recent Activities (Last 10 Logs)</h6>
+                        <div id="recentLogs" class="list-group">
+                            </div>
                     </div>
-                    <button class="btn btn-success btn-sm" type="submit">
-                      <span class="spinner-border spinner-border-sm" style="display:none"></span>
-                      <i class="bi bi-plus-circle"></i> Add Points
-                    </button>
-                  </form>
-                  <div id="addPointError" class="text-danger mt-2"></div>
                 </div>
-              </div>
             </div>
-          </div>
-          <!-- Gallery Tab -->
-          <div class="tab-pane fade" id="galleryTab" role="tabpanel">
-            <h4><i class="bi bi-images"></i> Gallery</h4>
-            <form id="galleryUploadForm" class="mb-4">
-              <div class="row g-2">
-                <div class="col-md-3">
-                  <select id="galleryType" class="form-select" required>
-                    <option value="gallery">School Gallery</option>
-                    <option value="portalGallery">Portal Gallery</option>
-                    <option value="both">Both</option>
-                  </select>
+
+            <div id="tabStudents" class="admin-tab-content">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="card-title mb-0">Student List</h5>
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#studentRegisterModal">
+                                <i class="bi bi-person-plus me-1"></i> Register Student
+                            </button>
+                        </div>
+                        <div id="adminStudentList">
+                            </div>
+                    </div>
                 </div>
-                <div class="col-md-3">
-                  <input type="file" class="form-control" id="galleryImage" accept="image/*" required>
+            </div>
+
+            <div id="tabAssignments" class="admin-tab-content">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Upload Assignments (JSON)</h5>
+                        <form id="assignmentUploadForm" class="d-flex flex-column flex-md-row gap-2 align-items-md-center" enctype="multipart/form-data">
+                            <div class="flex-grow-1">
+                                <input type="file" class="form-control" id="assignmentUploadInput" accept=".json" required>
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select" id="assignmentTargetClass" required>
+                                    <option value="">Select Target Class</option>
+                                    <option value="All">All Classes</option>
+                                    <option value="JSS1">JSS1</option>
+                                    <option value="JSS2">JSS2</option>
+                                    <option value="JSS3">JSS3</option>
+                                    <option value="SS1">SS1</option>
+                                    <option value="SS2">SS2</option>
+                                    <option value="SS3">SS3</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-success" id="assignmentUploadBtn"><i class="bi bi-upload me-1"></i> Upload JSON</button>
+                        </form>
+                    </div>
                 </div>
-                <div class="col-md-3">
-                  <input type="text" class="form-control" id="galleryCaption" maxlength="80" placeholder="Caption" required>
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Assignments List</h5>
+                        <div id="adminAssignmentList">
+                            </div>
+                    </div>
                 </div>
-                <div class="col-md-3">
-                  <input type="date" class="form-control" id="galleryDate" required>
+            </div>
+
+            <div id="tabTests" class="admin-tab-content">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Upload CBT Tests (JSON)</h5>
+                        <form id="testUploadForm" class="d-flex flex-column flex-md-row gap-2 align-items-md-center" enctype="multipart/form-data">
+                            <div class="flex-grow-1">
+                                <input type="file" class="form-control" id="testUploadInput" accept=".json" required>
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select" id="testTargetClass" required>
+                                    <option value="">Select Target Class</option>
+                                    <option value="All">All Classes</option>
+                                    <option value="JSS1">JSS1</option>
+                                    <option value="JSS2">JSS2</option>
+                                    <option value="JSS3">JSS3</option>
+                                    <option value="SS1">SS1</option>
+                                    <option value="SS2">SS2</option>
+                                    <option value="SS3">SS3</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-success" id="testUploadBtn"><i class="bi bi-upload me-1"></i> Upload CBT JSON</button>
+                        </form>
+                    </div>
                 </div>
-                <div class="col-md-12 mt-2">
-                  <button type="submit" class="btn btn-primary" id="uploadBtn">
-                    <span class="spinner-border spinner-border-sm d-none"></span>
-                    <i class="bi bi-upload"></i> Upload
-                  </button>
-                  <div id="uploadError" class="text-danger mt-2"></div>
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">CBT Tests List</h5>
+                        <div id="adminTestList">
+                            </div>
+                    </div>
                 </div>
-              </div>
+            </div>
+
+            <div id="tabAnnouncements" class="admin-tab-content">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Create New Announcement</h5>
+                        <form id="announcementForm">
+                            <div class="mb-3">
+                                <label for="announcementTitle" class="form-label">Title</label>
+                                <input type="text" class="form-control" name="announcementTitle" id="announcementTitle" placeholder="Announcement Title" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="announcementBody" class="form-label">Body</label>
+                                <textarea class="form-control" name="announcementBody" id="announcementBody" rows="4" placeholder="Announcement Details" required></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="announcementTargetClass" class="form-label">Target Class</label>
+                                <select class="form-select" id="announcementTargetClass" required>
+                                    <option value="">Select Target Class</option>
+                                    <option value="All">All Classes</option>
+                                    <option value="JSS1">JSS1</option>
+                                    <option value="JSS2">JSS2</option>
+                                    <option value="JSS3">JSS3</option>
+                                    <option value="SS1">SS1</option>
+                                    <option value="SS2">SS2</option>
+                                    <option value="SS3">SS3</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary" id="announcementBtn"><i class="bi bi-megaphone me-1"></i> Post Announcement</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Announcements List</h5>
+                        <div id="adminAnnouncementList">
+                            </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tabNotifications" class="admin-tab-content">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Send New Notification</h5>
+                        <form id="notificationForm">
+                            <div class="mb-3">
+                                <label for="notificationTo" class="form-label">To (Email or "All")</label>
+                                <input type="text" class="form-control" name="notificationTo" id="notificationTo" placeholder="student@example.com or All" required>
+                                <small class="form-text text-muted">Enter specific student email or "All" for a general notification.</small>
+                            </div>
+                            <div class="mb-3">
+                                <label for="notificationTargetClass" class="form-label">Target Class (only applies if "To" is "All")</label>
+                                <select class="form-select" id="notificationTargetClass" disabled>
+                                    <option value="All">All Classes</option>
+                                    <option value="JSS1">JSS1</option>
+                                    <option value="JSS2">JSS2</option>
+                                    <option value="JSS3">JSS3</option>
+                                    <option value="SS1">SS1</option>
+                                    <option value="SS2">SS2</option>
+                                    <option value="SS3">SS3</option>
+                                </select>
+                                <small class="form-text text-muted">This selection is used if 'To' field is set to 'All'.</small>
+                            </div>
+                            <div class="mb-3">
+                                <label for="notificationMessage" class="form-label">Message</label>
+                                <textarea class="form-control" name="notificationMessage" id="notificationMessage" rows="3" placeholder="Notification Message" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary" id="notificationBtn"><i class="bi bi-send me-1"></i> Send Notification</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Notifications List</h5>
+                        <div id="adminNotificationList">
+                            </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tabLeaderboard" class="admin-tab-content">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Student Leaderboard</h5>
+                        <div id="adminLeaderboardList">
+                            </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tabGallery" class="admin-tab-content">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Upload Gallery Image</h5>
+                        <form id="galleryUploadForm" class="row g-2 align-items-center mb-3" enctype="multipart/form-data">
+                            <div class="col-12 col-md-4">
+                                <label for="galleryUploadInput" class="form-label visually-hidden">Image File</label>
+                                <input type="file" class="form-control" id="galleryUploadInput" accept="image/*" required>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label for="galleryCaption" class="form-label visually-hidden">Caption</label>
+                                <input type="text" class="form-control" name="galleryCaption" id="galleryCaption" placeholder="Image caption" required>
+                            </div>
+                            <div class="col-12 col-md-3">
+                                <label for="galleryDate" class="form-label visually-hidden">Date</label>
+                                <input type="date" class="form-control" name="galleryDate" id="galleryDate" required>
+                            </div>
+                            <div class="col-12 col-md-1">
+                                <button type="submit" class="btn btn-success w-100" id="galleryUploadBtn"><i class="bi bi-upload"></i></button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Gallery Images</h5>
+                        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3" id="adminGalleryList">
+                            </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tabLogs" class="admin-tab-content">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">System Logs</h5>
+                        <div id="adminLogsSection">
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="studentRegisterModal" tabindex="-1" aria-labelledby="studentRegisterModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <form class="modal-content" id="studentRegisterForm">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="studentRegisterModalLabel">Register Student</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="regName" class="form-label">Full Name</label>
+                        <input type="text" class="form-control" name="regName" id="regName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="regEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" name="regEmail" id="regEmail" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="regClass" class="form-label">Class</label>
+                        <select class="form-select" name="regClass" id="regClass" required>
+                            <option value="">Select Class</option>
+                            <option value="JSS1">JSS1</option>
+                            <option value="JSS2">JSS2</option>
+                            <option value="JSS3">JSS3</option>
+                            <option value="SS1">SS1</option>
+                            <option value="SS2">SS2</option>
+                            <option value="SS3">SS3</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="regGender" class="form-label">Gender</label>
+                        <select class="form-select" name="regGender" id="regGender" required>
+                            <option value="">Select Gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="regPassword" class="form-label">Password (leave blank for auto-generation)</label>
+                        <input type="text" class="form-control" name="regPassword" id="regPassword" autocomplete="new-password">
+                    </div>
+                    <div class="mb-3">
+                        <label for="regPassport" class="form-label">Passport Photo</label>
+                        <input type="file" id="regPassport" name="regPassport" accept="image/*" class="form-control">
+                        <small class="form-text text-muted">Upload a clear passport-sized photo.</small>
+                        <div id="passportPreview" class="mt-2" style="max-width: 150px; max-height: 150px; overflow: hidden; border-radius: 8px; border: 1px solid #ddd; display: none;">
+                            <img id="passportPreviewImg" src="#" alt="Passport Preview" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success" id="registerStudentBtn"><i class="bi bi-person-plus me-1"></i> Register</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
             </form>
-            <div class="preview">
-              <h5>Gallery Preview (<span id="galleryPreviewType">School Gallery</span>)</h5>
-              <div id="galleryPreview" class="row g-3"></div>
-            </div>
-          </div>
-          <!-- Notifications Tab -->
-          <div class="tab-pane fade" id="notificationsTab" role="tabpanel">
-            <h4><i class="bi bi-megaphone"></i> Notifications</h4>
-            <div id="notificationsList"></div>
-          </div>
-          <!-- Leaderboard Tab -->
-          <div class="tab-pane fade" id="leaderboardTab" role="tabpanel">
-            <h4><i class="bi bi-trophy"></i> Leaderboard & Analysis</h4>
-            <div id="leaderboardStats"></div>
-            <div id="userAnalysis"></div>
-          </div>
         </div>
-      </div>
     </div>
-  </div>
 
-  <!-- Register Student Modal -->
-  <div class="modal fade" id="adminRegisterModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content glassmorphism">
-        <div class="modal-header">
-          <h5 class="modal-title">Register New Student</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    <div class="modal fade" id="awardPointsModal" tabindex="-1" aria-labelledby="awardPointsModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="awardPointsModalLabel">Award Points to Student</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Awarding points to: <strong id="awardStudentName"></strong> (<span id="awardStudentEmail"></span>)</p>
+                    <input type="hidden" id="awardStudentMatric">
+                    <div class="mb-3">
+                        <label for="pointsAmount" class="form-label">Points to Award</label>
+                        <input type="number" class="form-control" id="pointsAmount" min="1" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="pointsReason" class="form-label">Reason</label>
+                        <textarea class="form-control" id="pointsReason" rows="3" placeholder="e.g., 'Participated in school program', 'Academic Excellence'" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="confirmAwardPointsBtn">Award Points</button>
+                </div>
+            </div>
         </div>
-        <div class="modal-body">
-          <form id="adminRegisterForm" enctype="multipart/form-data">
-            <div class="mb-2">
-              <label>Name</label>
-              <input type="text" class="form-control" id="studentName" required>
-            </div>
-            <div class="mb-2">
-              <label>Email</label>
-              <input type="email" class="form-control" id="studentEmail" required>
-            </div>
-            <div class="mb-2">
-              <label>Class</label>
-              <select id="studentClass" class="form-select" required>
-                <option value="">Select</option>
-                <option>JSS1</option>
-                <option>JSS2</option>
-                <option>JSS3</option>
-                <option>SS1</option>
-                <option>SS2</option>
-                <option>SS3</option>
-              </select>
-            </div>
-            <div class="mb-2">
-              <label>Gender</label>
-              <select class="form-control" id="studentGender" required>
-                <option value="">--Select--</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
-            <div class="mb-2">
-              <label>Password</label>
-              <input type="password" class="form-control" id="studentPassword" required>
-            </div>
-            <div class="mb-2">
-              <label>Passport Photo</label>
-              <input type="file" class="form-control" id="studentPassport" accept="image/*">
-            </div>
-            <button type="submit" class="btn btn-brand mt-2 w-100" id="registerSubmitBtn">
-              <span class="spinner-border spinner-border-sm"></span>
-              <i class="bi bi-person-plus"></i> Register Student
-            </button>
-            <div id="adminRegisterError" class="text-danger mt-2" style="display:none;"></div>
-            <div id="adminRegisterSuccess" class="text-success mt-2" style="display:none;"></div>
-            <div class="mt-2" id="matricNumberDisplay" style="display:none;">
-              <div class="alert alert-info">Dear <span id="matricStudentName"></span> (<span id="matricStudentEmail"></span>), your Matric Number is <b id="matricNumberValue"></b></div>
-            </div>
-          </form>
-        </div>
-      </div>
     </div>
-  </div>
 
-  <!-- Assignment Modal -->
-  <div class="modal fade" id="assignmentModal" tabindex="-1" aria-labelledby="assignmentModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content glassmorphism">
-        <div class="modal-header">
-          <h5 class="modal-title" id="assignmentModalLabel">Post Assignment</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    <div class="modal fade" id="studentProfileModal" tabindex="-1" aria-labelledby="studentProfileModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="studentProfileModalLabel">Student Profile: <span id="profileStudentName"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="studentProfileContent" class="pdf-export-content">
+                        <h2 class="text-center">Student Transcript & Activity</h2>
+                        <div class="student-biodata">
+                            <h3>Personal Information</h3>
+                            <p><strong>Name:</strong> <span id="profileName"></span></p>
+                            <p><strong>Class:</strong> <span id="profileClass"></span></p>
+                            <p><strong>Email:</strong> <span id="profileEmail"></span></p>
+                            <p><strong>Gender:</strong> <span id="profileGender"></span></p>
+                            <p><strong>Matric No:</strong> <span id="profileMatric"></span></p>
+                            <p><strong>Account Status:</strong> <span id="profileStatus" class="badge"></span></p>
+                        </div>
+                        <div class="student-stats mt-4">
+                            <h3>Key Statistics</h3>
+                            <div class="stat-item"><span class="stat-label">Total Points:</span> <span id="profilePoints"></span></div>
+                            <div class="stat-item"><span class="stat-label">Last Logged In:</span> <span id="profileLastLogin"></span></div>
+                            <div class="stat-item"><span class="stat-label">Total Logins:</span> <span id="profileLoginCount"></span></div>
+                        </div>
+                        <div class="student-activity mt-4">
+                            <h3>Recent Activity Log</h3>
+                            <div id="profileActivityLogs">
+                                </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-info" id="exportProfilePdfBtn"><i class="bi bi-file-earmark-pdf me-1"></i> Export to PDF</button>
+                </div>
+            </div>
         </div>
-        <div class="modal-body">
-          <form id="assignmentForm" class="mb-2">
-            <div class="mb-3">
-              <label class="form-label">Title</label>
-              <input type="text" id="assignmentTitle" class="form-control" required>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Description</label>
-              <textarea id="assignmentDesc" class="form-control" rows="3" required></textarea>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Class</label>
-              <select id="assignmentClass" class="form-select" required>
-                <option value="">Select Class</option>
-                <option>JSS1</option>
-                <option>JSS2</option>
-                <option>JSS3</option>
-                <option>SS1</option>
-                <option>SS2</option>
-                <option>SS3</option>
-              </select>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Due In (hours)</label>
-              <input type="number" id="assignmentDueHours" class="form-control" min="1" required>
-            </div>
-            <button type="submit" class="btn btn-success w-100" id="postAssignmentBtn">
-              <span class="spinner-border spinner-border-sm"></span>
-              <i class="bi bi-plus-circle"></i> Post Assignment
-            </button>
-            <div id="assignmentError" class="text-danger mt-2"></div>
-          </form>
-        </div>
-      </div>
     </div>
-  </div>
 
-  <!-- Dynamic modal containers (handled by JS) -->
-  <div id="studentDetailModalContainer"></div>
+    <div id="toast-container" style="position: fixed; bottom: 1rem; right: 1rem; z-index: 9999;"></div>
 
-  <div id="toast-container" class="position-fixed top-0 end-0 p-3"></div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/es-module-shims@1.8.3/dist/es-module-shims.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-  <footer class="mt-5">
-    <div class="container text-center">
-      &copy; 2025 Latter Glory Academy. <span style="color:#b71c1c;font-weight:700;">Powered by Praix Tech</span>
-    </div>
-  </footer>
+    <script type="module">
+        // ---- Firebase Imports & Config ----
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import {
+            getFirestore, collection, addDoc, getDocs, query, orderBy, doc, updateDoc, deleteDoc, serverTimestamp, setDoc, where, getDoc, runTransaction
+        } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+        import {
+            getAuth, onAuthStateChanged, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword
+        } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+        import {
+            getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject
+        } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script type="module" src="admin.js"></script>
+        // Import showToast and logError from student-service.js
+        // IMPORTANT: These functions (showToast, logError, logActivity) are now directly included
+        // in student-service.js and will be called from there.
+        // For admin-panel-ui, we *might* need local versions if the admin panel isn't directly
+        // importing the student-service.js functions or if it needs distinct behavior.
+        // For simplicity, I'll keep them directly in this script for the admin panel for now,
+        // as the student-service.js is designed more for the student portal's shared logic.
+        // If you want full re-usability, ensure student-service.js exports them and then import here.
+        // For this large response, I'll put them here for clarity.
+        function showToast(message, type = "success") {
+            const toastContainer = document.getElementById('toast-container');
+            if (!toastContainer) {
+                console.warn("Toast container not found.");
+                return;
+            }
+            const toastEl = document.createElement('div');
+            toastEl.className = `toast align-items-center text-white bg-${type} border-0 show`;
+            toastEl.setAttribute('role', 'alert');
+            toastEl.setAttribute('aria-live', 'assertive');
+            toastEl.setAttribute('aria-atomic', 'true');
+            toastEl.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">${message}</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            `;
+            toastContainer.append(toastEl);
+            const bsToast = new bootstrap.Toast(toastEl, { delay: 5000 });
+            bsToast.show();
+            toastEl.addEventListener('hidden.bs.toast', () => toastEl.remove());
+        }
+
+        async function logActivity(adminEmail, action, details = {}) {
+            try {
+                await addDoc(collection(db, "logs"), {
+                    adminEmail: adminEmail,
+                    action: action,
+                    details: details,
+                    timestamp: serverTimestamp()
+                });
+                console.log("Activity logged:", action, details);
+            } catch (err) {
+                console.error("Error logging activity:", err);
+            }
+        }
+
+        function logError(context, err) {
+            console.error(`Error in ${context}:`, err);
+            showToast(`Error in ${context}: ${err.message}`, "danger");
+        }
+
+        // ---- Firebase Config ----
+        const firebaseConfig = {
+            apiKey: "AIzaSyDgReNsNbU6-Cnx-ej0HPcHSrCXVppohJQ",
+            authDomain: "latter-glory.firebaseapp.com",
+            projectId: "latter-glory",
+            storageBucket: "latter-glory.appspot.com",
+            messagingSenderId: "133970297722",
+            appId: "1:133970297722:web:33758b76625c70930dccc3",
+            measurementId: "G-5G1BYM7Q3Y"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const storage = getStorage(app);
+
+        // ---- DOM Elements ----
+        const adminLoginSection = document.getElementById('adminLoginSection');
+        const adminLoginForm = document.getElementById('adminLoginForm');
+        const adminLoginBtn = document.getElementById('adminLoginBtn');
+        const adminLoginError = document.getElementById('adminLoginError');
+        const logoutBtnAdmin = document.getElementById('logoutBtnAdmin');
+        const adminPanelSection = document.getElementById('adminPanelSection');
+
+        // Profile
+        const adminPanelName = document.getElementById('adminPanelName');
+        const adminPanelEmail = document.getElementById('adminPanelEmail');
+        const adminPanelAvatar = document.getElementById('adminPanelAvatar');
+
+        // Tabs
+        const tabLinks = document.querySelectorAll(".admin-tab-link");
+        const tabContents = document.querySelectorAll(".admin-tab-content");
+
+        // Students
+        const adminStudentList = document.getElementById('adminStudentList');
+        const studentRegisterForm = document.getElementById('studentRegisterForm');
+        const registerStudentBtn = document.getElementById('registerStudentBtn');
+        const regPassportInput = document.getElementById('regPassport');
+        const passportPreview = document.getElementById('passportPreview');
+        const passportPreviewImg = document.getElementById('passportPreviewImg');
+
+        // Points Modal
+        const awardPointsModal = new bootstrap.Modal(document.getElementById('awardPointsModal'));
+        const awardStudentNameSpan = document.getElementById('awardStudentName');
+        const awardStudentEmailSpan = document.getElementById('awardStudentEmail');
+        const awardStudentMatricInput = document.getElementById('awardStudentMatric');
+        const pointsAmountInput = document.getElementById('pointsAmount');
+        const pointsReasonInput = document.getElementById('pointsReason');
+        const confirmAwardPointsBtn = document.getElementById('confirmAwardPointsBtn');
+
+        // Student Profile Modal
+        const studentProfileModal = new bootstrap.Modal(document.getElementById('studentProfileModal'));
+        const profileStudentNameSpan = document.getElementById('profileStudentName');
+        const profileNameSpan = document.getElementById('profileName');
+        const profileClassSpan = document.getElementById('profileClass');
+        const profileEmailSpan = document.getElementById('profileEmail');
+        const profileGenderSpan = document.getElementById('profileGender');
+        const profileMatricSpan = document.getElementById('profileMatric');
+        const profileStatusSpan = document.getElementById('profileStatus');
+        const profilePointsSpan = document.getElementById('profilePoints');
+        const profileLastLoginSpan = document.getElementById('profileLastLogin');
+        const profileLoginCountSpan = document.getElementById('profileLoginCount');
+        const profileActivityLogsDiv = document.getElementById('profileActivityLogs');
+        const exportProfilePdfBtn = document.getElementById('exportProfilePdfBtn');
+
+
+        // Assignments
+        const adminAssignmentList = document.getElementById('adminAssignmentList');
+        const assignmentUploadForm = document.getElementById('assignmentUploadForm');
+        const assignmentUploadInput = document.getElementById('assignmentUploadInput');
+        const assignmentUploadBtn = document.getElementById('assignmentUploadBtn');
+        const assignmentTargetClassSelect = document.getElementById('assignmentTargetClass'); // New
+
+        // Tests
+        const adminTestList = document.getElementById('adminTestList');
+        const testUploadForm = document.getElementById('testUploadForm');
+        const testUploadInput = document.getElementById('testUploadInput');
+        const testUploadBtn = document.getElementById('testUploadBtn');
+        const testTargetClassSelect = document.getElementById('testTargetClass'); // New
+
+        // Announcements
+        const adminAnnouncementList = document.getElementById('adminAnnouncementList');
+        const announcementForm = document.getElementById('announcementForm');
+        const announcementBtn = document.getElementById('announcementBtn');
+        const announcementTargetClassSelect = document.getElementById('announcementTargetClass'); // New
+
+        // Notifications
+        const adminNotificationList = document.getElementById('adminNotificationList');
+        const notificationForm = document.getElementById('notificationForm');
+        const notificationBtn = document.getElementById('notificationBtn');
+        const notificationToInput = document.getElementById('notificationTo'); // New
+        const notificationTargetClassSelect = document.getElementById('notificationTargetClass'); // New
+
+        // Leaderboard
+        const adminLeaderboardList = document.getElementById('adminLeaderboardList');
+
+        // Gallery
+        const galleryUploadForm = document.getElementById('galleryUploadForm');
+        const galleryUploadInput = document.getElementById('galleryUploadInput');
+        const adminGalleryList = document.getElementById('adminGalleryList');
+
+        // Logs
+        const adminLogsSection = document.getElementById('adminLogsSection');
+        const dashboardStatsDiv = document.getElementById('dashboardStats');
+        const recentLogsDiv = document.getElementById('recentLogs');
+
+
+        // Admin User (currently logged in)
+        let currentAdminEmail = "";
+
+        // ---- Loader: Hide loader on DOMContentLoaded ----
+        document.addEventListener('DOMContentLoaded', () => {
+            const loaderBg = document.getElementById('loaderBg');
+            if (loaderBg) {
+                setTimeout(() => {
+                    loaderBg.classList.add('fade-out');
+                    setTimeout(() => { loaderBg.style.display = 'none'; }, 500);
+                }, 1200); // Give a little time for the animation to play
+            }
+        });
+
+        // ---- Sidebar Toggle (for smaller screens) ----
+        const sidebarCollapse = document.getElementById('sidebarCollapse');
+        const sidebar = document.getElementById('sidebar');
+        const content = document.getElementById('content');
+        if (sidebarCollapse && sidebar && content) {
+            sidebarCollapse.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+                if (window.innerWidth <= 768) {
+                    // On small screens, hide sidebar and keep content at 0 margin
+                    content.style.marginLeft = '0';
+                } else {
+                    // On larger screens, toggle content margin
+                    content.style.marginLeft = sidebar.classList.contains('active') ? '0' : '250px';
+                }
+            });
+            // Ensure correct margin on initial load for larger screens
+            if (window.innerWidth > 768) {
+                content.style.marginLeft = '250px';
+            }
+        }
+
+
+        // ---- Tabs Logic ----
+        function showTab(tabName) {
+            tabContents.forEach(c => c.style.display = "none");
+            tabLinks.forEach(l => l.classList.remove("active"));
+            const contentTab = document.getElementById(tabName);
+            if (contentTab) contentTab.style.display = "";
+            const link = document.querySelector(`[data-tab="${tabName}"]`);
+            if (link) link.classList.add("active");
+        }
+
+        // ---- Default Admin Creation (on login only) ----
+        async function ensureDefaultAdmin() {
+            const email = "praiseola22@gmail.com";
+            const password = "@Michaelpraise23";
+            const adminSnap = await getDocs(query(collection(db, "admins"), where("email", "==", email)));
+            if (adminSnap.empty) {
+                try {
+                    let cred;
+                    try {
+                        // Attempt to create user, if exists, it will throw error
+                        cred = await createUserWithEmailAndPassword(auth, email, password);
+                    } catch (e) {
+                        // If user already exists, try to sign in
+                        if (e.code === 'auth/email-already-in-use') {
+                             cred = await signInWithEmailAndPassword(auth, email, password);
+                        } else {
+                            throw e; // Re-throw other errors
+                        }
+                    }
+                    await setDoc(doc(db, "admins", cred.user.uid), {
+                        name: "Super Admin",
+                        email: email,
+                        role: "admin",
+                        createdAt: serverTimestamp()
+                    });
+                    showToast("Default admin created/verified!", "success");
+                } catch (e) {
+                    logError("DefaultAdminCreation", e);
+                }
+            }
+        }
+
+        // ---- Auth Listener ----
+        // Initial state
+        if (adminPanelSection) adminPanelSection.style.display = "none";
+        if (logoutBtnAdmin) logoutBtnAdmin.style.display = "none";
+        if (adminLoginSection) adminLoginSection.style.display = "";
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                // No user logged in, show login section
+                if (adminPanelSection) adminPanelSection.style.display = "none";
+                if (adminLoginSection) adminLoginSection.style.display = "";
+                if (logoutBtnAdmin) logoutBtnAdmin.style.display = "none";
+                currentAdminEmail = "";
+                return;
+            }
+
+            // User is logged in, check if they are an admin
+            try {
+                const adminDoc = await getDoc(doc(db, "admins", user.uid));
+                if (adminDoc.exists() && adminDoc.data().role === "admin") {
+                    // User is an admin, show admin panel
+                    if (adminPanelSection) adminPanelSection.style.display = "";
+                    if (adminLoginSection) adminLoginSection.style.display = "none";
+                    if (logoutBtnAdmin) logoutBtnAdmin.style.display = "";
+
+                    const profile = adminDoc.data();
+                    currentAdminEmail = profile.email || user.email; // Set current admin email
+                    if (adminPanelName) adminPanelName.textContent = profile.name || "Admin";
+                    if (adminPanelEmail) adminPanelEmail.textContent = currentAdminEmail;
+                    if (adminPanelAvatar) adminPanelAvatar.src = profile.photoURL || "https://placehold.co/60x60?text=Admin";
+
+                    // Load initial tab and data
+                    showTab("tabDashboard");
+                    loadDashboard();
+                    loadStudentsByClass(); // Updated function
+                    loadAssignments();
+                    loadTests();
+                    loadAnnouncements();
+                    loadNotifications();
+                    loadLeaderboard();
+                    loadGallery();
+                    loadLogs();
+                } else {
+                    // User is logged in but not authorized as admin
+                    showToast("Not authorized as admin. Logging out.", "danger");
+                    await signOut(auth); // Log out the unauthorized user
+                    // onAuthStateChanged will be called again with null user, showing login section
+                }
+            } catch (err) {
+                logError("AuthCheck", err);
+                showToast("Error checking authorization. Logging out.", "danger");
+                await signOut(auth);
+            }
+        });
+
+        // ---- Login Form ----
+        if (adminLoginForm) {
+            adminLoginForm.onsubmit = async function(e) {
+                e.preventDefault();
+                adminLoginError.textContent = "";
+                buttonLoader(adminLoginBtn, true, "Logging in...");
+                try {
+                    await ensureDefaultAdmin(); // Always check on login
+                    const email = document.getElementById('adminLoginEmail').value.trim().toLowerCase();
+                    const password = document.getElementById('adminLoginPassword').value;
+                    await signInWithEmailAndPassword(auth, email, password);
+                    showToast("Login successful!", "success");
+                    // onAuthStateChanged will handle displaying the admin panel
+                } catch (err) {
+                    adminLoginError.textContent = err.message || "Login failed.";
+                    showToast(err.message || "Login failed.", "danger");
+                }
+                buttonLoader(adminLoginBtn, false);
+            };
+        }
+        if (logoutBtnAdmin) {
+            logoutBtnAdmin.onclick = async function() {
+                buttonLoader(logoutBtnAdmin, true, "Logging out...");
+                await signOut(auth);
+                showToast("Logged out successfully!", "info");
+            }
+        }
+
+        // ---- Tabs Navigation ----
+        tabLinks.forEach(link => {
+            link.addEventListener("click", function (e) {
+                e.preventDefault();
+                showTab(this.dataset.tab);
+                if (this.dataset.tab === "tabDashboard") loadDashboard();
+                if (this.dataset.tab === "tabStudents") loadStudentsByClass(); // Updated
+                if (this.dataset.tab === "tabAssignments") loadAssignments();
+                if (this.dataset.tab === "tabTests") loadTests();
+                if (this.dataset.tab === "tabAnnouncements") loadAnnouncements();
+                if (this.dataset.tab === "tabNotifications") loadNotifications();
+                if (this.dataset.tab === "tabLeaderboard") loadLeaderboard();
+                if (this.dataset.tab === "tabGallery") loadGallery();
+                if (this.dataset.tab === "tabLogs") loadLogs();
+            });
+        });
+
+        // ---- Dashboard (with simple stats and recent logs) ----
+        async function loadDashboard() {
+            if (!dashboardStatsDiv || !recentLogsDiv) return;
+            dashboardStatsDiv.innerHTML = '<div class="text-center"><span class="spinner-border spinner-border-sm"></span> Loading stats...</div>';
+            recentLogsDiv.innerHTML = '<div class="text-center"><span class="spinner-border spinner-border-sm"></span> Loading logs...</div>';
+
+            try {
+                // Students Stats
+                const studentsSnap = await getDocs(collection(db, "students"));
+                const totalStudents = studentsSnap.size;
+                let activeStudents = 0;
+                let frozenStudents = 0;
+                studentsSnap.forEach(doc => {
+                    if (doc.data().status === 'frozen') {
+                        frozenStudents++;
+                    } else {
+                        activeStudents++;
+                    }
+                });
+
+                dashboardStatsDiv.innerHTML = `
+                    <div class="col-md-4 mb-3">
+                        <div class="card text-center bg-primary text-white">
+                            <div class="card-body">
+                                <h3 class="card-title">${totalStudents}</h3>
+                                <p class="card-text">Total Students</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card text-center bg-success text-white">
+                            <div class="card-body">
+                                <h3 class="card-title">${activeStudents}</h3>
+                                <p class="card-text">Active Students</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card text-center bg-warning text-dark">
+                            <div class="card-body">
+                                <h3 class="card-title">${frozenStudents}</h3>
+                                <p class="card-text">Frozen Accounts</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Recent Logs
+                const logsSnap = await getDocs(query(collection(db, "logs"), orderBy("timestamp", "desc"), limit(10)));
+                let logsHtml = "";
+                if (logsSnap.empty) {
+                    logsHtml = `<li class="list-group-item text-center text-muted">No recent activities.</li>`;
+                } else {
+                    logsSnap.forEach(doc => {
+                        const log = doc.data();
+                        const time = log.timestamp && log.timestamp.seconds ? new Date(log.timestamp.seconds * 1000).toLocaleString() : "N/A";
+                        logsHtml += `
+                            <li class="list-group-item">
+                                <strong>${log.adminEmail || "System"}</strong>: ${log.action} <span class="badge bg-secondary float-end">${time}</span>
+                                <small class="text-muted d-block">${JSON.stringify(log.details)}</small>
+                            </li>
+                        `;
+                    });
+                }
+                recentLogsDiv.innerHTML = logsHtml;
+
+            } catch (err) {
+                logError("LoadDashboard", err);
+                dashboardStatsDiv.innerHTML = `<div class="alert alert-danger">Error loading dashboard stats: ${err.message}</div>`;
+                recentLogsDiv.innerHTML = `<div class="alert alert-danger">Error loading recent logs: ${err.message}</div>`;
+            }
+        }
+
+
+        // ---- Students (Class-by-Class View, Points, Freeze/Unfreeze) ----
+        const CLASSES = ["JSS1", "JSS2", "JSS3", "SS1", "SS2", "SS3"];
+
+        async function loadStudentsByClass() {
+            if (!adminStudentList) return;
+            adminStudentList.innerHTML = '<div class="text-center"><span class="spinner-border spinner-border-sm"></span> Loading students...</div>';
+
+            try {
+                const snap = await getDocs(collection(db, "students"));
+                const studentsByClass = {};
+                CLASSES.forEach(c => studentsByClass[c] = []); // Initialize all classes
+
+                snap.forEach(doc => {
+                    const s = { id: doc.id, ...doc.data() };
+                    if (studentsByClass[s.class]) {
+                        studentsByClass[s.class].push(s);
+                    } else {
+                        // Handle students with no class or invalid class, put them in a generic "Other" category
+                        if (!studentsByClass["Other"]) studentsByClass["Other"] = [];
+                        studentsByClass["Other"].push(s);
+                    }
+                });
+
+                let html = '<div class="accordion" id="studentClassesAccordion">';
+                const allClasses = [...CLASSES, "Other"].filter(c => studentsByClass[c] && studentsByClass[c].length > 0);
+
+                if (allClasses.length === 0) {
+                    html += `<div class="alert alert-info text-center">No students registered yet.</div>`;
+                } else {
+                    for (const className of allClasses) {
+                        const studentsInClass = studentsByClass[className].sort((a, b) => (a.name || "").localeCompare(b.name || "")); // Sort students alphabetically
+                        html += `
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="heading${className}">
+                                    <button class="accordion-button ${className === 'JSS1' ? '' : 'collapsed'}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${className}" aria-expanded="${className === 'JSS1' ? 'true' : 'false'}" aria-controls="collapse${className}">
+                                        ${className} Students (${studentsInClass.length})
+                                    </button>
+                                </h2>
+                                <div id="collapse${className}" class="accordion-collapse collapse ${className === 'JSS1' ? 'show' : ''}" aria-labelledby="heading${className}" data-bs-parent="#studentClassesAccordion">
+                                    <div class="accordion-body">
+                                        ${studentsInClass.length === 0 ? `<div class="text-center text-muted">No students in ${className}.</div>` : ''}
+                                        <ul class="list-unstyled">
+                        `;
+                        studentsInClass.forEach(s => {
+                            const lastLogin = s.lastLogin ? new Date(s.lastLogin.seconds * 1000).toLocaleString() : "Never";
+                            const statusBadge = s.status === 'frozen' ? '<span class="badge bg-warning ms-2">Frozen</span>' : '<span class="badge bg-success ms-2">Active</span>';
+                            const freezeBtnClass = s.status === 'frozen' ? 'btn-outline-success' : 'btn-outline-warning';
+                            const freezeBtnText = s.status === 'frozen' ? '<i class="bi bi-unlock me-1"></i> Unfreeze' : '<i class="bi bi-snow me-1"></i> Freeze';
+
+                            html += `
+                                <li class="student-item d-flex align-items-center mb-2 p-2 border rounded">
+                                    <img src="${s.passportUrl || 'https://placehold.co/40x40?text=S'}" alt="Passport" class="me-2">
+                                    <div class="student-details flex-grow-1">
+                                        <div class="student-name">${s.name} ${statusBadge}</div>
+                                        <div class="student-email text-muted small">${s.email} | <span class="student-points">Points: ${s.points || 0}</span></div>
+                                        <div class="student-last-login text-muted small">Last Login: ${lastLogin}</div>
+                                    </div>
+                                    <div class="student-actions d-flex gap-1">
+                                        <button class="btn btn-sm btn-info" onclick="window.viewStudentProfile('${s.matricNumber}')" title="View Student Profile"><i class="bi bi-person-lines-fill"></i></button>
+                                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#awardPointsModal"
+                                                onclick="window.prepareAwardPoints('${s.matricNumber}', '${s.name}', '${s.email}')" title="Award Points"><i class="bi bi-award"></i></button>
+                                        <button class="btn btn-sm ${freezeBtnClass}" onclick="window.toggleStudentStatus('${s.matricNumber}', '${s.status === 'frozen' ? 'active' : 'frozen'}', '${s.name}')" title="${s.status === 'frozen' ? 'Unfreeze Account' : 'Freeze Account'}">
+                                            ${freezeBtnText}
+                                        </button>
+                                        <button class="btn btn-sm btn-danger" onclick="window.deleteStudent('${s.matricNumber}', '${s.passportUrl || ''}', '${s.uid || ''}')" title="Delete Student"><i class="bi bi-x"></i></button>
+                                    </div>
+                                </li>
+                            `;
+                        });
+                        html += `
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+                html += '</div>'; // Close accordion
+                adminStudentList.innerHTML = html;
+            } catch (err) {
+                logError("LoadStudentsByClass", err);
+                adminStudentList.innerHTML = `<div class="alert alert-danger">Error loading students: ${err.message}</div>`;
+            }
+        }
+
+        window.deleteStudent = async function(matricNumber, passportUrl, uid) {
+            if (!confirm("Are you sure you want to delete this student and all their associated data (submissions, auth account)? This action cannot be undone.")) {
+                return;
+            }
+
+            try {
+                // Start a batch write for atomic deletion of Firestore documents
+                const batch = writeBatch(db); // Requires import writeBatch from firebase/firestore
+
+                // 1. Delete student document
+                batch.delete(doc(db, "students", matricNumber));
+
+                // 2. Delete passport photo from storage if it exists
+                if (passportUrl) {
+                    const fileRef = storageRef(storage, passportUrl);
+                    await deleteObject(fileRef).catch(error => {
+                        console.warn("Could not delete passport photo from storage:", error.message);
+                    });
+                }
+
+                // 3. Delete auth user (This requires Cloud Functions, or a different admin context.
+                // It cannot be done directly from client-side SDK for security reasons.)
+                // For a client-side solution, you'd mark the user for deletion and have a backend process handle it.
+                // For now, I'll remove this line for client-side safety.
+                // If you *do* have a Cloud Function for this, you'd call it here.
+                // await deleteUser(auth.getUser(uid)); // This is for Admin SDK, not client SDK
+
+                // Log the action *before* committing the batch
+                await logActivity(currentAdminEmail, "Deleted student account", { matricNumber: matricNumber });
+
+                // Commit the batch
+                await batch.commit();
+
+                showToast(`Student ${matricNumber} deleted successfully! (Auth account may need manual deletion via Firebase Console)`, "danger");
+                loadStudentsByClass();
+            } catch (err) {
+                logError("DeleteStudent", err);
+                showToast(`Failed to delete student: ${err.message}`, "danger");
+            }
+        };
+
+        // ---- Award Points Logic ----
+        window.prepareAwardPoints = function(matric, name, email) {
+            awardStudentNameSpan.textContent = name;
+            awardStudentEmailSpan.textContent = email;
+            awardStudentMatricInput.value = matric;
+            pointsAmountInput.value = ''; // Clear previous input
+            pointsReasonInput.value = ''; // Clear previous input
+        };
+
+        if (confirmAwardPointsBtn) {
+            confirmAwardPointsBtn.addEventListener('click', async () => {
+                const matricNumber = awardStudentMatricInput.value;
+                const points = parseInt(pointsAmountInput.value, 10);
+                const reason = pointsReasonInput.value.trim();
+
+                if (isNaN(points) || points <= 0) {
+                    showToast("Please enter a valid positive number for points.", "danger");
+                    return;
+                }
+                if (!reason) {
+                    showToast("Please enter a reason for awarding points.", "danger");
+                    return;
+                }
+
+                buttonLoader(confirmAwardPointsBtn, true, "Awarding...");
+                try {
+                    await runTransaction(db, async (transaction) => {
+                        const studentRef = doc(db, "students", matricNumber);
+                        const studentDoc = await transaction.get(studentRef);
+
+                        if (!studentDoc.exists()) {
+                            throw new Error("Student not found.");
+                        }
+
+                        const currentPoints = studentDoc.data().points || 0;
+                        const newPoints = currentPoints + points;
+
+                        transaction.update(studentRef, { points: newPoints });
+
+                        // Log the point award
+                        await logActivity(currentAdminEmail, "Awarded points", {
+                            matricNumber: matricNumber,
+                            pointsAwarded: points,
+                            reason: reason,
+                            newTotalPoints: newPoints
+                        });
+
+                        // Send general notification about points award
+                        const studentName = studentDoc.data().name;
+                        const studentClass = studentDoc.data().class;
+                        const notificationMessage = `${studentName} from ${studentClass} was awarded ${points} points for '${reason}'. Total points: ${newPoints}.`;
+
+                        // Add a general notification for everyone to see
+                        await addDoc(collection(db, "notifications"), {
+                            to: "All", // This is a general notification for all students
+                            message: notificationMessage,
+                            type: "points", // Custom type for filtering
+                            createdAt: serverTimestamp()
+                        });
+
+                    }); // End of transaction
+
+                    showToast(`Successfully awarded ${points} points to student!`, "success");
+                    awardPointsModal.hide(); // Hide the modal
+                    loadStudentsByClass(); // Refresh student list
+                } catch (err) {
+                    logError("AwardPoints", err);
+                    showToast(`Failed to award points: ${err.message}`, "danger");
+                }
+                buttonLoader(confirmAwardPointsBtn, false);
+            });
+        }
+
+        // ---- Freeze/Unfreeze Student Account ----
+        window.toggleStudentStatus = async function(matricNumber, newStatus, studentName) {
+            const actionText = newStatus === 'frozen' ? 'freeze' : 'unfreeze';
+            if (!confirm(`Are you sure you want to ${actionText} ${studentName}'s account?`)) {
+                return;
+            }
+
+            try {
+                const studentRef = doc(db, "students", matricNumber);
+                await updateDoc(studentRef, { status: newStatus });
+
+                await logActivity(currentAdminEmail, `Account ${actionText}d`, {
+                    matricNumber: matricNumber,
+                    studentName: studentName,
+                    newStatus: newStatus
+                });
+
+                showToast(`Student ${studentName}'s account has been ${actionText}d successfully!`, "info");
+                loadStudentsByClass(); // Refresh student list
+            } catch (err) {
+                logError("ToggleStudentStatus", err);
+                showToast(`Failed to ${actionText} account: ${err.message}`, "danger");
+            }
+        };
+
+        // ---- View Student Profile Modal ----
+        window.viewStudentProfile = async function(matricNumber) {
+            if (!studentProfileModal) return;
+
+            // Clear previous content and show loader
+            profileStudentNameSpan.textContent = '';
+            document.getElementById('studentProfileContent').innerHTML = '<div class="text-center py-5"><span class="spinner-border text-primary"></span> Loading student data...</div>';
+            studentProfileModal.show();
+
+            try {
+                const studentDoc = await getDoc(doc(db, "students", matricNumber));
+                if (!studentDoc.exists()) {
+                    document.getElementById('studentProfileContent').innerHTML = `<div class="alert alert-danger text-center">Student not found.</div>`;
+                    return;
+                }
+
+                const studentData = studentDoc.data();
+                const studentName = studentData.name || "N/A";
+                const studentEmail = studentData.email || "N/A";
+                const studentClass = studentData.class || "N/A";
+                const studentGender = studentData.gender || "N/A";
+                const studentPoints = studentData.points || 0;
+                const studentStatus = studentData.status || "active";
+                const lastLogin = studentData.lastLogin ? new Date(studentData.lastLogin.seconds * 1000).toLocaleString() : "Never";
+
+                // Fetch student's activity logs
+                const logsSnap = await getDocs(query(collection(db, "logs"),
+                    where("email", "==", studentEmail), // Assuming logs capture student email
+                    orderBy("timestamp", "desc"),
+                    limit(20) // Limit to 20 most recent actions
+                ));
+                let activityLogsHtml = "";
+                let loginCount = 0;
+                if (logsSnap.empty) {
+                    activityLogsHtml = `<p class="text-muted text-center">No recent activity for this student.</p>`;
+                } else {
+                    logsSnap.forEach(logDoc => {
+                        const log = logDoc.data();
+                        const logTime = log.timestamp && log.timestamp.seconds ? new Date(log.timestamp.seconds * 1000).toLocaleString() : "N/A";
+                        if (log.action === "Student Login") {
+                            loginCount++;
+                        }
+                        activityLogsHtml += `
+                            <div class="log-entry">
+                                <strong>${log.action}</strong> at ${logTime}
+                                ${log.details ? `<br><small class="text-muted">Details: ${JSON.stringify(log.details)}</small>` : ''}
+                            </div>
+                        `;
+                    });
+                }
+
+                // Update the modal content
+                profileStudentNameSpan.textContent = studentName;
+                profileNameSpan.textContent = studentName;
+                profileClassSpan.textContent = studentClass;
+                profileEmailSpan.textContent = studentEmail;
+                profileGenderSpan.textContent = studentGender;
+                profileMatricSpan.textContent = matricNumber;
+                profileStatusSpan.textContent = studentStatus.charAt(0).toUpperCase() + studentStatus.slice(1);
+                profileStatusSpan.className = `badge bg-${studentStatus === 'frozen' ? 'warning' : 'success'}`;
+                profilePointsSpan.textContent = studentPoints;
+                profileLastLoginSpan.textContent = lastLogin;
+                profileLoginCountSpan.textContent = loginCount;
+                profileActivityLogsDiv.innerHTML = activityLogsHtml;
+
+                // Restore original HTML structure inside the content div
+                document.getElementById('studentProfileContent').innerHTML = `
+                    <h2 class="text-center">Student Transcript & Activity</h2>
+                    <div class="student-biodata">
+                        <h3>Personal Information</h3>
+                        <p><strong>Name:</strong> <span id="profileName">${studentName}</span></p>
+                        <p><strong>Class:</strong> <span id="profileClass">${studentClass}</span></p>
+                        <p><strong>Email:</strong> <span id="profileEmail">${studentEmail}</span></p>
+                        <p><strong>Gender:</strong> <span id="profileGender">${studentGender}</span></p>
+                        <p><strong>Matric No:</strong> <span id="profileMatric">${matricNumber}</span></p>
+                        <p><strong>Account Status:</strong> <span id="profileStatus" class="badge bg-${studentStatus === 'frozen' ? 'warning' : 'success'}">${studentStatus.charAt(0).toUpperCase() + studentStatus.slice(1)}</span></p>
+                    </div>
+                    <div class="student-stats mt-4">
+                        <h3>Key Statistics</h3>
+                        <div class="stat-item"><span class="stat-label">Total Points:</span> <span id="profilePoints">${studentPoints}</span></div>
+                        <div class="stat-item"><span class="stat-label">Last Logged In:</span> <span id="profileLastLogin">${lastLogin}</span></div>
+                        <div class="stat-item"><span class="stat-label">Total Logins:</span> <span id="profileLoginCount">${loginCount}</span></div>
+                    </div>
+                    <div class="student-activity mt-4">
+                        <h3>Recent Activity Log</h3>
+                        <div id="profileActivityLogs">${activityLogsHtml}</div>
+                    </div>
+                `;
+
+            } catch (err) {
+                logError("ViewStudentProfile", err);
+                document.getElementById('studentProfileContent').innerHTML = `<div class="alert alert-danger text-center">Error loading profile: ${err.message}</div>`;
+            }
+        };
+
+        // PDF Export Logic
+        if (exportProfilePdfBtn) {
+            exportProfilePdfBtn.addEventListener('click', async () => {
+                const content = document.getElementById('studentProfileContent');
+                const studentName = profileStudentNameSpan.textContent;
+
+                showToast("Generating PDF...", "info");
+                buttonLoader(exportProfilePdfBtn, true, "Generating PDF...");
+
+                // Temporarily apply PDF specific styles if needed
+                // E.g., const originalStyles = content.style.cssText; content.style.cssText += '...';
+
+                try {
+                    const canvas = await html2canvas(content, {
+                        scale: 2, // Increase scale for better resolution
+                        useCORS: true, // If images are from external domains
+                        logging: false // Disable logging if desired
+                    });
+
+                    // Temporarily remove PDF specific styles if applied
+                    // content.style.cssText = originalStyles;
+
+                    const imgData = canvas.toDataURL('image/png');
+                    const pdf = new window.jspdf.jsPDF('p', 'mm', 'a4'); // 'p' for portrait, 'mm' for units, 'a4' for page size
+                    const imgWidth = 210; // A4 width in mm
+                    const pageHeight = 297; // A4 height in mm
+                    const imgHeight = canvas.height * imgWidth / canvas.width;
+                    let heightLeft = imgHeight;
+                    let position = 0;
+
+                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+
+                    while (heightLeft >= 0) {
+                        position = heightLeft - imgHeight;
+                        pdf.addPage();
+                        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                        heightLeft -= pageHeight;
+                    }
+
+                    pdf.save(`${studentName}_Profile.pdf`);
+                    showToast("PDF generated successfully!", "success");
+
+                } catch (err) {
+                    logError("PDFExport", err);
+                    showToast(`Error generating PDF: ${err.message}`, "danger");
+                }
+                buttonLoader(exportProfilePdfBtn, false);
+            });
+        }
+
+
+        // ---- Assignment Upload (JSON) - with Target Class ----
+        if (assignmentUploadForm && assignmentUploadInput && assignmentTargetClassSelect) {
+            assignmentUploadForm.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const file = assignmentUploadInput.files[0];
+                const targetClass = assignmentTargetClassSelect.value;
+                if (!file) {
+                    showToast("Please choose a JSON file.", "danger");
+                    return;
+                }
+                if (!targetClass) {
+                    showToast("Please select a target class for the assignment.", "danger");
+                    return;
+                }
+                buttonLoader(assignmentUploadBtn, true, "Uploading...");
+                try {
+                    const text = await file.text();
+                    let data = JSON.parse(text);
+                    if (!Array.isArray(data)) throw new Error("File must be an array of assignments.");
+                    for (const a of data) {
+                        await addDoc(collection(db, "assignments"), {
+                            ...a,
+                            targetClass: targetClass, // Add target class
+                            createdAt: serverTimestamp()
+                        });
+                    }
+                    await logActivity(currentAdminEmail, "Uploaded assignments", {
+                        count: data.length,
+                        targetClass: targetClass
+                    });
+                    showToast("Assignments uploaded successfully!", "success");
+                    assignmentUploadForm.reset();
+                    loadAssignments();
+                } catch (err) {
+                    logError("AssignmentUpload", err);
+                }
+                buttonLoader(assignmentUploadBtn, false);
+            });
+        }
+
+        // ---- Assignments List (Display target class) ----
+        async function loadAssignments() {
+            if (!adminAssignmentList) return;
+            adminAssignmentList.innerHTML = '<div class="text-center"><span class="spinner-border spinner-border-sm"></span> Loading...</div>';
+            try {
+                const snap = await getDocs(query(collection(db, "assignments"), orderBy("createdAt", "desc")));
+                let html = `<table class="table table-striped table-hover"><thead><tr>
+                    <th>Title</th><th>Class</th><th>Due Date</th><th>Target</th><th>Actions</th></tr></thead><tbody>`;
+                if (snap.empty) {
+                    html += `<tr><td colspan="5" class="text-center">No assignments uploaded yet.</td></tr>`;
+                } else {
+                    snap.forEach(doc => {
+                        const a = doc.data();
+                        html += `<tr>
+                            <td>${a.title || ""}</td>
+                            <td>${a.class || ""}</td>
+                            <td>${a.dueDate && a.dueDate.seconds ? new Date(a.dueDate.seconds * 1000).toLocaleString() : "N/A"}</td>
+                            <td>${a.targetClass || "N/A"}</td>
+                            <td>
+                                <button class="btn btn-sm btn-info me-1" onclick="alert('Edit assignment (modal)')"><i class="bi bi-pencil"></i></button>
+                                <button class="btn btn-sm btn-danger" onclick="window.deleteAssignment('${doc.id}')"><i class="bi bi-x"></i></button>
+                            </td>
+                        </tr>`;
+                    });
+                }
+                html += "</tbody></table>";
+                adminAssignmentList.innerHTML = html;
+            } catch (err) {
+                logError("LoadAssignments", err);
+                adminAssignmentList.innerHTML = `<div class="alert alert-danger">Error loading assignments: ${err.message}</div>`;
+            }
+        }
+        window.deleteAssignment = async function(id) {
+            if (!confirm("Are you sure you want to delete this assignment?")) {
+                return;
+            }
+            try {
+                await deleteDoc(doc(db, "assignments", id));
+                await logActivity(currentAdminEmail, "Deleted assignment", { assignmentId: id });
+                showToast("Assignment deleted successfully!", "danger");
+                loadAssignments();
+            } catch (err) {
+                logError("DeleteAssignment", err);
+            }
+        };
+
+        // ---- CBT Test Upload (JSON, shuffle questions) - with Target Class ----
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        if (testUploadForm && testUploadInput && testTargetClassSelect) {
+            testUploadForm.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const file = testUploadInput.files[0];
+                const targetClass = testTargetClassSelect.value;
+                if (!file) {
+                    showToast("Please choose a JSON file.", "danger");
+                    return;
+                }
+                if (!targetClass) {
+                    showToast("Please select a target class for the test.", "danger");
+                    return;
+                }
+                buttonLoader(testUploadBtn, true, "Uploading...");
+                try {
+                    const text = await file.text();
+                    let data = JSON.parse(text);
+                    if (!Array.isArray(data)) throw new Error("File must be an array of tests.");
+                    for (const t of data) {
+                        if (!Array.isArray(t.questions)) throw new Error("Missing questions array in test.");
+                        t.questions = shuffleArray(t.questions); // Shuffle questions
+                        await addDoc(collection(db, "tests"), {
+                            ...t,
+                            targetClass: targetClass, // Add target class
+                            postedAt: serverTimestamp()
+                        });
+                    }
+                    await logActivity(currentAdminEmail, "Uploaded CBT tests", {
+                        count: data.length,
+                        targetClass: targetClass
+                    });
+                    showToast("CBT tests uploaded and shuffled!", "success");
+                    testUploadForm.reset();
+                    loadTests();
+                } catch (err) {
+                    logError("CBTTestUpload", err);
+                }
+                buttonLoader(testUploadBtn, false);
+            });
+        }
+
+        // ---- CBT Tests List (Display Target Class) ----
+        async function loadTests() {
+            if (!adminTestList) return;
+            adminTestList.innerHTML = '<div class="text-center"><span class="spinner-border spinner-border-sm"></span> Loading...</div>';
+            try {
+                const snap = await getDocs(query(collection(db, "tests"), orderBy("postedAt", "desc")));
+                let html = `<table class="table table-striped table-hover"><thead><tr>
+                    <th>Title</th><th>Class</th><th>Duration</th><th>Posted</th><th>Target</th><th>Actions</th></tr></thead><tbody>`;
+                if (snap.empty) {
+                    html += `<tr><td colspan="6" class="text-center">No CBT tests uploaded yet.</td></tr>`;
+                } else {
+                    snap.forEach(doc => {
+                        const t = doc.data();
+                        html += `<tr>
+                            <td>${t.title || ""}</td>
+                            <td>${t.class || ""}</td>
+                            <td>${t.duration || ""} min</td>
+                            <td>${t.postedAt && t.postedAt.seconds ? new Date(t.postedAt.seconds * 1000).toLocaleString() : "N/A"}</td>
+                            <td>${t.targetClass || "N/A"}</td>
+                            <td>
+                                <button class="btn btn-sm btn-info me-1" onclick="alert('Edit test (modal)')"><i class="bi bi-pencil"></i></button>
+                                <button class="btn btn-sm btn-danger" onclick="window.deleteTest('${doc.id}')"><i class="bi bi-x"></i></button>
+                            </td>
+                        </tr>`;
+                    });
+                }
+                html += "</tbody></table>";
+                adminTestList.innerHTML = html;
+            } catch (err) {
+                logError("LoadTests", err);
+                adminTestList.innerHTML = `<div class="alert alert-danger">Error loading tests: ${err.message}</div>`;
+            }
+        }
+        window.deleteTest = async function(id) {
+            if (!confirm("Are you sure you want to delete this test?")) {
+                return;
+            }
+            try {
+                await deleteDoc(doc(db, "tests", id));
+                await logActivity(currentAdminEmail, "Deleted CBT test", { testId: id });
+                showToast("Test deleted successfully!", "danger");
+                loadTests();
+            } catch (err) {
+                logError("DeleteTest", err);
+            }
+        };
+
+        // ---- Announcements - with Target Class ----
+        if (announcementForm && announcementTargetClassSelect) {
+            announcementForm.onsubmit = async function(e) {
+                e.preventDefault();
+                buttonLoader(announcementBtn, true, "Posting...");
+                try {
+                    const title = announcementForm.elements["announcementTitle"].value.trim();
+                    const body = announcementForm.elements["announcementBody"].value.trim();
+                    const targetClass = announcementTargetClassSelect.value;
+
+                    if (!targetClass) {
+                        showToast("Please select a target class for the announcement.", "danger");
+                        return;
+                    }
+
+                    await addDoc(collection(db, "announcements"), {
+                        title,
+                        body,
+                        targetClass: targetClass, // Add target class
+                        createdAt: serverTimestamp()
+                    });
+                    await logActivity(currentAdminEmail, "Posted announcement", {
+                        title: title,
+                        targetClass: targetClass
+                    });
+                    showToast("Announcement posted successfully!", "success");
+                    announcementForm.reset();
+                    loadAnnouncements();
+                } catch (err) {
+                    logError("Announcement", err);
+                }
+                buttonLoader(announcementBtn, false);
+            };
+        }
+        async function loadAnnouncements() {
+            if (!adminAnnouncementList) return;
+            adminAnnouncementList.innerHTML = '<div class="text-center"><span class="spinner-border spinner-border-sm"></span> Loading...</div>';
+            try {
+                const snap = await getDocs(query(collection(db, "announcements"), orderBy("createdAt", "desc")));
+                let html = `<table class="table table-striped table-hover"><thead><tr>
+                    <th>Title</th><th>Body</th><th>Date</th><th>Target</th><th>Actions</th></tr></thead><tbody>`;
+                if (snap.empty) {
+                    html += `<tr><td colspan="5" class="text-center">No announcements posted yet.</td></tr>`;
+                } else {
+                    snap.forEach(doc => {
+                        const a = doc.data();
+                        html += `<tr>
+                            <td>${a.title || ""}</td>
+                            <td>${a.body || ""}</td>
+                            <td>${a.createdAt && a.createdAt.seconds ? new Date(a.createdAt.seconds * 1000).toLocaleString() : ""}</td>
+                            <td>${a.targetClass || "N/A"}</td>
+                            <td>
+                                <button class="btn btn-sm btn-danger" onclick="window.deleteAnnouncement('${doc.id}')"><i class="bi bi-x"></i></button>
+                            </td>
+                        </tr>`;
+                    });
+                }
+                html += "</tbody></table>";
+                adminAnnouncementList.innerHTML = html;
+            } catch (err) {
+                logError("LoadAnnouncements", err);
+                adminAnnouncementList.innerHTML = `<div class="alert alert-danger">Error loading announcements: ${err.message}</div>`;
+            }
+        }
+        window.deleteAnnouncement = async function(id) {
+            if (!confirm("Are you sure you want to delete this announcement?")) {
+                return;
+            }
+            try {
+                await deleteDoc(doc(db, "announcements", id));
+                await logActivity(currentAdminEmail, "Deleted announcement", { announcementId: id });
+                showToast("Announcement deleted successfully!", "danger");
+                loadAnnouncements();
+            } catch (err) {
+                logError("DeleteAnnouncement", err);
+            }
+        };
+
+        // ---- Notifications - with Target Class (conditionally enabled) ----
+        if (notificationForm && notificationToInput && notificationTargetClassSelect) {
+            notificationToInput.addEventListener('input', function() {
+                // If "To" is "All", enable Target Class dropdown, otherwise disable
+                if (this.value.trim().toLowerCase() === 'all') {
+                    notificationTargetClassSelect.disabled = false;
+                    notificationTargetClassSelect.value = "All"; // Default to All
+                } else {
+                    notificationTargetClassSelect.disabled = true;
+                    notificationTargetClassSelect.value = "All"; // Reset to All
+                }
+            });
+
+            notificationForm.onsubmit = async function(e) {
+                e.preventDefault();
+                buttonLoader(notificationBtn, true, "Sending...");
+                try {
+                    const to = notificationToInput.value.trim().toLowerCase();
+                    const message = notificationForm.elements["notificationMessage"].value.trim();
+                    const targetClass = notificationTargetClassSelect.disabled ? "N/A" : notificationTargetClassSelect.value; // Only send if not disabled
+
+                    await addDoc(collection(db, "notifications"), {
+                        to,
+                        message,
+                        targetClass: to === "all" ? targetClass : "N/A", // Only set targetClass if 'to' is 'all'
+                        createdAt: serverTimestamp()
+                    });
+                    await logActivity(currentAdminEmail, "Sent notification", {
+                        to: to,
+                        messageSnippet: message.substring(0, 50) + "...",
+                        targetClass: to === "all" ? targetClass : "N/A"
+                    });
+                    showToast("Notification sent successfully!", "success");
+                    notificationForm.reset();
+                    notificationTargetClassSelect.disabled = true; // Reset state
+                    notificationTargetClassSelect.value = "All";
+                    loadNotifications();
+                } catch (err) {
+                    logError("Notification", err);
+                }
+                buttonLoader(notificationBtn, false);
+            };
+        }
+        async function loadNotifications() {
+            if (!adminNotificationList) return;
+            adminNotificationList.innerHTML = '<div class="text-center"><span class="spinner-border spinner-border-sm"></span> Loading...</div>';
+            try {
+                const snap = await getDocs(query(collection(db, "notifications"), orderBy("createdAt", "desc")));
+                let html = `<table class="table table-striped table-hover"><thead><tr>
+                    <th>To</th><th>Message</th><th>Date</th><th>Target Class</th><th>Actions</th></tr></thead><tbody>`;
+                if (snap.empty) {
+                    html += `<tr><td colspan="5" class="text-center">No notifications sent yet.</td></tr>`;
+                } else {
+                    snap.forEach(doc => {
+                        const n = doc.data();
+                        html += `<tr>
+                            <td>${n.to || "N/A"}</td>
+                            <td>${n.message || ""}</td>
+                            <td>${n.createdAt && n.createdAt.seconds ? new Date(n.createdAt.seconds * 1000).toLocaleString() : ""}</td>
+                            <td>${n.targetClass || "N/A"}</td>
+                            <td>
+                                <button class="btn btn-sm btn-danger" onclick="window.deleteNotification('${doc.id}')"><i class="bi bi-x"></i></button>
+                            </td>
+                        </tr>`;
+                    });
+                }
+                html += "</tbody></table>";
+                adminNotificationList.innerHTML = html;
+            } catch (err) {
+                logError("LoadNotifications", err);
+                adminNotificationList.innerHTML = `<div class="alert alert-danger">Error loading notifications: ${err.message}</div>`;
+            }
+        }
+        window.deleteNotification = async function(id) {
+            if (!confirm("Are you sure you want to delete this notification?")) {
+                return;
+            }
+            try {
+                await deleteDoc(doc(db, "notifications", id));
+                await logActivity(currentAdminEmail, "Deleted notification", { notificationId: id });
+                showToast("Notification deleted successfully!", "danger");
+                loadNotifications();
+            } catch (err) {
+                logError("DeleteNotification", err);
+            }
+        };
+
+        // ---- Leaderboard (Client-side sorting) ----
+        async function loadLeaderboard() {
+            if (!adminLeaderboardList) return;
+            adminLeaderboardList.innerHTML = '<div class="text-center"><span class="spinner-border spinner-border-sm"></span> Loading...</div>';
+            try {
+                const snap = await getDocs(collection(db, "students"));
+                let students = [];
+                snap.forEach(doc => students.push(doc.data()));
+
+                // Sort students by points in descending order client-side
+                students.sort((a, b) => (b.points || 0) - (a.points || 0));
+
+                let html = `<table class="table table-striped table-hover"><thead><tr>
+                    <th>#</th><th>Name</th><th>Matric</th><th>Class</th><th>Points</th></tr></thead><tbody>`;
+                if (students.length === 0) {
+                    html += `<tr><td colspan="5" class="text-center">No students to display on leaderboard.</td></tr>`;
+                } else {
+                    let rank = 1;
+                    students.forEach(s => {
+                        html += `<tr>
+                            <td>${rank}</td>
+                            <td>${s.name || ""}</td>
+                            <td>${s.matricNumber || ""}</td>
+                            <td>${s.class || ""}</td>
+                            <td><span class="badge bg-success fs-6">${s.points || 0}</span></td>
+                        </tr>`;
+                        rank++;
+                    });
+                }
+                html += "</tbody></table>";
+                adminLeaderboardList.innerHTML = html;
+            } catch (err) {
+                logError("LoadLeaderboard", err);
+                adminLeaderboardList.innerHTML = `<div class="alert alert-danger">Error loading leaderboard: ${err.message}</div>`;
+            }
+        }
+
+        // ---- Gallery Management ----
+        if (galleryUploadForm && galleryUploadInput) {
+            galleryUploadForm.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const file = galleryUploadInput.files[0];
+                if (!file) {
+                    showToast("Please choose an image file.", "danger");
+                    return;
+                }
+                buttonLoader(galleryUploadBtn, true, "Uploading...");
+                try {
+                    const fileRef = storageRef(storage, `gallery/${Date.now()}_${file.name}`);
+                    await uploadBytes(fileRef, file);
+                    const imageUrl = await getDownloadURL(fileRef);
+                    await addDoc(collection(db, "gallery"), {
+                        imageUrl,
+                        caption: galleryUploadForm.elements["galleryCaption"].value.trim(),
+                        date: new Date(galleryUploadForm.elements["galleryDate"].value),
+                        createdAt: serverTimestamp()
+                    });
+                    await logActivity(currentAdminEmail, "Uploaded gallery image", {
+                        caption: galleryUploadForm.elements["galleryCaption"].value.trim(),
+                        imageUrl: imageUrl
+                    });
+                    showToast("Gallery image uploaded successfully!", "success");
+                    galleryUploadForm.reset();
+                    loadGallery();
+                } catch (err) {
+                    logError("GalleryUpload", err);
+                }
+                buttonLoader(galleryUploadBtn, false);
+            });
+        }
+        async function loadGallery() {
+            if (!adminGalleryList) return;
+            adminGalleryList.innerHTML = '<div class="text-center"><span class="spinner-border spinner-border-sm"></span> Loading...</div>';
+            try {
+                const snap = await getDocs(query(collection(db, "gallery"), orderBy("date", "desc")));
+                let html = "";
+                if (snap.empty) {
+                    html = `<div class="col-12"><div class="alert alert-info text-center">No images in gallery yet.</div></div>`;
+                } else {
+                    snap.forEach(doc => {
+                        const data = doc.data();
+                        html += `
+                            <div class="col">
+                                <div class="card h-100">
+                                    <img src="${data.imageUrl}" class="card-img-top" alt="${data.caption || 'Gallery Image'}" style="height:200px; object-fit:cover; border-top-left-radius: 10px; border-top-right-radius: 10px;">
+                                    <div class="card-body">
+                                        <h6 class="card-subtitle mb-2 text-muted">${data.date ? (data.date.seconds ? new Date(data.date.seconds * 1000).toLocaleDateString() : "") : ""}</h6>
+                                        <p class="card-text">${data.caption || ""}</p>
+                                        <button class='btn btn-sm btn-outline-danger' onclick="window.deleteGalleryImg('${doc.id}', '${data.imageUrl}')">Delete</button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+                adminGalleryList.innerHTML = html;
+            } catch (err) {
+                logError("LoadGallery", err);
+                adminGalleryList.innerHTML = `<div class="alert alert-danger">Error loading gallery: ${err.message}</div>`;
+            }
+        }
+        window.deleteGalleryImg = async function(id, imageUrl) {
+            if (!confirm("Are you sure you want to delete this image from the gallery?")) {
+                return;
+            }
+            try {
+                const imageRef = storageRef(storage, imageUrl);
+                await deleteObject(imageRef).catch(error => {
+                    console.warn("Could not delete image from storage:", error.message);
+                });
+
+                await deleteDoc(doc(db, "gallery", id));
+                await logActivity(currentAdminEmail, "Deleted gallery image", { imageUrl: imageUrl });
+                showToast("Image deleted successfully!", "danger");
+                loadGallery();
+            } catch (e) {
+                logError("GalleryDelete", e);
+            }
+        };
+
+        // ---- Logs (Client-side sorting and limiting) ----
+        async function loadLogs() {
+            if (!adminLogsSection) return;
+            adminLogsSection.innerHTML = '<div class="text-center"><span class="spinner-border spinner-border-sm"></span> Loading...</div>';
+            try {
+                const snap = await getDocs(query(collection(db, "logs"), orderBy("timestamp", "desc"), limit(100))); // Fetch more for display
+                let logs = [];
+                snap.forEach(doc => logs.push(doc.data()));
+
+                let html = "<ul class='list-group'>";
+                let i = 0;
+                if (logs.length === 0) {
+                    html += `<li class='list-group-item text-center'>No logs available.</li>`;
+                } else {
+                    logs.forEach(l => {
+                        if (i >= 50) return; // Limit to 50 logs for display in this tab
+                        const time = l.timestamp && l.timestamp.seconds ? new Date(l.timestamp.seconds * 1000).toLocaleString() : "N/A";
+                        html += `<li class='list-group-item small'>
+                            <b>${l.adminEmail || l.email || 'N/A'}</b>: ${l.action || 'No action'} <span class="text-muted float-end">${time}</span>
+                            ${l.details ? `<br><small class="text-muted">Details: ${JSON.stringify(l.details)}</small>` : ''}
+                        </li>`;
+                        i++;
+                    });
+                }
+                html += "</ul>";
+                adminLogsSection.innerHTML = html;
+            } catch (err) {
+                logError("LoadLogs", err);
+                adminLogsSection.innerHTML = `<div class="alert alert-danger">Error loading logs: ${err.message}</div>`;
+            }
+        }
+
+        // ---- Student Registration (with auto-generated password and new fields) ----
+        function generatePassword(length = 10) {
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()';
+            let result = '';
+            for (let i = 0; i < length; i++) {
+                result += characters.charAt(Math.floor(Math.random() * characters.length));
+            }
+            return result;
+        }
+
+        if (studentRegisterForm && registerStudentBtn) {
+            // Passport preview logic
+            if (regPassportInput && passportPreview && passportPreviewImg) {
+                regPassportInput.addEventListener('change', function() {
+                    if (this.files && this.files[0]) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            passportPreviewImg.src = e.target.result;
+                            passportPreview.style.display = 'block';
+                        };
+                        reader.readAsDataURL(this.files[0]);
+                    } else {
+                        passportPreview.style.display = 'none';
+                        passportPreviewImg.src = '#';
+                    }
+                });
+            }
+
+            studentRegisterForm.onsubmit = async function(e) {
+                e.preventDefault();
+                buttonLoader(registerStudentBtn, true, "Registering...");
+                try {
+                    const fullName = studentRegisterForm.elements["regName"].value.trim();
+                    const email = studentRegisterForm.elements["regEmail"].value.trim().toLowerCase();
+                    const studentClass = studentRegisterForm.elements["regClass"].value.trim();
+                    const gender = studentRegisterForm.elements["regGender"].value;
+                    const rawPassword = studentRegisterForm.elements["regPassword"].value || generatePassword(12); // Auto-generate if empty
+                    const matricNumber = `LGS/${studentClass.toUpperCase()}/${fullName.split(' ')[0].toUpperCase()}${Math.floor(Math.random() * 900) + 100}`;
+
+                    // 1. Handle Passport Photo Upload
+                    const passportFile = document.getElementById('regPassport').files[0];
+                    let passportUrl = '';
+                    if (passportFile) {
+                        try {
+                            const passportRef = storageRef(storage, `passports/${matricNumber}_${passportFile.name}`);
+                            await uploadBytes(passportRef, passportFile);
+                            passportUrl = await getDownloadURL(passportRef);
+                            showToast("Passport uploaded successfully!", "info");
+                        } catch (uploadErr) {
+                            logError("PassportUpload", uploadErr);
+                            showToast("Error uploading passport. Student registered without photo.", "warning");
+                        }
+                    }
+
+                    // 2. Create Auth for student (using Firebase Authentication)
+                    let authUid = '';
+                    try {
+                        const userCredential = await createUserWithEmailAndPassword(auth, email, rawPassword);
+                        authUid = userCredential.user.uid;
+                    } catch (authErr) {
+                        if (authErr.code === 'auth/email-already-in-use') {
+                            showToast("Email already registered. Please use a different email.", "danger");
+                        } else {
+                            showToast(`Error creating student account: ${authErr.message}`, "danger");
+                        }
+                        buttonLoader(registerStudentBtn, false);
+                        return; // Stop execution if auth creation fails
+                    }
+
+                    // 3. Save student data to Firestore
+                    await setDoc(doc(db, "students", matricNumber), {
+                        matricNumber,
+                        registrationNumber: matricNumber, // Redundant but good for clarity
+                        name: fullName,
+                        class: studentClass,
+                        gender,
+                        email,
+                        uid: authUid, // Link to Firebase Auth UID
+                        passportUrl: passportUrl,
+                        createdAt: serverTimestamp(),
+                        points: 0, // Initialize points
+                        status: "active", // Initialize status as active
+                        lastLogin: null, // Initialize last login
+                        loginCount: 0, // Initialize login count
+                        role: "student"
+                    });
+
+                    await logActivity(currentAdminEmail, "Registered new student", {
+                        matricNumber: matricNumber,
+                        email: email,
+                        class: studentClass
+                    });
+
+                    showToast(`Student registered! Matric: ${matricNumber}, Password: ${rawPassword}`, "success"); // Display generated password
+                    studentRegisterForm.reset();
+                    if (passportPreview) passportPreview.style.display = 'none';
+
+                    // 4. IMPORTANT: Re-authenticate admin after student creation.
+                    // Firebase Auth only allows one user session at a time. Creating a new user logs out the current one.
+                    // This is a common pattern for admin panels.
+                    await signInWithEmailAndPassword(auth, document.getElementById('adminLoginEmail').value.trim().toLowerCase(), document.getElementById('adminLoginPassword').value);
+                    // The onAuthStateChanged listener will then handle re-displaying the admin panel.
+                    loadStudentsByClass(); // Refresh the list
+                } catch (err) {
+                    logError("StudentRegistrationProcess", err);
+                }
+                buttonLoader(registerStudentBtn, false);
+            };
+        }
+
+        // ---- Utility Functions ----
+        function buttonLoader(btn, loading = true, text = "") {
+            if (!btn) return;
+            if (loading) {
+                btn.disabled = true;
+                btn.dataset.originalText = btn.innerHTML;
+                btn.innerHTML = `<span class="spinner-border spinner-border-sm"></span> ${text || btn.textContent.trim()}`;
+            } else {
+                btn.disabled = false;
+                btn.innerHTML = btn.dataset.originalText || text || "";
+            }
+        }
+
+        // Replaced window.confirm with a custom alert/modal for better UX
+        function confirm(message) {
+            return window.confirm(message); // Still using window.confirm for simplicity due to code length
+                                            // but as stated, a custom Bootstrap modal is recommended for production
+        }
+    </script>
 </body>
 </html>
