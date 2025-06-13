@@ -1,6 +1,7 @@
 {
   "projects": {
-    "staging": "latter-glory"
+    "default": "latter-glory",
+    "nil": "latter-glory"
   },
   "targets": {},
   "etags": {}
