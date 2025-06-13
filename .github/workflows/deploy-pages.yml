@@ -5,31 +5,37 @@ on:
     branches:
       - main # Or 'master' - the branch you want to trigger the deploy from
 
+  # Allows you to run this workflow manually from the Actions tab in GitHub
+  workflow_dispatch:
+
 jobs:
   build-and-deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest # Uses the latest Ubuntu environment
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Checkout repository code
+        uses: actions/checkout@v4 # Checks out your repository code
 
-      - name: Set up Node.js (if your project needs it for a build step)
-        uses: actions/setup-node@v4
+      - name: Set up Node.js (Recommended for most web projects, even static ones for npm scripts)
+        uses: actions/setup-node@v4 # Installs Node.js
         with:
-          node-version: '20' # Or your desired Node.js version
+          node-version: '20' # Specify your Node.js version, e.g., '16', '18', '20'
 
-      # Optional: If you have a build step that generates files into 'public'
-      - name: Install dependencies and build project
-        run: |
-          npm install
-          npm run build # Or whatever your build command is
-        # Ensure your build command outputs to the 'public' directory
-        # For pure static sites, you might skip this step
+      # Optional: If your project needs to install dependencies or run a build script
+      # that generates files into the 'public' directory (e.g., React, Vue, Svelte apps)
+      # Uncomment and adjust the 'run' command if you have a build process.
+      # For pure static HTML/CSS/JS without a build step, you can keep this commented.
+      # - name: Install dependencies and build project
+      #   run: |
+      #     npm install # Installs project dependencies
+      #     npm run build # Runs your build script (make sure it outputs to ./public)
 
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4 # A popular action for this
+        uses: peaceiris/actions-gh-pages@v4 # Uses a dedicated action for GitHub Pages deployment
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./public # *** THIS IS THE CRUCIAL PART ***
-          publish_branch: gh-pages # The branch GitHub Pages will serve from
-          cname:lattergloryacademy.com.ng
+          github_token: ${{ secrets.GITHUB_TOKEN }} # Automatically provided by GitHub for actions
+          publish_dir: ./public # *** THIS IS THE CRUCIAL PART *** - Specifies the directory to deploy
+          publish_branch: gh-pages # The branch where the deployed files will be pushed
+           cname: lattergloryacademy.com.ng
+          # user_name: 'github-actions[bot]' # Optional: Customize the commit author name
+          # user_email: 'github-actions[bot]@users.noreply.github.com' # Optional: Customize the commit author email
