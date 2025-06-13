@@ -36,6 +36,6 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }} # Automatically provided by GitHub for actions
           publish_dir: ./public # *** THIS IS THE CRUCIAL PART *** - Specifies the directory to deploy
           publish_branch: gh-pages # The branch where the deployed files will be pushed
-           cname: lattergloryacademy.com.ng
+          cname: lattergloryacademy.com.ng
           # user_name: 'github-actions[bot]' # Optional: Customize the commit author name
           # user_email: 'github-actions[bot]@users.noreply.github.com' # Optional: Customize the commit author email
