@@ -1,0 +1,35 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main # Or 'master' - the branch you want to trigger the deploy from
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js (if your project needs it for a build step)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # Or your desired Node.js version
+
+      # Optional: If you have a build step that generates files into 'public'
+      - name: Install dependencies and build project
+        run: |
+          npm install
+          npm run build # Or whatever your build command is
+        # Ensure your build command outputs to the 'public' directory
+        # For pure static sites, you might skip this step
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4 # A popular action for this
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public # *** THIS IS THE CRUCIAL PART ***
+          publish_branch: gh-pages # The branch GitHub Pages will serve from
+          cname:lattergloryacademy.com.ng
