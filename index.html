@@ -67,6 +67,10 @@
     
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- additional font used by the new hero -->
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&display=swap" rel="stylesheet">
+    <!-- Tailwind utility library for hero markup -->
+    <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
@@ -151,7 +155,7 @@
             --accent-pink: #ff1493;
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             --bg-light: linear-gradient(135deg, #f8f9ff 0%, #fff5f7 50%, #f9f5ff 100%);
-            --bg-dark: linear-gradient(135deg, #0f0f1e 0%, #1a0f1f 50%, #0d1f2f 100%);
+            --bg-dark: linear-gradient(135deg, #260202 0%, #3d1515 50%, #1f0707 100%);
         }
 
         body {
@@ -283,19 +287,41 @@
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
         }
 
+        @media (max-width: 768px) {
+            nav {
+                background: rgba(255, 255, 255, 0.2);
+                border-bottom-color: rgba(255, 255, 255, 0.1);
+            }
+
+            nav.scrolled {
+                background: rgba(255, 255, 255, 0.85);
+            }
+        }
+
         nav.scrolled {
             background: rgba(255, 255, 255, 0.95);
             box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
         }
 
         body.dark-mode nav {
-            background: rgba(15, 15, 30, 0.8);
-            border-bottom-color: rgba(183, 28, 28, 0.25);
+            background: rgba(38, 2, 2, 0.85);
+            border-bottom-color: rgba(183, 28, 28, 0.35);
+        }
+
+        @media (max-width: 768px) {
+            body.dark-mode nav {
+                background: rgba(38, 2, 2, 0.2);
+                border-bottom-color: rgba(183, 28, 28, 0.1);
+            }
+
+            body.dark-mode nav.scrolled {
+                background: rgba(38, 2, 2, 0.95);
+            }
         }
 
         body.dark-mode nav.scrolled {
-            background: rgba(15, 15, 30, 0.95);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+            background: rgba(38, 2, 2, 0.95);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
         }
 
         .nav-container {
@@ -412,14 +438,12 @@
             transition: var(--transition);
         }
 
-        /* Dark Mode Toggle */
         .theme-toggle {
             background: none;
             border: none;
             cursor: pointer;
             font-size: 24px;
             transition: var(--transition);
-            margin-left: 20px;
             padding: 8px;
             border-radius: 50%;
             display: flex;
@@ -428,10 +452,28 @@
             color: var(--text-color);
             width: 40px;
             height: 40px;
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 999;
+            background: rgba(183, 28, 28, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(183, 28, 28, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         }
 
         .theme-toggle:hover {
-            background: rgba(183, 28, 28, 0.1);
+            background: rgba(183, 28, 28, 0.25);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        body.dark-mode .theme-toggle {
+            background: rgba(183, 28, 28, 0.2);
+            border-color: rgba(183, 28, 28, 0.4);
+        }
+
+        body.dark-mode .theme-toggle:hover {
+            background: rgba(183, 28, 28, 0.3);
         }
 
         .theme-toggle .theme-icon {
@@ -501,171 +543,61 @@
             color: var(--text-color);
         }
 
-        /* Hero Section - Advanced Carousel */
+        /* Hero Section - Nexus-style cinematic media slider */
         .hero {
+            position: relative;
+            min-height: 100svh;
             width: 100%;
-            height: 100vh;
             margin-top: 60px;
-            position: relative;
-            overflow: hidden;
-            background: linear-gradient(135deg, var(--gray-color) 0%, #f9f9f9 100%);
-        }
-
-        .carousel-container {
-            position: relative;
-            width: 100%;
-            height: 100%;
-        }
-        /* doodles floating around the carousel */
-        .carousel-ornaments {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            overflow: hidden;
-            z-index: 20;
-            display: none;
-        }
-        @keyframes float {
-            0%,100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(360deg); }
-        }
-        @keyframes zoom {
-            0%,100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        .carousel-item {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            transition: opacity 0.8s ease-in-out, transform 20s ease-in-out;
-        }
-
-        .carousel-item.active {
-            opacity: 1;
-            /* slow zoom animation on the active slide */
-            animation: zoom 20s ease-in-out infinite;
-        }
-
-        .carousel-item img,
-        .carousel-item video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .carousel-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.2) 100%);
-            z-index: 10;
-        }
-
-        .carousel-content {
-            position: absolute;
-            top: 50%;
-            left: 5%;
-            transform: translateY(-50%);
-            z-index: 20;
-            max-width: 600px;
-            animation: slideInLeft 0.8s ease-out;
-        }
-
-        @keyframes slideInLeft {
-            from {
-                opacity: 0;
-                transform: translateY(-50%) translateX(-50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(-50%) translateX(0);
-            }
-        }
-
-        .carousel-content h1 {
-            font-size: 72px;
-            font-weight: 900;
-            color: white;
-            line-height: 1.1;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-        }
-
-        .carousel-content p {
-            font-size: 20px;
-            color: rgba(255, 255, 255, 0.95);
-            margin-bottom: 30px;
-            line-height: 1.6;
-            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
-        }
-
-        .carousel-btn {
-            display: inline-block;
-            background: var(--primary-color);
-            color: white;
-            padding: 14px 40px;
-            border-radius: 10px;
-            text-decoration: none;
-            font-weight: 700;
-            transition: var(--transition);
-            border: none;
-            cursor: pointer;
-            box-shadow: 0 6px 20px rgba(183, 28, 28, 0.35);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .carousel-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.5s ease;
-        }
-
-        .carousel-btn:hover {
-            background: var(--primary-dark);
-            transform: translateY(-4px);
-            box-shadow: 0 12px 35px rgba(183, 28, 28, 0.5);
-        }
-
-        .carousel-btn:hover::before {
-            left: 100%;
-        }
-
-        .carousel-indicators {
-            position: absolute;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 30;
             display: flex;
-            gap: 12px;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 1.5rem;
+            overflow: hidden;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            background: #000;
+            color: #fff;
         }
 
-        .carousel-indicator {
-            width: 12px;
-            height: 12px;
-            background: rgba(255, 255, 255, 0.5);
+        @media (max-width: 768px) {
+            .hero {
+                margin-top: 50px;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .hero {
+                padding: 3rem;
+            }
+        }
+
+        /* custom cursor */
+        #cursor {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #fff;
             border-radius: 50%;
-            cursor: pointer;
-            transition: var(--transition);
+            pointer-events: none;
+            z-index: 100;
+            mix-blend-mode: difference;
+            display: none;
+            transform: translate(-50%, -50%);
+        }
+        @media (pointer: fine) {
+            #cursor { display: block; }
         }
 
-        .carousel-indicator.active {
-            background: var(--primary-color);
-            width: 30px;
-            border-radius: 6px;
+        .font-header {
+            font-family: 'Syncopate', sans-serif;
+            text-transform: uppercase;
+        }
+
+        /* Smooth fade for the background container */
+        .media-layer {
+            position: absolute;
+            inset: 0;
+            transition: opacity 0.8s ease-in-out;
         }
 
         /* Section Padding */
@@ -694,27 +626,31 @@
 
         /* Glassmorphism Card */
         .glass-card {
-            background: rgba(255, 255, 255, 0.65);
-            backdrop-filter: blur(25px) saturate(180%);
-            -webkit-backdrop-filter: blur(25px) saturate(180%);
-            border: 1px solid rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.55);
+            backdrop-filter: blur(60px) saturate(220%);
+            -webkit-backdrop-filter: blur(60px) saturate(220%);
+            border: 1px solid rgba(255, 255, 255, 0.95);
             border-radius: 20px;
             padding: 30px;
-            transition: var(--transition);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
             cursor: pointer;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15),
-                        inset 0 1px 2px rgba(255, 255, 255, 0.6),
-                        inset 0 -2px 4px rgba(0, 0, 0, 0.02);
+            box-shadow: 0 12px 48px rgba(31, 38, 135, 0.2),
+                        inset 1px 1px 0 rgba(255, 255, 255, 0.9),
+                        inset 0 0 8px rgba(255, 255, 255, 0.6),
+                        inset 0 -2px 4px rgba(0, 0, 0, 0.05);
         }
 
         body.dark-mode .glass-card {
-            background: rgba(25, 25, 45, 0.7);
-            border-color: rgba(183, 28, 28, 0.3);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4),
-                        inset 0 1px 2px rgba(183, 28, 28, 0.1),
-                        inset 0 -2px 4px rgba(0, 0, 0, 0.3);
+            background: rgba(38, 2, 2, 0.35);
+            backdrop-filter: blur(60px) saturate(240%);
+            -webkit-backdrop-filter: blur(60px) saturate(240%);
+            border: 1px solid rgba(183, 28, 28, 0.55);
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6),
+                        inset 1px 1px 0 rgba(183, 28, 28, 0.35),
+                        inset 0 0 10px rgba(183, 28, 28, 0.15),
+                        inset 0 -2px 8px rgba(0, 0, 0, 0.3);
         }
 
         .glass-card::before {
@@ -730,19 +666,21 @@
         }
 
         .glass-card:hover {
-            transform: translateY(-15px);
-            background: rgba(255, 255, 255, 0.8);
-            border-color: rgba(183, 28, 28, 0.4);
-            box-shadow: 0 16px 48px rgba(31, 38, 135, 0.25),
-                        inset 0 1px 2px rgba(255, 255, 255, 0.8),
-                        inset 0 -2px 4px rgba(0, 0, 0, 0.04);
+            transform: translateY(-12px);
+            background: rgba(255, 255, 255, 0.65);
+            border-color: rgba(183, 28, 28, 0.5);
+            box-shadow: 0 20px 60px rgba(31, 38, 135, 0.3),
+                        inset 1px 1px 0 rgba(255, 255, 255, 0.95),
+                        inset 0 0 12px rgba(255, 255, 255, 0.7),
+                        inset 0 -2px 4px rgba(0, 0, 0, 0.08);
         }
 
         body.dark-mode .glass-card:hover {
-            background: rgba(35, 35, 55, 0.85);
-            box-shadow: 0 16px 48px rgba(183, 28, 28, 0.3),
-                        inset 0 1px 2px rgba(183, 28, 28, 0.2),
-                        inset 0 -2px 4px rgba(0, 0, 0, 0.4);
+            background: rgba(38, 2, 2, 0.45);
+            box-shadow: 0 20px 60px rgba(183, 28, 28, 0.4),
+                        inset 1px 1px 0 rgba(183, 28, 28, 0.5),
+                        inset 0 0 15px rgba(183, 28, 28, 0.25),
+                        inset 0 -2px 8px rgba(0, 0, 0, 0.4);
         }
 
         .glass-card:hover::before {
@@ -771,6 +709,12 @@
             margin-bottom: 15px;
             color: var(--dark-color);
             transition: var(--transition);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
         }
 
         body.dark-mode .card-title {
@@ -783,6 +727,12 @@
             margin-bottom: 20px;
             line-height: 1.6;
             transition: var(--transition);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            line-clamp: 3;
+            -webkit-box-orient: vertical;
         }
 
         body.dark-mode .card-description {
@@ -843,7 +793,6 @@
             height: 400px;
             border-radius: 16px;
             overflow: hidden;
-            group: 'card';
         }
 
         .program-card img {
@@ -981,34 +930,45 @@
 
         .contact-item {
             padding: 30px;
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(25px) saturate(180%);
-            -webkit-backdrop-filter: blur(25px) saturate(180%);
-            border: 1px solid rgba(255, 255, 255, 0.9);
-            border-radius: 16px;
-            transition: var(--transition);
-            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15),
-                        inset 0 1px 2px rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.55);
+            backdrop-filter: blur(60px) saturate(220%);
+            -webkit-backdrop-filter: blur(60px) saturate(220%);
+            border: 1px solid rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
+            box-shadow: 0 12px 48px rgba(31, 38, 135, 0.2),
+                        inset 1px 1px 0 rgba(255, 255, 255, 0.9),
+                        inset 0 0 8px rgba(255, 255, 255, 0.6),
+                        inset 0 -2px 4px rgba(0, 0, 0, 0.05);
         }
 
         body.dark-mode .contact-item {
-            background: rgba(25, 25, 45, 0.7);
-            border-color: rgba(183, 28, 28, 0.3);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4),
-                        inset 0 1px 2px rgba(183, 28, 28, 0.1);
+            background: rgba(38, 2, 2, 0.35);
+            backdrop-filter: blur(60px) saturate(240%);
+            -webkit-backdrop-filter: blur(60px) saturate(240%);
+            border: 1px solid rgba(183, 28, 28, 0.55);
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6),
+                        inset 1px 1px 0 rgba(183, 28, 28, 0.35),
+                        inset 0 0 10px rgba(183, 28, 28, 0.15),
+                        inset 0 -2px 8px rgba(0, 0, 0, 0.3);
         }
 
         .contact-item:hover {
-            transform: translateY(-5px);
-            background: rgba(255, 255, 255, 0.85);
-            box-shadow: 0 16px 48px rgba(31, 38, 135, 0.25),
-                        inset 0 1px 2px rgba(255, 255, 255, 0.8);
+            transform: translateY(-12px);
+            background: rgba(255, 255, 255, 0.65);
+            border-color: rgba(183, 28, 28, 0.5);
+            box-shadow: 0 20px 60px rgba(31, 38, 135, 0.3),
+                        inset 1px 1px 0 rgba(255, 255, 255, 0.95),
+                        inset 0 0 12px rgba(255, 255, 255, 0.7),
+                        inset 0 -2px 4px rgba(0, 0, 0, 0.08);
         }
 
         body.dark-mode .contact-item:hover {
-            background: rgba(35, 35, 55, 0.85);
-            box-shadow: 0 16px 48px rgba(183, 28, 28, 0.3),
-                        inset 0 1px 2px rgba(183, 28, 28, 0.2);
+            background: rgba(38, 2, 2, 0.45);
+            box-shadow: 0 20px 60px rgba(183, 28, 28, 0.4),
+                        inset 1px 1px 0 rgba(183, 28, 28, 0.5),
+                        inset 0 0 15px rgba(183, 28, 28, 0.25),
+                        inset 0 -2px 8px rgba(0, 0, 0, 0.4);
         }
 
         .contact-icon {
@@ -1093,6 +1053,7 @@
             font-weight: 600;
             color: var(--dark-color);
             transition: var(--transition);
+            word-break: break-word;
         }
 
         body.dark-mode .contact-value {
@@ -1106,10 +1067,36 @@
             padding: 50px 20px 20px;
             margin-top: 100px;
             transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 50%, rgba(183, 28, 28, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(255, 20, 147, 0.06) 0%, transparent 50%);
+            animation: gradientShift 8s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        footer > * {
+            position: relative;
+            z-index: 1;
         }
 
         body.dark-mode footer {
-            background: linear-gradient(135deg, #050510 0%, #0f0a15 100%);
+            background: linear-gradient(135deg, #260202 0%, #1a0707 100%);
+        }
+
+        body.dark-mode footer::before {
+            background: radial-gradient(circle at 20% 50%, rgba(183, 28, 28, 0.2) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(255, 20, 147, 0.1) 0%, transparent 50%);
         }
 
         .footer-content {
@@ -1122,16 +1109,101 @@
         }
 
         .footer-logo {
-            height: 50px;
+            height: 100px;
             width: auto;
             margin-bottom: 15px;
             opacity: 0.9;
             transition: var(--transition);
+            animation: pulse 5s ease-in-out infinite;
         }
 
         .footer-logo:hover {
             opacity: 1;
-            transform: scale(1.05);
+            transform: scale(1.1);
+        }
+
+        @keyframes pulse {
+            0%,100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* super-glassy button base with rotating streak */
+        .button-wrapper {
+            position: relative;
+            border-radius: 9999px;
+            padding: 2px; /* border thickness */
+            overflow: hidden;
+        }
+
+        .button-wrapper::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: conic-gradient(
+                from 0deg,
+                transparent 0deg,
+                transparent 260deg,
+                rgba(255,255,255,0.95) 300deg,
+                transparent 340deg,
+                transparent 360deg
+            );
+            animation: rotate 3s linear infinite;
+        }
+
+        @keyframes rotate {
+            to { transform: rotate(360deg); }
+        }
+
+        button, .carousel-btn, .card-btn, .glass-btn {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 1rem 2.5rem;
+            border-radius: 9999px;
+            cursor: pointer;
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.25);
+            box-shadow:
+                0 10px 35px rgba(0,0,0,0.25),
+                inset 0 1px 0 rgba(255,255,255,0.4),
+                inset 0 -1px 0 rgba(255,255,255,0.1);
+            transition: all .35s cubic-bezier(.4,0,.2,1);
+            z-index: 2;
+            color: white;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            font-size: 1rem;
+            text-decoration: none;
+        }
+
+        /* solid-button style for specific actions */
+        .solid-btn {
+            background: var(--primary-color);
+            border: none;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+        }
+        .solid-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        button:hover, .carousel-btn:hover, .card-btn:hover, .glass-btn:hover {
+            background: rgba(255,255,255,0.12);
+            border-color: rgba(255,255,255,0.4);
+            box-shadow:
+                0 15px 45px rgba(0,0,0,0.3),
+                0 0 25px rgba(255,255,255,0.25),
+                inset 0 1px 0 rgba(255,255,255,0.5);
+            transform: scale(1.05); /* increased size on hover */
+        }
+
+        button:active, .carousel-btn:active, .card-btn:active, .glass-btn:active {
+            transform: scale(0.96);
         }
 
         .footer-text {
@@ -1145,6 +1217,8 @@
         body.dark-mode .footer-text {
             color: #b0b0b0;
         }
+
+        .footer-section h4 {
             color: white;
             margin-bottom: 20px;
             font-size: 18px;
@@ -1256,15 +1330,25 @@
         .text-center {
             text-align: center;
         }
+
+        #prevBtn, #nextBtn {
+            background: rgba(0, 0, 0, 0.1);
+            border-color: rgba(0, 0, 0, 0.2);
+        }
+
+        body.dark-mode #prevBtn, body.dark-mode #nextBtn {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
     </style>
     
     <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-68P4NMC1HY"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
-        gtag('config', 'G-XXXXXXXXXX', {
+        gtag('config', 'G-68P4NMC1HY', {
             'page_path': window.location.pathname,
             'anonymize_ip': true
         });
@@ -1284,6 +1368,8 @@
     <div class="preloader">
         <img src="latter-glory-logo.webp" alt="Latter Glory Academy Logo" class="preloader-logo-main">
     </div>
+    <!-- Custom cursor overlay -->
+    <div id="cursor"></div>
 
     <!-- Navigation -->
     <nav id="navbar">
@@ -1297,24 +1383,6 @@
                 <li><a href="#programs">Programs</a></li>
                 <li><a href="#events">Events</a></li>
                 <li><a href="#contact">Contact</a></li>
-                <li><a href="about.html" class="nav-btn">Full Details</a></li>
-                <li><button class="theme-toggle" id="themeToggle" title="Toggle Dark Mode">
-                    <!-- animated sun/moon svg -->
-                    <svg class="theme-icon" viewBox="0 0 24 24" width="24" height="24">
-                        <circle class="icon-sun" cx="12" cy="12" r="5" />
-                        <g class="icon-rays">
-                            <line x1="12" y1="1" x2="12" y2="3" />
-                            <line x1="12" y1="21" x2="12" y2="23" />
-                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
-                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
-                            <line x1="1" y1="12" x2="3" y2="12" />
-                            <line x1="21" y1="12" x2="23" y2="12" />
-                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
-                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-                        </g>
-                        <path class="icon-moon" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
-                    </svg>
-                </button></li>
             </ul>
             <div class="hamburger">
                 <span></span>
@@ -1324,80 +1392,42 @@
         </div>
     </nav>
 
-    <!-- Hero Section with Advanced Carousel -->
+    <!-- Hero Section with Cinematic Media Slider -->
     <section class="hero" id="home">
-        <div class="carousel-container">
-            <div class="carousel-item active">
-                <img src="latter-glory-selfie.webp" alt="Latter Glory Academy Students - World-class education in Ogbomoso" />
-                <div class="carousel-overlay"></div>
-            </div>
-            <div class="carousel-item">
-                <img src="latter-glory-geniuses.webp" alt="Latter Glory Academy Campus - Modern educational facilities" />
-                <div class="carousel-overlay"></div>
-            </div>
-            <div class="carousel-item">
-                <img src="new.webp" alt="Welcome to Latter Glory Academy - Building Tomorrow's Leaders" />
-                <div class="carousel-overlay"></div>
-            </div>
-            <!-- additional slides -->
-            <div class="carousel-item">
-                <img src="student2.webp" alt="Students Working Together - Academic Excellence at Latter Glory Academy" />
-                <div class="carousel-overlay"></div>
-            </div>
-            <div class="carousel-item">
-                <img src="latter-view.webp" alt="Aerial view of Latter Glory Academy School Grounds" />
-                <div class="carousel-overlay"></div>
+        <div id="media-bg" class="absolute inset-0 z-0 opacity-40 pointer-events-none"></div>
+
+
+
+        <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
+            <div class="max-w-2xl">
+                <div class="overflow-hidden">
+                    <h1 id="main-title" class="text-5xl md:text-8xl font-header tracking-tighter leading-none italic">BUILD</h1>
+                </div>
+                <p id="main-subtitle" class="text-sm md:text-base opacity-60 mt-4 max-w-sm leading-relaxed uppercase tracking-widest">
+                    World‑class education, moral excellence, and transformative growth.
+                </p>
+                <div class="flex gap-4 mt-8">
+                    <!-- Buttons removed for subtlety -->
+                </div>
             </div>
 
-            <div class="carousel-content">
-                <h1 class="carousel-title">Building Tomorrow's Leaders</h1>
-                <p>Experience world-class education and moral excellence at Latter Glory Academy</p>
-                <a href="about.html" class="carousel-btn">Learn More</a>
-            </div>
-
-            <div class="carousel-indicators">
-                <div class="carousel-indicator active"></div>
-                <div class="carousel-indicator"></div>
-                <div class="carousel-indicator"></div>
-                <div class="carousel-indicator"></div> <!-- new -->
-                <div class="carousel-indicator"></div> <!-- new -->
+            <div class="flex md:flex-col gap-3">
+                <button id="prevBtn" class="flex-1 md:flex-none p-4 md:p-6 border border-white/10 rounded-xl bg-white/5 backdrop-blur-md active:bg-cyan-400/20 transition-colors">
+                    <svg class="w-4 h-4 mx-auto text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 15l7-7 7 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+                <button id="nextBtn" class="flex-1 md:flex-none p-4 md:p-6 border border-white/10 rounded-xl bg-white/5 backdrop-blur-md active:bg-cyan-400/20 transition-colors">
+                    <svg class="w-4 h-4 mx-auto text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
             </div>
         </div>
+
+
     </section>
 
     <!-- About Preview Section -->
     <section id="about" data-aos="fade-up">
         <h2><span>About</span> Latter Glory Academy</h2>
         <div class="about-grid">
-            <div class="glass-card" data-aos="fade-up" data-aos-delay="100">
-                <div class="card-icon">
-                    <i class="bi bi-mortarboard"></i>
-                </div>
-                <h3 class="card-title">Academic Excellence</h3>
-                <p class="card-description">We offer a rigorous curriculum that prepares students for future success with emphasis on critical thinking and innovation.</p>
-                <a href="about.html" class="card-btn">Learn More</a>
-            </div>
-
-            <div class="glass-card" data-aos="fade-up" data-aos-delay="200">
-                <div class="card-icon">
-                    <i class="bi bi-heart"></i>
-                </div>
-                <h3 class="card-title">Moral Development</h3>
-                <p class="card-description">Building strong character through Christian values, integrity, and ethical leadership principles.</p>
-                <a href="about.html" class="card-btn">Learn More</a>
-            </div>
-
-            <div class="glass-card" data-aos="fade-up" data-aos-delay="300">
-                <div class="card-icon">
-                    <i class="bi bi-people"></i>
-                </div>
-                <h3 class="card-title">Supportive Community</h3>
-                <p class="card-description">A nurturing environment where every student is valued, supported, and encouraged to reach their potential.</p>
-                <a href="about.html" class="card-btn">Learn More</a>
-            </div>
-        </div>
-        <div style="text-align: center; margin-top: 50px;">
-            <a href="about.html" class="carousel-btn">View Full Story</a>
         </div>
     </section>
 
@@ -1433,7 +1463,7 @@
             </div>
         </div>
         <div style="text-align: center; margin-top: 50px;">
-            <a href="programs.html" class="carousel-btn">View All Programs</a>
+            <a href="programs.html" class="carousel-btn solid-btn">View All Programs</a>
         </div>
     </section>
 
@@ -1446,7 +1476,6 @@
                 <div class="event-info">
                     <h3 class="event-title">Children's Day</h3>
                     <p class="event-description">Celebrating our amazing kids all over the world</p>
-                    <a href="gallery.html" class="card-btn">View More</a>
                 </div>
             </div>
 
@@ -1455,7 +1484,6 @@
                 <div class="event-info">
                     <h3 class="event-title">School Ads</h3>
                     <p class="event-description">Showcasing the excellence of Latter Glory Academy</p>
-                    <a href="gallery.html" class="card-btn">View More</a>
                 </div>
             </div>
 
@@ -1464,12 +1492,8 @@
                 <div class="event-info">
                     <h3 class="event-title">Resumption Party</h3>
                     <p class="event-description">Starting the session with energy and enthusiasm</p>
-                    <a href="gallery.html" class="card-btn">View More</a>
                 </div>
             </div>
-        </div>
-        <div style="text-align: center; margin-top: 50px;">
-            <a href="gallery.html" class="carousel-btn">View All Events</a>
         </div>
     </section>
 
@@ -1485,7 +1509,7 @@
                     <i class="bi bi-telephone"></i>
                 </div>
                 <div class="contact-label">Call Us</div>
-                <a href="tel:+2348162873036" class="contact-value" style="text-decoration: none; color: var(--dark-color);">+234 816 287 3036</a>
+                <a href="tel:+2348162873036" class="contact-value">+234 816 287 3036</a>
             </div>
 
             <div class="contact-item" data-aos="fade-up" data-aos-delay="200">
@@ -1493,7 +1517,7 @@
                     <i class="bi bi-envelope"></i>
                 </div>
                 <div class="contact-label">Email Us</div>
-                <a href="mailto:thelattergloryacademy@gmail.com" class="contact-value" style="text-decoration: none; color: var(--dark-color);">thelattergloryacademy@gmail.com</a>
+                <a href="mailto:thelattergloryacademy@gmail.com" class="contact-value">thelattergloryacademy@gmail.com</a>
             </div>
 
             <div class="contact-item" data-aos="fade-up" data-aos-delay="300">
@@ -1513,7 +1537,7 @@
             </div>
         </div>
         <div style="text-align: center; margin-top: 50px;">
-            <a href="contact.html" class="carousel-btn">Contact Us</a>
+            <a href="contact.html" class="carousel-btn solid-btn">Contact Us</a>
         </div>
     </section>
 
@@ -1554,7 +1578,7 @@
         </div>
 
         <div class="footer-bottom">
-            <p>&copy; 2025 Latter Glory Academy. All rights reserved. | Designed and Developed by <a href="#" style="color: var(--primary-color);">PraixTech</a></p>
+            <p>&copy; 2025 Latter Glory Academy. All rights reserved. | Designed and Developed by <a href="https://praixtech.netlify.app" target="_blank" rel="noopener" style="color: var(--primary-color);">PraixTech</a></p>
         </div>
     </footer>
 
@@ -1562,10 +1586,200 @@
     <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
 
     <script>
-        // Dark Mode Functionality
+    // Nexus-style hero slider functionality
+    const slides = [
+        { type: 'image', url: 'new.webp', title: 'Nurturing Young Minds', subtitle: 'Where academic excellence meets moral integrity in a nurturing Christian environment' },
+        { type: 'image', url: 'potrait.webp', title: 'Dedicated Educators', subtitle: 'Passionate teachers committed to shaping the next generation of leaders and innovators' },
+        { type: 'image', url: 'photoshoot.webp', title: 'State-of-the-Art Facilities', subtitle: 'Modern classrooms, labs, and recreational spaces designed for optimal learning experiences' },
+        { type: 'image', url: 'photoshoot2.webp', title: 'Building Character', subtitle: 'Instilling strong ethical foundations alongside academic achievement and personal growth' },
+        { type: 'image', url: 'photoshoot3.webp', title: 'Innovative Learning', subtitle: 'Cutting-edge educational approaches that prepare students for the challenges of tomorrow' },
+        { type: 'image', url: 'photoshoot4.webp', title: 'Academic Excellence', subtitle: 'Rigorous academics combined with character development for well-rounded individuals' },
+        { type: 'image', url: 'playground.webp', title: 'Fun and Fitness', subtitle: 'Promoting physical health and teamwork through engaging sports and recreational activities' },
+        { type: 'image', url: 'small_kid.webp', title: 'Early Childhood Development', subtitle: 'Specialized early learning programs that build strong foundations for lifelong success' },
+        { type: 'image', url: 'unaware_potrait.webp', title: 'Fostering Curiosity', subtitle: 'Encouraging exploration, critical thinking, and a love for knowledge in every student' },
+        { type: 'image', url: 'proprietress_dancing.webp', title: 'Creative Arts', subtitle: 'Expressing creativity through music, dance, art, and cultural celebrations' }
+    ];
+
+    let current = 0;
+    const bg = document.getElementById('media-bg');
+    const title = document.getElementById('main-title');
+    const subtitle = document.getElementById('main-subtitle');
+
+    function renderSlide(index, direction) {
+        const data = slides[index];
+        const newDiv = document.createElement('div');
+        newDiv.className = "media-layer";
+        
+        // video or image markup
+        newDiv.innerHTML = data.type === 'video' 
+            ? `<video src="${data.url}" autoplay muted loop playsinline class="w-full h-full object-cover"></video>`
+            : `<img src="${data.url}" class="w-full h-full object-cover" />`;
+        
+        bg.appendChild(newDiv);
+
+        // ANIMATION: grayscale → colour, with clip-path reveal
+        newDiv.animate([
+            { 
+                clipPath: direction > 0 ? 'inset(100% 0 0 0)' : 'inset(0 0 100% 0)',
+                filter: 'grayscale(100%) brightness(0.2)',
+                opacity: 0
+            },
+            {
+                clipPath: 'inset(0% 0 0 0)',
+                filter: 'grayscale(0%) brightness(0.8)',
+                opacity: 1
+            }
+        ], {
+            duration: 1000,
+            easing: 'cubic-bezier(0.19, 1, 0.22, 1)',
+            fill: 'forwards'
+        });
+
+        if (bg.children.length > 1) {
+            const old = bg.children[0];
+            const exitAnim = old.animate([
+                { filter: 'grayscale(0%)', opacity: 1 },
+                { filter: 'grayscale(100%)', opacity: 0 }
+            ], { duration: 800 });
+            exitAnim.onfinish = () => old.remove();
+        }
+
+        // update title and subtitle
+        title.innerText = data.title;
+        subtitle.innerText = data.subtitle;
+    }
+
+    document.getElementById('nextBtn').onclick = () => {
+        current = (current + 1) % slides.length;
+        renderSlide(current, 1);
+    };
+    document.getElementById('prevBtn').onclick = () => {
+        current = (current - 1 + slides.length) % slides.length;
+        renderSlide(current, -1);
+    };
+
+    // Auto rotate carousel every 4 seconds
+    setInterval(() => {
+        current = (current + 1) % slides.length;
+        renderSlide(current, 1);
+    }, 4000);
+
+    // Custom Cursor
+    const cursor = document.getElementById('cursor');
+    document.addEventListener('mousemove', (e) => {
+        cursor.style.left = e.clientX + 'px';
+        cursor.style.top = e.clientY + 'px';
+    });
+
+    // Initial load
+    window.onload = () => renderSlide(0, 1);
+
+    // remaining site scripts
+    AOS.init({
+        duration: 800,
+        easing: 'ease-in-out',
+        once: true,
+        offset: 100
+    });
+
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 50) {
+            navbar.classList.add('scrolled');
+        } else {
+            navbar.classList.remove('scrolled');
+        }
+    });
+
+    window.addEventListener('mousemove', (e) => {
+        const xPos = (e.clientX / window.innerWidth) * 20;
+        const yPos = (e.clientY / window.innerHeight) * 20;
+        document.body.style.backgroundPosition = `${xPos}% ${yPos}%`;
+    });
+
+    document.querySelectorAll('.glass-card, .event-card, .contact-item').forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+
+            const angleX = (y - centerY) / 10;
+            const angleY = (centerX - x) / 10;
+
+            card.style.boxShadow = `${angleY}px ${angleX}px 48px rgba(31, 38, 135, 0.25)`;
+        });
+
+        card.addEventListener('mouseleave', () => {
+            card.style.boxShadow = '';
+        });
+    });
+
+    const hamburger = document.querySelector('.hamburger');
+    const navLinks = document.querySelector('.nav-links');
+
+    hamburger.addEventListener('click', () => {
+        navLinks.style.display = navLinks.style.display === 'flex' ? 'none' : 'flex';
+        navLinks.style.position = 'absolute';
+        navLinks.style.top = '60px';
+        navLinks.style.left = '0';
+        navLinks.style.right = '0';
+        navLinks.style.flexDirection = 'column';
+        const isDark = body.classList.contains('dark-mode');
+        navLinks.style.background = isDark ? 'rgba(38, 2, 2, 1)' : 'rgba(255, 255, 255, 1)';
+        navLinks.style.backdropFilter = 'blur(10px)';
+        navLinks.style.padding = '20px';
+        navLinks.style.gap = '15px';
+        navLinks.style.zIndex = '999';
+    });
+
+    document.querySelectorAll('.nav-links a').forEach(link => {
+        link.addEventListener('click', () => {
+            navLinks.style.display = 'none';
+        });
+    });
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            const href = this.getAttribute('href');
+            if (href !== '#') {
+                e.preventDefault();
+                const element = document.querySelector(href);
+                if (element) {
+                    element.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            }
+        });
+    });
+    </script>
+
+    <!-- Fixed Theme Toggle Button -->
+    <button class="theme-toggle" id="themeToggle" title="Toggle Dark Mode">
+        <svg class="theme-icon" viewBox="0 0 24 24" width="24" height="24">
+            <circle class="icon-sun" cx="12" cy="12" r="5" />
+            <g class="icon-rays">
+                <line x1="12" y1="1" x2="12" y2="3" />
+                <line x1="12" y1="21" x2="12" y2="23" />
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                <line x1="1" y1="12" x2="3" y2="12" />
+                <line x1="21" y1="12" x2="23" y2="12" />
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+            </g>
+            <path class="icon-moon" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+        </svg>
+    </button>
+
+    <!-- Dark Mode Functionality -->
+    <script>
         const themeToggle = document.getElementById('themeToggle');
         const themeSvg = themeToggle.querySelector('.theme-icon');
-        const htmlElement = document.documentElement;
         const body = document.body;
 
         // Check for saved theme preference or default to light mode
@@ -1590,125 +1804,6 @@
                 themeSvg.classList.remove('rotate');
                 themeSvg.classList.toggle('dark', isDarkMode);
             }, 300);
-        });
-
-        /* make sure carousel indicators list is updated if new slides added dynamically */
-        const carousel = document.querySelectorAll('.carousel-item');
-        const indicators = document.querySelectorAll('.carousel-indicator');
-        const totalSlides = carousel.length;
-
-        function showSlide(n) {
-            carousel.forEach(item => item.classList.remove('active'));
-            indicators.forEach(indicator => indicator.classList.remove('active'));
-
-            carousel[n].classList.add('active');
-            indicators[n].classList.add('active');
-        }
-
-        function nextSlide() {
-            currentSlide = (currentSlide + 1) % totalSlides;
-            showSlide(currentSlide);
-        }
-
-        // Auto rotate carousel every 5 seconds
-        setInterval(nextSlide, 5000);
-
-        // Click indicators
-        indicators.forEach((indicator, index) => {
-            indicator.addEventListener('click', () => {
-                currentSlide = index;
-                showSlide(currentSlide);
-            });
-        });
-
-        // Initialize AOS
-        AOS.init({
-            duration: 800,
-            easing: 'ease-in-out',
-            once: true,
-            offset: 100
-        });
-
-        // Navbar Scroll Effect
-        const navbar = document.getElementById('navbar');
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 50) {
-                navbar.classList.add('scrolled');
-            } else {
-                navbar.classList.remove('scrolled');
-            }
-        });
-
-        // Premium Parallax Effect on Background
-        window.addEventListener('mousemove', (e) => {
-            const xPos = (e.clientX / window.innerWidth) * 20;
-            const yPos = (e.clientY / window.innerHeight) * 20;
-            document.body.style.backgroundPosition = `${xPos}% ${yPos}%`;
-        });
-
-        // Add subtle mouse movement animations to cards on hover
-        document.querySelectorAll('.glass-card, .event-card, .contact-item').forEach(card => {
-            card.addEventListener('mousemove', (e) => {
-                const rect = card.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                
-                const centerX = rect.width / 2;
-                const centerY = rect.height / 2;
-                
-                const angleX = (y - centerY) / 10;
-                const angleY = (centerX - x) / 10;
-                
-                card.style.boxShadow = `${angleY}px ${angleX}px 48px rgba(31, 38, 135, 0.25)`;
-            });
-            
-            card.addEventListener('mouseleave', () => {
-                card.style.boxShadow = '';
-            });
-        });
-
-
-
-        // Mobile Menu Toggle
-        const hamburger = document.querySelector('.hamburger');
-        const navLinks = document.querySelector('.nav-links');
-
-        hamburger.addEventListener('click', () => {
-            navLinks.style.display = navLinks.style.display === 'flex' ? 'none' : 'flex';
-            navLinks.style.position = 'absolute';
-            navLinks.style.top = '60px';
-            navLinks.style.left = '0';
-            navLinks.style.right = '0';
-            navLinks.style.flexDirection = 'column';
-            navLinks.style.background = 'rgba(255, 255, 255, 0.95)';
-            navLinks.style.backdropFilter = 'blur(10px)';
-            navLinks.style.padding = '20px';
-            navLinks.style.gap = '15px';
-            navLinks.style.zIndex = '999';
-        });
-
-        // Close menu when link clicked
-        document.querySelectorAll('.nav-links a').forEach(link => {
-            link.addEventListener('click', () => {
-                navLinks.style.display = 'none';
-            });
-        });
-
-        // Smooth scroll for navigation
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                const href = this.getAttribute('href');
-                if (href !== '#') {
-                    e.preventDefault();
-                    const element = document.querySelector(href);
-                    if (element) {
-                        element.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'start'
-                        });
-                    }
-                }
-            });
         });
     </script>
 </body>
