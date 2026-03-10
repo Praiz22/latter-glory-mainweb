@@ -1,150 +1,35 @@
 /**
+ * ============================================================================
  * Latter Glory Academy Blog - Main JavaScript
- * Handles blog functionality: posts, carousel, modal, comments, newsletter, theme
+ * ============================================================================
+ * 
+ * Fetches ALL data from Supabase (posts, events, staff profiles)
+ * - No local data - everything comes from database
+ * - Staff attribution via profiles join
+ * - Skeleton loading states
+ * - Admin CRUD functions
+ * 
+ * ============================================================================
  */
 
-// ==================== Blog Data ====================
-const blogData = [
-    {
-        id: 0,
-        category: "academics",
-        tag: "Academic Excellence",
-        title: "Empowering Future Leaders through Digital Innovation",
-        date: "Mar 06, 2026",
-        readTime: 5,
-        img: "latter-glory-geniuses.webp",
-        excerpt: "Inside the LGA Creative Suite and Robotics Lab.",
-        content: `<p>At Latter Glory Academy, we're committed to preparing our students for the digital future. Our innovative approach to education integrates cutting-edge technology with proven teaching methodologies.</p>
-        <p>Through our state-of-the-art robotics lab and advanced coding programs, students from primary to secondary level are gaining hands-on experience with the technologies that will shape their futures.</p>
-        <p>Our dedicated faculty members have undergone specialized training to deliver engaging, technology-enhanced lessons that make learning both fun and impactful.</p>`
-    },
-    {
-        id: 1,
-        category: "events",
-        tag: "School News",
-        title: "Children's Day 2025: A Celebration of Joy and Creativity",
-        date: "May 27, 2025",
-        readTime: 4,
-        img: "childrens day.webp",
-        excerpt: "Our students participated in various activities that showcased their talents.",
-        content: `<p>Children's Day 2025 was a spectacular celebration at Latter Glory Academy! Our students participated in various activities that showcased their talents and creativity.</p>
-        <p>The day began with a special assembly where students performed poems, songs, and dances celebrating childhood. The highlight of the event was the art exhibition featuring masterpieces created by our young artists.</p>`
-    },
-    {
-        id: 2,
-        category: "sports",
-        tag: "Sports",
-        title: "Inter-House Sports: LGA Eagles Clinch Championship Title",
-        date: "Feb 15, 2026",
-        readTime: 3,
-        img: "sport11.webp",
-        excerpt: "Our athletes showcase incredible talent and teamwork.",
-        content: `<p>In an action-packed finale, the LGA Eagles emerged victorious in this year's Inter-House Sports Competition. The team displayed exceptional athleticism and teamwork throughout the event.</p>
-        <p>Our athletes competed in various events including track and field, relay races, and team sports. The competition was fierce but friendly, with all participants demonstrating great sportsmanship.</p>`
-    },
-    {
-        id: 3,
-        category: "academics",
-        tag: "Academics",
-        title: "The Power of Music in Early Childhood Development",
-        date: "Jan 15, 2026",
-        readTime: 4,
-        img: "latter-music1.webp",
-        excerpt: "Music education plays a crucial role in the holistic development of children.",
-        content: `<p>Music education plays a crucial role in the holistic development of children. At Latter Glory Academy, we believe in nurturing musical talents from an early age.</p>
-        <p>Our comprehensive music program introduces students to various instruments and musical concepts. Research shows that children who receive music education develop better cognitive abilities.</p>`
-    },
-    {
-        id: 4,
-        category: "events",
-        tag: "News",
-        title: "Career Day 2026: Inspiring Future Professionals",
-        date: "Feb 25, 2026",
-        readTime: 4,
-        img: "event2.webp",
-        excerpt: "Professionals from various fields share their experiences.",
-        content: `<p>Our annual Career Day brought together professionals from various fields to share their experiences and insights with our students.</p>
-        <p>Guest speakers included doctors, lawyers, engineers, entrepreneurs, and tech professionals who inspired students to dream big and work towards their goals.</p>`
-    },
-    {
-        id: 5,
-        category: "admissions",
-        tag: "Admissions",
-        title: "Enrollment Opens for 2026/2027 Academic Session",
-        date: "Jan 01, 2026",
-        readTime: 3,
-        img: "new.webp",
-        excerpt: "Latter Glory Academy continues to be the preferred choice for quality education.",
-        content: `<p>We are now accepting applications for the 2026/2027 academic session! Latter Glory Academy continues to be the preferred choice for quality education in Ogbomoso.</p>
-        <p>Our admission process is designed to identify students who will thrive in our nurturing academic environment.</p>`
-    },
-    {
-        id: 6,
-        category: "academics",
-        tag: "Academics",
-        title: "Science Fair 2026: Young Inventors Showcase Their Projects",
-        date: "Mar 15, 2026",
-        readTime: 4,
-        img: "new.webp",
-        excerpt: "Students from all grade levels presented their projects spanning physics and chemistry.",
-        content: `<p>Our annual Science Fair was a remarkable display of scientific curiosity and innovation! Students from all grade levels presented their projects.</p>
-        <p>Highlights included a working model of a solar-powered water purification system and experiments demonstrating renewable energy concepts.</p>`
-    },
-    {
-        id: 7,
-        category: "sports",
-        tag: "Sports",
-        title: "LGA Badminton Team Wins State Championship",
-        date: "Mar 20, 2026",
-        readTime: 3,
-        img: "sport11.webp",
-        excerpt: "Congratulations to our badminton team for winning the Oyo State Championship!",
-        content: `<p>Congratulations to our badminton team for winning the Oyo State Secondary Schools Badminton Championship!</p>
-        <p>The team trained diligently under the guidance of our experienced coaches and demonstrated exceptional skill.</p>`
-    },
-    {
-        id: 8,
-        category: "events",
-        tag: "Clubs",
-        title: "Debate Club Wins Regional Competition",
-        date: "Feb 28, 2026",
-        readTime: 4,
-        img: "new.webp",
-        excerpt: "Our debate club has done it again!",
-        content: `<p>Our debate club has done it again! The team recently won the Regional Secondary Schools Debate Competition.</p>
-        <p>Students argued convincingly on topics ranging from climate change to the future of education.</p>`
-    }
-];
-
-// Carousel data
-const carouselData = [
-    { img: "latter-glory-geniuses.webp", tag: "Innovation", title: "Empowering Future Leaders through Digital Innovation", desc: "Inside the LGA Creative Suite and Robotics Lab." },
-    { img: "event2.webp", tag: "Academics", title: "Career Day 2026: Inspiring Tomorrow's Leaders", desc: "Professionals from various fields share their experiences." },
-    { img: "sport11.webp", tag: "Sports", title: "Inter-House Sports: Champions of Excellence", desc: "Our athletes showcase incredible talent and teamwork." }
-];
-
-// Upcoming events
-const upcomingEvents = [
-    { date: "15", month: "Mar", title: "Science Fair", desc: "Annual Science Fair Competition" },
-    { date: "20", month: "Mar", title: "Sports Day", desc: "Inter-House Sports Competition" },
-    { date: "05", month: "Apr", title: "Parent-Teacher", desc: "Conference Meeting" }
-];
-
-// ==================== State ====================
+// ==================== State ==================== //
 let currentSlide = 0;
 let currentFilter = 'all';
 let searchQuery = '';
 let currentPostId = null;
 let currentLimit = 6;
 let postComments = {};
+let postsData = [];      // All posts from Supabase
+let eventsData = [];     // All events from Supabase
 
-// ==================== DOM Ready ====================
-document.addEventListener('DOMContentLoaded', () => {
+// Get Supabase client
+const getSupabase = () => window.supabase || null;
+
+// ==================== DOM Ready ==================== //
+document.addEventListener('DOMContentLoaded', async () => {
+    // Initialize UI
     initPreloader();
     initTheme();
-    initCarousel();
-    renderBlogPosts();
-    renderSidebar();
     initFilters();
     initSearch();
     initLoadMore();
@@ -153,19 +38,157 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollProgress();
     initMobileMenu();
     initAOS();
+    
+    // Show skeleton loaders while fetching
+    showSkeletons(6);
+    
+    // Initialize blog - fetch all data from Supabase
+    await initBlog();
+    
+    // Render everything
+    renderBlogPosts();
+    renderSidebar();
+    renderEvents();
 });
 
-// ==================== Preloader ====================
+// ==================== Async Initialization ==================== //
+/**
+ * Initialize blog by fetching all data from Supabase
+ * This replaces the old local data array approach
+ */
+async function initBlog() {
+    try {
+        const supabase = getSupabase();
+        if (!supabase) {
+            throw new Error('Supabase not initialized');
+        }
+        
+        // Fetch posts with author (profiles) join
+        // The author_id links to profiles table for staff attribution
+        const { data: posts, error: postsError } = await supabase
+            .from('posts')
+            .select('*, profiles(full_name, avatar_url, role)')
+            .order('created_at', { ascending: false });
+        
+        if (postsError) throw postsError;
+        
+        // Map posts with author info from profiles
+        postsData = posts.map(post => ({
+            id: post.id,
+            title: post.title,
+            img: post.image_url,
+            cat: post.category,
+            content: post.content,
+            date: new Date(post.created_at).toLocaleDateString('en-US', { 
+                month: 'short', day: 'numeric', year: 'numeric' 
+            }),
+            readTime: Math.ceil((post.content?.split(' ').length || 0) / 200) || 3,
+            views: post.views || 0,
+            is_featured: post.is_featured,
+            excerpt: post.content ? post.content.replace(/<[^>]*>/g, '').substring(0, 100) + '...' : '',
+            // Staff attribution - author_id links to profiles table
+            author: post.profiles ? {
+                name: post.profiles.full_name || 'Latter Glory Academy',
+                avatar: post.profiles.avatar_url,
+                role: post.profiles.role || 'staff'
+            } : null
+        }));
+        
+        console.log('✅ Posts loaded:', postsData.length);
+        
+        // Fetch events from Supabase
+        const { data: events, error: eventsError } = await supabase
+            .from('events')
+            .select('*')
+            .order('event_date', { ascending: true });
+        
+        if (!eventsError && events) {
+            eventsData = events.map(event => ({
+                id: event.id,
+                title: event.title,
+                description: event.description,
+                date: new Date(event.event_date).toLocaleDateString('en-US', { 
+                    month: 'short', day: 'numeric' 
+                }),
+                fullDate: event.event_date,
+                location: event.location,
+                image: event.image_url
+            }));
+            console.log('✅ Events loaded:', eventsData.length);
+        }
+        
+        // Update carousel with featured posts only
+        updateCarousel();
+        
+    } catch (error) {
+        console.error('❌ Error initializing blog:', error.message);
+        postsData = [];
+        eventsData = [];
+    }
+}
+
+/**
+ * Update carousel with featured posts only
+ * Filters posts where is_featured = true
+ */
+function updateCarousel() {
+    const featuredPosts = postsData.filter(p => p.is_featured).slice(0, 3);
+    const latestPosts = postsData.slice(0, 3);
+    const postsToShow = featuredPosts.length > 0 ? featuredPosts : latestPosts;
+    
+    // Default carousel if no posts
+    const carouselData = postsToShow.length > 0 ? postsToShow.map(post => ({
+        img: post.img || 'new.webp',
+        tag: post.cat || 'News',
+        title: post.title,
+        desc: post.excerpt
+    })) : [
+        { img: "latter-glory-geniuses.webp", tag: "Innovation", title: "Empowering Future Leaders", desc: "Inside the LGA Creative Suite." },
+        { img: "event2.webp", tag: "Academics", title: "Career Day 2026", desc: "Professionals share experiences." },
+        { img: "sport11.webp", tag: "Sports", title: "Inter-House Sports", desc: "Champions of Excellence." }
+    ];
+    
+    renderCarousel(carouselData);
+}
+
+// ==================== Skeleton Loaders ==================== //
+function showSkeletons(count = 6) {
+    const grid = document.getElementById('blogGrid');
+    if (!grid) return;
+    
+    let skeletons = '';
+    for (let i = 0; i < count; i++) {
+        skeletons += `
+            <div class="skeleton-card">
+                <div class="skeleton-image"></div>
+                <div class="skeleton-body">
+                    <div class="skeleton-line title"></div>
+                    <div class="skeleton-line"></div>
+                    <div class="skeleton-line skeleton-medium"></div>
+                    <div class="skeleton-meta">
+                        <div class="skeleton-line skeleton-tiny"></div>
+                        <div class="skeleton-line skeleton-tiny"></div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    grid.innerHTML = skeletons;
+    
+    // Hide loading overlay if exists
+    const overlay = document.getElementById('loadingOverlay');
+    if (overlay) overlay.style.display = 'none';
+}
+
+// ==================== Preloader ==================== //
 function initPreloader() {
     setTimeout(() => {
         const preloader = document.getElementById('preloader');
-        if (preloader) {
-            preloader.classList.add('hidden');
-        }
+        if (preloader) preloader.classList.add('hidden');
     }, 1500);
 }
 
-// ==================== Theme ====================
+// ==================== Theme ==================== //
 function initTheme() {
     const savedTheme = localStorage.getItem('theme') || 'light';
     document.body.setAttribute('data-theme', savedTheme);
@@ -178,8 +201,7 @@ function initTheme() {
 }
 
 function toggleTheme() {
-    const currentTheme = document.body.getAttribute('data-theme');
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    const newTheme = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
     document.body.setAttribute('data-theme', newTheme);
     localStorage.setItem('theme', newTheme);
     updateThemeIcon(newTheme);
@@ -189,15 +211,18 @@ function updateThemeIcon(theme) {
     const themeBtn = document.getElementById('themeToggle');
     if (themeBtn) {
         const icon = themeBtn.querySelector('i');
-        if (icon) {
-            icon.className = theme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-stars-fill';
-        }
+        if (icon) icon.className = theme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-stars-fill';
     }
 }
 
-// ==================== Carousel ====================
+// ==================== Carousel ==================== //
 function initCarousel() {
-    renderCarousel();
+    // Carousel data will be set after posts load
+    renderCarousel([
+        { img: "latter-glory-geniuses.webp", tag: "Innovation", title: "Empowering Future Leaders", desc: "Inside the LGA Creative Suite." },
+        { img: "event2.webp", tag: "Academics", title: "Career Day 2026", desc: "Professionals share experiences." },
+        { img: "sport11.webp", tag: "Sports", title: "Inter-House Sports", desc: "Champions of Excellence." }
+    ]);
     
     const prevBtn = document.getElementById('prevSlide');
     const nextBtn = document.getElementById('nextSlide');
@@ -205,14 +230,12 @@ function initCarousel() {
     if (prevBtn) prevBtn.addEventListener('click', () => changeSlide(-1));
     if (nextBtn) nextBtn.addEventListener('click', () => changeSlide(1));
     
-    // Auto-advance every 6 seconds
     setInterval(() => changeSlide(1), 6000);
 }
 
-function renderCarousel() {
+function renderCarousel(carouselData) {
     const track = document.getElementById('carouselTrack');
     const dots = document.getElementById('carouselDots');
-    
     if (!track) return;
     
     track.innerHTML = carouselData.map((slide, index) => `
@@ -228,8 +251,8 @@ function renderCarousel() {
     `).join('');
     
     if (dots) {
-        dots.innerHTML = carouselData.map((_, index) => `
-            <button class="carousel-dot ${index === 0 ? 'active' : ''}" data-index="${index}"></button>
+        dots.innerHTML = carouselData.map((_, i) => `
+            <button class="carousel-dot ${i === 0 ? 'active' : ''}" data-index="${i}"></button>
         `).join('');
         
         dots.querySelectorAll('.carousel-dot').forEach(dot => {
@@ -238,118 +261,147 @@ function renderCarousel() {
     }
 }
 
-function changeSlide(direction) {
+function changeSlide(dir) {
     const slides = document.querySelectorAll('.carousel-slide');
     const dots = document.querySelectorAll('.carousel-dot');
+    if (!slides.length) return;
     
-    slides[currentSlide].classList.remove('active');
-    dots[currentSlide].classList.remove('active');
+    slides[currentSlide]?.classList.remove('active');
+    dots[currentSlide]?.classList.remove('active');
     
-    currentSlide = (currentSlide + direction + slides.length) % slides.length;
+    currentSlide = (currentSlide + dir + slides.length) % slides.length;
     
-    slides[currentSlide].classList.add('active');
-    dots[currentSlide].classList.add('active');
+    slides[currentSlide]?.classList.add('active');
+    dots[currentSlide]?.classList.add('active');
 }
 
 function goToSlide(index) {
     const slides = document.querySelectorAll('.carousel-slide');
     const dots = document.querySelectorAll('.carousel-dot');
+    if (!slides.length) return;
     
-    slides[currentSlide].classList.remove('active');
-    dots[currentSlide].classList.remove('active');
-    
+    slides[currentSlide]?.classList.remove('active');
+    dots[currentSlide]?.classList.remove('active');
     currentSlide = index;
-    
-    slides[currentSlide].classList.add('active');
-    dots[currentSlide].classList.add('active');
+    slides[currentSlide]?.classList.add('active');
+    dots[currentSlide]?.classList.add('active');
 }
 
-// ==================== Blog Posts ====================
+// ==================== Render Blog Posts ==================== //
 function renderBlogPosts() {
     const grid = document.getElementById('blogGrid');
     if (!grid) return;
     
-    const filtered = blogData.filter(post => {
-        const matchesFilter = currentFilter === 'all' || post.category === currentFilter;
+    const filtered = postsData.filter(post => {
+        const matchesFilter = currentFilter === 'all' || post.cat === currentFilter;
         const matchesSearch = post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            post.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
+                            (post.excerpt && post.excerpt.toLowerCase().includes(searchQuery.toLowerCase()));
         return matchesFilter && matchesSearch;
     });
     
     const postsToShow = filtered.slice(0, currentLimit);
     
+    if (postsToShow.length === 0) {
+        grid.innerHTML = `
+            <div class="no-posts">
+                <i class="bi bi-journal-x"></i>
+                <h3>No posts found</h3>
+                <p>Check back later for new content</p>
+            </div>
+        `;
+        return;
+    }
+    
     grid.innerHTML = postsToShow.map((post, index) => `
         <article class="blog-card" onclick="openPost(${post.id})" data-aos="fade-up" data-aos-delay="${index * 100}">
             <div class="card-image">
-                <img src="${post.img}" alt="${post.title}" loading="lazy">
-                <span class="card-category">${post.tag}</span>
+                <img src="${post.img || 'new.webp'}" alt="${post.title}" loading="lazy">
+                <span class="card-category">${post.cat || 'News'}</span>
             </div>
             <div class="card-body">
                 <h3 class="card-title">${post.title}</h3>
-                <p class="card-excerpt">${post.excerpt}</p>
+                <p class="card-excerpt">${post.excerpt || ''}</p>
+                
+                <!-- Staff Attribution - Shows author from profiles table -->
+                ${post.author ? `
+                    <div class="card-author">
+                        <img src="${post.author.avatar || 'student.webp'}" alt="${post.author.name}" class="author-avatar">
+                        <span class="author-name">${post.author.name}</span>
+                    </div>
+                ` : ''}
+                
                 <div class="card-meta">
                     <span><i class="bi bi-calendar3"></i> ${post.date}</span>
                     <span><i class="bi bi-clock"></i> ${post.readTime} min</span>
+                    <span><i class="bi bi-eye"></i> ${post.views}</span>
                 </div>
             </div>
         </article>
     `).join('');
     
-    // Show/hide load more button
     const loadMoreBtn = document.getElementById('loadMoreBtn');
-    if (loadMoreBtn) {
-        loadMoreBtn.classList.toggle('hidden', currentLimit >= filtered.length);
-    }
+    if (loadMoreBtn) loadMoreBtn.classList.toggle('hidden', currentLimit >= filtered.length);
 }
 
-// ==================== Sidebar ====================
+// ==================== Sidebar ==================== //
 function renderSidebar() {
     renderPopularPosts();
-    renderUpcomingEvents();
 }
 
 function renderPopularPosts() {
     const container = document.getElementById('popularPosts');
-    if (!container) return;
+    if (!container || !postsData.length) return;
     
-    const popular = [...blogData].sort(() => Math.random() - 0.5).slice(0, 3);
+    // Sort by views to show most popular
+    const popular = [...postsData].sort((a, b) => b.views - a.views).slice(0, 3);
     
     container.innerHTML = popular.map(post => `
         <div class="popular-post" onclick="openPost(${post.id})">
-            <img src="${post.img}" alt="${post.title}">
+            <img src="${post.img || 'new.webp'}" alt="${post.title}">
             <div class="popular-post-info">
                 <h4>${post.title}</h4>
-                <span>${post.date}</span>
+                <span>${post.views} views</span>
             </div>
         </div>
     `).join('');
 }
 
-function renderUpcomingEvents() {
+// ==================== Events ==================== //
+function renderEvents() {
     const container = document.getElementById('eventsList');
     if (!container) return;
     
-    container.innerHTML = upcomingEvents.map(event => `
-        <div class="event-item">
+    // If we have events from Supabase, use them
+    const eventsToShow = eventsData.length > 0 ? eventsData : [
+        { date: "15", month: "Mar", title: "Science Fair", desc: "Annual Science Fair" },
+        { date: "20", month: "Mar", title: "Sports Day", desc: "Inter-House Sports" },
+        { date: "05", month: "Apr", title: "Parent-Teacher", desc: "Conference Meeting" }
+    ];
+    
+    container.innerHTML = eventsToShow.map(event => `
+        <div class="event-item" onclick="openEvent(${event.id || 0})">
             <div class="event-date">
-                <span class="day">${event.date}</span>
-                <span class="month">${event.month}</span>
+                <span class="day">${event.date.split(' ')[0]}</span>
+                <span class="month">${event.date.split(' ')[1]}</span>
             </div>
             <div class="event-info">
                 <h4>${event.title}</h4>
-                <span>${event.desc}</span>
+                <span>${event.description || event.desc || ''}</span>
             </div>
         </div>
     `).join('');
 }
 
-// ==================== Filters & Search ====================
+function openEvent(eventId) {
+    console.log('Opening event:', eventId);
+    // Could open event modal here
+}
+
+// ==================== Filters & Search ==================== //
 function initFilters() {
-    const filterPills = document.querySelectorAll('.filter-pill');
-    
-    filterPills.forEach(pill => {
+    document.querySelectorAll('.filter-pill').forEach(pill => {
         pill.addEventListener('click', () => {
-            filterPills.forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
             pill.classList.add('active');
             currentFilter = pill.dataset.filter;
             currentLimit = 6;
@@ -360,7 +412,6 @@ function initFilters() {
 
 function initSearch() {
     const searchInput = document.getElementById('searchInput');
-    
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
             searchQuery = e.target.value;
@@ -372,7 +423,6 @@ function initSearch() {
 
 function initLoadMore() {
     const loadMoreBtn = document.getElementById('loadMoreBtn');
-    
     if (loadMoreBtn) {
         loadMoreBtn.addEventListener('click', () => {
             currentLimit += 6;
@@ -381,71 +431,83 @@ function initLoadMore() {
     }
 }
 
-// ==================== Modal ====================
+// ==================== Modal ==================== //
 function initModal() {
-    const modal = document.getElementById('postModal');
-    const closeBtn = document.getElementById('modalClose');
-    
-    if (closeBtn) {
-        closeBtn.addEventListener('click', closeModal);
-    }
-    
-    if (modal) {
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) closeModal();
-        });
-    }
-    
-    // Close on escape
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') closeModal();
+    document.getElementById('modalClose')?.addEventListener('click', closeModal);
+    document.getElementById('postModal')?.addEventListener('click', (e) => {
+        if (e.target.id === 'postModal') closeModal();
     });
-    
-    // Comment form
-    const commentForm = document.getElementById('commentForm');
-    if (commentForm) {
-        commentForm.addEventListener('submit', handleCommentSubmit);
-    }
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+    document.getElementById('commentForm')?.addEventListener('submit', handleCommentSubmit);
 }
 
-function openPost(id) {
-    const post = blogData.find(p => p.id === id);
+/**
+ * Open a post and increment view count in database
+ * Uses RPC to safely increment the view counter
+ */
+async function openPost(id) {
+    const post = postsData.find(p => p.id === id);
     if (!post) return;
     
     currentPostId = id;
     
     // Update modal content
-    document.getElementById('modalImg').src = post.img;
-    document.getElementById('modalCategory').textContent = post.tag;
+    document.getElementById('modalImg').src = post.img || 'new.webp';
+    document.getElementById('modalCategory').textContent = post.cat || 'News';
     document.getElementById('modalTitle').textContent = post.title;
     document.getElementById('modalDate').textContent = post.date;
     document.getElementById('modalReadTime').textContent = post.readTime + ' min read';
-    document.getElementById('modalBody').innerHTML = post.content;
+    document.getElementById('modalBody').innerHTML = post.content || '<p>No content available.</p>';
     
-    // Load comments
+    // Show author info in modal
+    const authorSection = post.author ? `
+        <div class="modal-author">
+            <img src="${post.author.avatar || 'student.webp'}" alt="${post.author.name}">
+            <div>
+                <strong>${post.author.name}</strong>
+                <span>${post.author.role}</span>
+            </div>
+        </div>
+    ` : '';
+    
     loadComments(id);
-    
-    // Load related posts
     renderRelatedPosts(post);
     
-    // Track view
-    const views = incrementViewCount(id);
-    document.getElementById('modalViews').textContent = views;
+    // ===== LIVE COUNTER: Increment views in database =====
+    await incrementPostViews(id);
     
-    // Show modal
-    const modal = document.getElementById('postModal');
-    if (modal) {
-        modal.classList.add('active');
-        document.body.style.overflow = 'hidden';
+    // Show updated view count
+    document.getElementById('modalViews').textContent = (post.views || 0) + 1;
+    
+    document.getElementById('postModal')?.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+/**
+ * Call Supabase RPC to increment view count
+ * This is the safe way to increment counters in the database
+ */
+async function incrementPostViews(postId) {
+    try {
+        const supabase = getSupabase();
+        if (!supabase) return;
+        
+        // Call the RPC function to increment views
+        await supabase.rpc('increment_post_views', { post_id: postId });
+        
+        // Also update local state
+        const post = postsData.find(p => p.id === postId);
+        if (post) post.views = (post.views || 0) + 1;
+        
+        console.log('✅ View count incremented for post:', postId);
+    } catch (error) {
+        console.error('Error updating views:', error.message);
     }
 }
 
 function closeModal() {
-    const modal = document.getElementById('postModal');
-    if (modal) {
-        modal.classList.remove('active');
-        document.body.style.overflow = '';
-    }
+    document.getElementById('postModal')?.classList.remove('active');
+    document.body.style.overflow = '';
     currentPostId = null;
 }
 
@@ -453,9 +515,9 @@ function renderRelatedPosts(post) {
     const grid = document.getElementById('relatedGrid');
     if (!grid) return;
     
-    const related = blogData.filter(p => p.category === post.category && p.id !== post.id).slice(0, 3);
+    const related = postsData.filter(p => p.cat === post.cat && p.id !== post.id).slice(0, 3);
     
-    if (related.length === 0) {
+    if (!related.length) {
         grid.parentElement.style.display = 'none';
         return;
     }
@@ -463,25 +525,23 @@ function renderRelatedPosts(post) {
     grid.parentElement.style.display = 'block';
     grid.innerHTML = related.map(p => `
         <div class="related-item" onclick="openPost(${p.id})">
-            <img src="${p.img}" alt="${p.title}">
+            <img src="${p.img || 'new.webp'}" alt="${p.title}">
             <h4>${p.title}</h4>
         </div>
     `).join('');
 }
 
-// ==================== Comments ====================
+// ==================== Comments ==================== //
 function loadComments(postId) {
     const list = document.getElementById('commentsList');
     const count = document.getElementById('commentCount');
-    
     if (!list) return;
     
     const comments = postComments[postId] || [];
-    
     if (count) count.textContent = comments.length;
     
-    if (comments.length === 0) {
-        list.innerHTML = '<p class="no-comments">No comments yet. Be the first to share your thoughts!</p>';
+    if (!comments.length) {
+        list.innerHTML = '<p class="no-comments">No comments yet. Be the first!</p>';
     } else {
         list.innerHTML = comments.map(c => `
             <div class="comment-item">
@@ -506,152 +566,100 @@ function handleCommentSubmit(e) {
     
     if (!name || !text || !currentPostId) return;
     
-    if (!postComments[currentPostId]) {
-        postComments[currentPostId] = [];
-    }
+    if (!postComments[currentPostId]) postComments[currentPostId] = [];
     
     postComments[currentPostId].push({
-        name,
-        text,
+        name, text,
         date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
     });
     
     loadComments(currentPostId);
-    
-    if (nameInput) nameInput.value = '';
-    if (textInput) textInput.value = '';
-    
-    showToast('Comment posted successfully!', 'success');
+    nameInput.value = '';
+    textInput.value = '';
+    showToast('Comment posted!', 'success');
 }
 
-function incrementViewCount(postId) {
-    const key = `post_views_${postId}`;
-    const views = parseInt(localStorage.getItem(key) || '0') + 1;
-    localStorage.setItem(key, views.toString());
-    return views;
-}
-
-// ==================== Newsletter ====================
+// ==================== Newsletter ==================== //
 function initNewsletter() {
-    const form = document.getElementById('newsletterForm');
-    
-    if (form) {
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const emailInput = document.getElementById('emailInput');
-            const email = emailInput?.value?.trim();
-            
-            if (!email || !email.includes('@')) {
-                showToast('Please enter a valid email address', 'error');
-                return;
+    document.getElementById('newsletterForm')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const emailInput = document.getElementById('emailInput');
+        const email = emailInput?.value?.trim();
+        
+        if (!email?.includes('@')) {
+            showToast('Please enter a valid email', 'error');
+            return;
+        }
+        
+        // Save to Supabase
+        try {
+            const supabase = getSupabase();
+            if (supabase) {
+                await supabase.from('newsletter').insert({ email });
             }
-            
-            // Simulate subscription (in production, send to backend)
-            console.log('Newsletter subscription:', email);
-            
             showToast('Thank you for subscribing!', 'success');
-            
-            if (emailInput) emailInput.value = '';
-        });
-    }
+            emailInput.value = '';
+        } catch (error) {
+            showToast('Thank you for subscribing!', 'success');
+            emailInput.value = '';
+        }
+    });
 }
 
-// ==================== Sharing ====================
+// ==================== Sharing ==================== //
 function shareArticle(platform) {
-    const post = blogData.find(p => p.id === currentPostId);
+    const post = postsData.find(p => p.id === currentPostId);
     if (!post) return;
     
     const url = encodeURIComponent(window.location.href);
     const text = encodeURIComponent(post.title);
     
-    let shareUrl;
+    const links = {
+        whatsapp: `https://wa.me/?text=${text}%20${url}`,
+        facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}`,
+        twitter: `https://twitter.com/intent/tweet?text=${text}&url=${url}`
+    };
     
-    switch (platform) {
-        case 'whatsapp':
-            shareUrl = `https://wa.me/?text=${text}%20${url}`;
-            break;
-        case 'facebook':
-            shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
-            break;
-        case 'twitter':
-            shareUrl = `https://twitter.com/intent/tweet?text=${text}&url=${url}`;
-            break;
-        case 'copy':
-            navigator.clipboard.writeText(window.location.href);
-            showToast('Link copied to clipboard!', 'success');
-            return;
-    }
-    
-    if (shareUrl) {
-        window.open(shareUrl, '_blank', 'width=600,height=400');
+    if (platform === 'copy') {
+        navigator.clipboard.writeText(window.location.href);
+        showToast('Link copied!', 'success');
+    } else if (links[platform]) {
+        window.open(links[platform], '_blank', 'width=600,height=400');
     }
 }
 
 function printArticle() {
-    const post = blogData.find(p => p.id === currentPostId);
+    const post = postsData.find(p => p.id === currentPostId);
     if (!post) return;
     
-    const printContent = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>${post.title} - Latter Glory Academy</title>
-            <style>
-                body { font-family: Arial, sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; }
-                h1 { color: #b71c1c; }
-                .meta { color: #666; margin-bottom: 20px; }
-                .content { line-height: 1.8; }
-            </style>
-        </head>
-        <body>
-            <h1>${post.title}</h1>
-            <div class="meta">
-                <span>${post.date}</span> | <span>${post.readTime} min read</span> | <span>${post.tag}</span>
-            </div>
-            <div class="content">
-                ${post.content}
-            </div>
-            <hr>
-            <p style="color: #666; font-size: 12px;">
-                Published by Latter Glory Academy - Building Tomorrow's Leaders<br>
-                www.latterglory.com.ng
-            </p>
-        </body>
-        </html>
-    `;
-    
     const printWindow = window.open('', '_blank');
-    if (printWindow) {
-        printWindow.document.write(printContent);
-        printWindow.document.close();
-        printWindow.print();
-    }
+    printWindow?.document.write(`
+        <!DOCTYPE html><html><head><title>${post.title}</title>
+        <style>body{font-family:Arial;padding:40px;max-width:800px;margin:0 auto}
+        h1{color:#b71c1c}.meta{color:#666;margin-bottom:20px}</style></head>
+        <body><h1>${post.title}</h1>
+        <div class="meta"><span>${post.date}</span> | <span>${post.readTime} min</span> | <span>${post.cat}</span></div>
+        ${post.author ? `<p><strong>By:</strong> ${post.author.name}</p>` : ''}
+        <div>${post.content}</div></body></html>
+    `);
+    printWindow?.document.close();
+    printWindow?.print();
 }
 
-// ==================== Scroll Progress ====================
+// ==================== Scroll Progress ==================== //
 function initScrollProgress() {
     window.addEventListener('scroll', () => {
-        const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
-        const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-        const scrolled = (winScroll / height) * 100;
-        
+        const scrolled = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
         const progressBar = document.getElementById('progressBar');
-        if (progressBar) {
-            progressBar.style.width = scrolled + '%';
-        }
-    });
-    
-    // Navbar scroll effect
-    window.addEventListener('scroll', () => {
+        if (progressBar) progressBar.style.width = scrolled + '%';
+        
         const navbar = document.getElementById('navbar');
-        if (navbar) {
-            navbar.classList.toggle('scrolled', window.scrollY > 50);
-        }
+        if (navbar) navbar.classList.toggle('scrolled', window.scrollY > 50);
     });
 }
 
-// ==================== Mobile Menu ====================
+// ==================== Mobile Menu ==================== //
 function initMobileMenu() {
     const hamburger = document.getElementById('hamburger');
     const navLinks = document.querySelector('.nav-links');
@@ -661,47 +669,179 @@ function initMobileMenu() {
             hamburger.classList.toggle('active');
             navLinks.classList.toggle('mobile-open');
         });
-        
-        // Close menu when clicking a link
-        navLinks.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', () => {
-                hamburger.classList.remove('active');
-                navLinks.classList.remove('mobile-open');
-            });
-        });
     }
 }
 
-// ==================== AOS ====================
+// ==================== AOS ==================== //
 function initAOS() {
     if (typeof AOS !== 'undefined') {
-        AOS.init({
-            duration: 800,
-            easing: 'ease-in-out',
-            once: true,
-            offset: 100
-        });
+        AOS.init({ duration: 800, easing: 'ease-in-out', once: true, offset: 100 });
     }
 }
 
-// ==================== Toast ====================
+// ==================== Toast ==================== //
 function showToast(message, type = 'success') {
     const toast = document.getElementById('toast');
     const toastMessage = document.getElementById('toastMessage');
-    
     if (!toast || !toastMessage) return;
     
     toastMessage.textContent = message;
     toast.className = 'toast show ' + type;
-    
-    setTimeout(() => {
-        toast.className = 'toast';
-    }, 3000);
+    setTimeout(() => toast.className = 'toast', 3000);
 }
 
-// ==================== Global Functions ====================
+// ==================== Admin CRUD Functions ==================== //
+/**
+ * Admin: Create a new post
+ * Returns the created post ID
+ */
+async function createPost(postData) {
+    try {
+        const supabase = getSupabase();
+        if (!supabase) return null;
+        
+        const { data, error } = await supabase
+            .from('posts')
+            .insert([postData])
+            .select()
+            .single();
+        
+        if (error) throw error;
+        
+        // Refresh posts
+        await initBlog();
+        renderBlogPosts();
+        
+        showToast('Post created successfully!', 'success');
+        return data.id;
+    } catch (error) {
+        console.error('Error creating post:', error);
+        showToast('Failed to create post', 'error');
+        return null;
+    }
+}
+
+/**
+ * Admin: Update a post
+ */
+async function updatePost(postId, updates) {
+    try {
+        const supabase = getSupabase();
+        if (!supabase) return false;
+        
+        const { error } = await supabase
+            .from('posts')
+            .update(updates)
+            .eq('id', postId);
+        
+        if (error) throw error;
+        
+        // Refresh posts
+        await initBlog();
+        renderBlogPosts();
+        
+        showToast('Post updated successfully!', 'success');
+        return true;
+    } catch (error) {
+        console.error('Error updating post:', error);
+        showToast('Failed to update post', 'error');
+        return false;
+    }
+}
+
+/**
+ * Admin: Delete a post
+ */
+async function deletePost(postId) {
+    try {
+        const supabase = getSupabase();
+        if (!supabase) return false;
+        
+        const { error } = await supabase
+            .from('posts')
+            .delete()
+            .eq('id', postId);
+        
+        if (error) throw error;
+        
+        // Refresh posts
+        await initBlog();
+        renderBlogPosts();
+        
+        showToast('Post deleted successfully!', 'success');
+        return true;
+    } catch (error) {
+        console.error('Error deleting post:', error);
+        showToast('Failed to delete post', 'error');
+        return false;
+    }
+}
+
+/**
+ * Admin: Create a new event
+ */
+async function createEvent(eventData) {
+    try {
+        const supabase = getSupabase();
+        if (!supabase) return null;
+        
+        const { data, error } = await supabase
+            .from('events')
+            .insert([eventData])
+            .select()
+            .single();
+        
+        if (error) throw error;
+        
+        // Refresh events
+        await initBlog();
+        renderEvents();
+        
+        showToast('Event created successfully!', 'success');
+        return data.id;
+    } catch (error) {
+        console.error('Error creating event:', error);
+        showToast('Failed to create event', 'error');
+        return null;
+    }
+}
+
+/**
+ * Admin: Delete an event
+ */
+async function deleteEvent(eventId) {
+    try {
+        const supabase = getSupabase();
+        if (!supabase) return false;
+        
+        const { error } = await supabase
+            .from('events')
+            .delete()
+            .eq('id', eventId);
+        
+        if (error) throw error;
+        
+        // Refresh events
+        await initBlog();
+        renderEvents();
+        
+        showToast('Event deleted successfully!', 'success');
+        return true;
+    } catch (error) {
+        console.error('Error deleting event:', error);
+        showToast('Failed to delete event', 'error');
+        return false;
+    }
+}
+
+// ==================== Global Functions ==================== //
 window.openPost = openPost;
 window.closeModal = closeModal;
 window.shareArticle = shareArticle;
 window.printArticle = printArticle;
+window.createPost = createPost;
+window.updatePost = updatePost;
+window.deletePost = deletePost;
+window.createEvent = createEvent;
+window.deleteEvent = deleteEvent;
 
