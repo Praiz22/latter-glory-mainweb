@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="index, follow, max-image-preview:large">
+    <meta name="author" content="Latter Glory Academy">
+    <meta name="contact" content="thelattergloryacademy@gmail.com">
+    <meta name="language" content="English">
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Stay updated with the latest news, events, and achievements at Latter Glory Academy. Read about academic excellence, sports, and student achievements in Ogbomoso, Nigeria.">
+    <meta name="keywords" content="Latter Glory Academy blog, school news Ogbomoso, education news Nigeria, student achievements, academic excellence, school events">
+    <meta name="title" content="Blog | Latter Glory Academy - Latest News & Updates">
+    
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Blog | Latter Glory Academy">
+    <meta property="og:description" content="Stay updated with the latest news, events, and achievements at Latter Glory Academy.">
+    <meta property="og:image" content="latter-glory-logo.webp">
+    <meta property="og:url" content="https://www.latterglory.com.ng/blog.html">
+    <meta property="og:site_name" content="Latter Glory Academy">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Blog | Latter Glory Academy">
+    <meta name="twitter:description" content="Stay updated with the latest news and events at Latter Glory Academy.">
+    <meta name="twitter:image" content="latter-glory-logo.webp">
+    
+    <meta name="theme-color" content="#b71c1c">
+    
+    <title>Blog | Latter Glory Academy - Latest News & Updates</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Syncopate:wght@700&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <!-- AOS Animation -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css">
+    
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="blogstyle.css">
+</head>
+<body data-theme="light">
+    <!-- Scroll Progress Bar -->
+    <div class="progress-bar" id="progressBar"></div>
+    
+    <!-- Preloader -->
+    <div class="preloader" id="preloader">
+        <div class="preloader-content">
+            <img src="latter-glory-logo.webp" alt="Latter Glory Academy" class="preloader-logo">
+            <div class="spinner"></div>
+        </div>
+    </div>
+    
+    <!-- Navigation -->
+    <nav id="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <span>Latter</span> Glory
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="programs.html">Programs</a></li>
+                <li><a href="blog.html" class="active">Blog</a></li>
+                <li><a href="gallery.html">Gallery</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button class="theme-btn" id="themeToggle" aria-label="Toggle theme">
+                    <i class="bi bi-moon-stars-fill"></i>
+                </button>
+                <a href="portal.html" class="portal-btn">Portal</a>
+            </div>
+            <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Hero Carousel -->
+        <section class="hero-carousel" id="heroCarousel">
+            <div class="carousel-track" id="carouselTrack">
+                <!-- Slides will be injected by JavaScript -->
+            </div>
+            <div class="carousel-controls">
+                <button class="carousel-btn" id="prevSlide" aria-label="Previous slide">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+                <div class="carousel-dots" id="carouselDots"></div>
+                <button class="carousel-btn" id="nextSlide" aria-label="Next slide">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- Blog Section -->
+        <section class="blog-section" id="blog">
+            <div class="container">
+                <!-- Section Header -->
+                <div class="section-header" data-aos="fade-up">
+                    <h1 class="section-title">Latest <span>Updates</span></h1>
+                    <p class="section-subtitle">Stay informed about our academic programs, events, and student achievements</p>
+                </div>
+                
+                <!-- Filter & Search -->
+                <div class="filter-bar" data-aos="fade-up" data-aos-delay="100">
+                    <div class="filter-pills" id="filterPills">
+                        <button class="filter-pill active" data-filter="all">All Posts</button>
+                        <button class="filter-pill" data-filter="academics">Academics</button>
+                        <button class="filter-pill" data-filter="events">Events</button>
+                        <button class="filter-pill" data-filter="sports">Sports</button>
+                        <button class="filter-pill" data-filter="admissions">Admissions</button>
+                    </div>
+                    <div class="search-box">
+                        <i class="bi bi-search"></i>
+                        <input type="text" id="searchInput" placeholder="Search articles...">
+                    </div>
+                </div>
+
+                <!-- Blog Grid -->
+                <div class="blog-grid" id="blogGrid">
+                    <!-- Blog cards will be injected by JavaScript -->
+                </div>
+
+                <!-- Load More -->
+                <div class="load-more-wrapper" id="loadMoreWrapper">
+                    <button class="load-more-btn" id="loadMoreBtn">
+                        <span>Load More Articles</span>
+                        <i class="bi bi-arrow-down"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Newsletter Section -->
+        <section class="newsletter-section" data-aos="fade-up">
+            <div class="container">
+                <div class="newsletter-card">
+                    <div class="newsletter-content">
+                        <div class="newsletter-icon">
+                            <i class="bi bi-envelope-paper-fill"></i>
+                        </div>
+                        <h2>Stay Connected</h2>
+                        <p>Subscribe to our newsletter for the latest updates, events, and announcements delivered to your inbox.</p>
+                    </div>
+                    <form class="newsletter-form" id="newsletterForm">
+                        <div class="input-wrapper">
+                            <input type="email" id="emailInput" placeholder="Enter your email address" required>
+                            <button type="submit" id="subscribeBtn">
+                                <span>Subscribe</span>
+                                <i class="bi bi-send-fill"></i>
+                            </button>
+                        </div>
+                        <p class="newsletter-note"><i class="bi bi-shield-check"></i> We respect your privacy. Unsubscribe anytime.</p>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Sidebar (Desktop) -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-widget" data-aos="fade-up">
+            <h3 class="widget-title">Popular Posts</h3>
+            <div class="popular-posts" id="popularPosts">
+                <!-- Popular posts will be injected by JavaScript -->
+            </div>
+        </div>
+        
+        <div class="sidebar-widget" data-aos="fade-up" data-aos-delay="100">
+            <h3 class="widget-title">Upcoming Events</h3>
+            <div class="events-list" id="eventsList">
+                <!-- Events will be injected by JavaScript -->
+            </div>
+        </div>
+        
+        <div class="sidebar-widget" data-aos="fade-up" data-aos-delay="200">
+            <h3 class="widget-title">Quick Links</h3>
+            <ul class="quick-links">
+                <li><a href="about.html"><i class="bi bi-arrow-right"></i> About Us</a></li>
+                <li><a href="programs.html"><i class="bi bi-arrow-right"></i> Our Programs</a></li>
+                <li><a href="gallery.html"><i class="bi bi-arrow-right"></i> Photo Gallery</a></li>
+                <li><a href="contact.html"><i class="bi bi-arrow-right"></i> Contact Us</a></li>
+            </ul>
+        </div>
+    </aside>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-wave">
+            <svg viewBox="0 0 1440 120" preserveAspectRatio="none">
+                <path fill="currentColor" d="M0,64 C288,120 576,0 864,64 C1152,128 1440,32 1440,32 L1440,120 L0,120 Z"></path>
+            </svg>
+        </div>
+        <div class="footer-main">
+            <div class="container">
+                <div class="footer-grid">
+                    <div class="footer-brand">
+                        <img src="latter-glory-logo.webp" alt="Latter Glory Academy" class="footer-logo">
+                        <h3>Latter Glory Academy</h3>
+                        <p>Building tomorrow's leaders through quality education, moral values, and academic excellence.</p>
+                        <div class="social-icons">
+                            <a href="https://www.facebook.com/profile.php?id=61576120397244" aria-label="Facebook" target="_blank" rel="noopener"><i class="bi bi-facebook"></i></a>
+                            <a href="https://www.instagram.com/thelattergloryacademy/" aria-label="Instagram" target="_blank" rel="noopener"><i class="bi bi-instagram"></i></a>
+                            <a href="https://wa.me/2348162873036" aria-label="WhatsApp" target="_blank" rel="noopener"><i class="bi bi-whatsapp"></i></a>
+                            <a href="https://www.tiktok.com/@lattergloryacademy" aria-label="TikTok" target="_blank" rel="noopener"><i class="bi bi-tiktok"></i></a>
+                        </div>
+                    </div>
+                    
+                    <div class="footer-links-section">
+                        <h4>Quick Links</h4>
+                        <ul>
+                            <li><a href="about.html">About Us</a></li>
+                            <li><a href="programs.html">Programs</a></li>
+                            <li><a href="gallery.html">Gallery</a></li>
+                            <li><a href="blog.html">Blog</a></li>
+                            <li><a href="contact.html">Contact</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="footer-links-section">
+                        <h4>Programs</h4>
+                        <ul>
+                            <li><a href="programs.html#primary">Primary School</a></li>
+                            <li><a href="programs.html#secondary">Secondary School</a></li>
+                            <li><a href="programs.html#creche">Creche & Daycare</a></li>
+                            <li><a href="programs.html#aftercare">Aftercare</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="footer-contact">
+                        <h4>Contact Us</h4>
+                        <ul>
+                            <li><i class="bi bi-telephone-fill"></i> <a href="tel:+2348162873036">+234 816 287 3036</a></li>
+                            <li><i class="bi bi-envelope-fill"></i> <a href="mailto:thelattergloryacademy@gmail.com">thelattergloryacademy@gmail.com</a></li>
+                            <li><i class="bi bi-geo-alt-fill"></i> Ogbomoso, Oyo State, Nigeria</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="container">
+                <p>&copy; 2025 Latter Glory Academy. All rights reserved. | Designed by <a href="https://praixtech.netlify.app" target="_blank" rel="noopener">PraixTech</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Post Modal -->
+    <div class="modal-overlay" id="postModal">
+        <div class="modal-container">
+            <button class="modal-close" id="modalClose" aria-label="Close modal">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            <div class="modal-image">
+                <img src="" alt="" id="modalImg">
+                <div class="modal-image-overlay"></div>
+            </div>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span class="modal-category" id="modalCategory"></span>
+                    <h1 class="modal-title" id="modalTitle"></h1>
+                    <div class="modal-meta">
+                        <span><i class="bi bi-calendar3"></i> <span id="modalDate"></span></span>
+                        <span><i class="bi bi-clock"></i> <span id="modalReadTime"></span></span>
+                        <span><i class="bi bi-eye"></i> <span id="modalViews">0</span> views</span>
+                    </div>
+                </div>
+                <div class="modal-body" id="modalBody"></div>
+                <div class="modal-footer">
+                    <div class="share-buttons">
+                        <span>Share:</span>
+                        <button onclick="shareArticle('whatsapp')" aria-label="Share on WhatsApp"><i class="bi bi-whatsapp"></i></button>
+                        <button onclick="shareArticle('facebook')" aria-label="Share on Facebook"><i class="bi bi-facebook"></i></button>
+                        <button onclick="shareArticle('twitter')" aria-label="Share on Twitter"><i class="bi bi-twitter-x"></i></button>
+                        <button onclick="shareArticle('copy')" aria-label="Copy link"><i class="bi bi-link-45deg"></i></button>
+                    </div>
+                    <button class="print-btn" onclick="printArticle()">
+                        <i class="bi bi-printer"></i> Print
+                    </button>
+                </div>
+                
+                <!-- Comments Section -->
+                <div class="comments-section" id="commentsSection">
+                    <h3><i class="bi bi-chat-dots-fill"></i> Comments (<span id="commentCount">0</span>)</h3>
+                    <form class="comment-form" id="commentForm">
+                        <input type="text" id="commenterName" placeholder="Your Name" required>
+                        <input type="email" id="commenterEmail" placeholder="Your Email (optional)">
+                        <textarea id="commentText" placeholder="Write your comment..." required></textarea>
+                        <button type="submit" class="submit-comment">
+                            <i class="bi bi-send-fill"></i> Post Comment
+                        </button>
+                    </form>
+                    <div class="comments-list" id="commentsList">
+                        <p class="no-comments">No comments yet. Be the first to share your thoughts!</p>
+                    </div>
+                </div>
+                
+                <!-- Related Posts -->
+                <div class="related-posts" id="relatedPosts">
+                    <h3><i class="bi bi-link-45deg"></i> Related Articles</h3>
+                    <div class="related-grid" id="relatedGrid"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <i class="bi bi-check-circle-fill"></i>
+        <span id="toastMessage"></span>
+    </div>
+
+    <!-- AOS Animation -->
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    
+    <!-- Main JavaScript -->
+    <script src="blog.js"></script>
+</body>
+</html>
+
