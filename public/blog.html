@@ -44,6 +44,9 @@
     
     <!-- Main Stylesheet -->
     <link rel="stylesheet" href="blogstyle.css">
+    
+    <!-- Skeleton Loader Styles -->
+    <link rel="stylesheet" href="skeleton-styles.css">
 </head>
 <body data-theme="light">
     <!-- Scroll Progress Bar -->
@@ -90,7 +93,7 @@
         <!-- Hero Carousel -->
         <section class="hero-carousel" id="heroCarousel">
             <div class="carousel-track" id="carouselTrack">
-                <!-- Slides will be injected by JavaScript -->
+                <!-- Slides injected by JS -->
             </div>
             <div class="carousel-controls">
                 <button class="carousel-btn" id="prevSlide" aria-label="Previous slide">
@@ -127,9 +130,13 @@
                     </div>
                 </div>
 
-                <!-- Blog Grid -->
+                <!-- Blog Grid with Loading Overlay -->
                 <div class="blog-grid" id="blogGrid">
-                    <!-- Blog cards will be injected by JavaScript -->
+                    <!-- Loading overlay for initial fetch -->
+                    <div class="loading-overlay" id="loadingOverlay">
+                        <div class="loading-spinner"></div>
+                        <p>Loading posts...</p>
+                    </div>
                 </div>
 
                 <!-- Load More -->
@@ -173,14 +180,14 @@
         <div class="sidebar-widget" data-aos="fade-up">
             <h3 class="widget-title">Popular Posts</h3>
             <div class="popular-posts" id="popularPosts">
-                <!-- Popular posts will be injected by JavaScript -->
+                <!-- Popular posts injected by JS -->
             </div>
         </div>
         
         <div class="sidebar-widget" data-aos="fade-up" data-aos-delay="100">
             <h3 class="widget-title">Upcoming Events</h3>
             <div class="events-list" id="eventsList">
-                <!-- Events will be injected by JavaScript -->
+                <!-- Events injected by JS -->
             </div>
         </div>
         
@@ -321,11 +328,20 @@
         <span id="toastMessage"></span>
     </div>
 
-    <!-- AOS Animation -->
+    <!-- ==================== SCRIPTS ==================== -->
+    
+    <!-- 1. Supabase CDN (must be first) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    
+    <!-- 2. Supabase Initialization -->
+    <script src="supabase-init.js"></script>
+    
+    <!-- 3. AOS Animation Library -->
     <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
     
-    <!-- Main JavaScript -->
+    <!-- 4. Main Blog JavaScript (last) -->
     <script src="blog.js"></script>
+    
 </body>
 </html>
 
