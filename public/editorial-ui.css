@@ -1,0 +1,258 @@
+/* ============================================================================
+   LGA Blog - Editorial Command Center (Admin/Editor UI)
+   ============================================================================ */
+
+/* Status Badges */
+.status-badge {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.status-badge.published {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+}
+
+.status-badge.pending {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+}
+
+.status-badge.draft {
+    background: linear-gradient(135deg, #6b7280, #4b5563);
+    color: white;
+}
+
+.status-badge.rejected {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+}
+
+/* Version Control UI */
+.version-control {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    background: var(--glass);
+    padding: 12px 16px;
+    border-radius: 12px;
+    border: 1px solid var(--glass-border);
+}
+
+.version-control select {
+    background: rgba(0,0,0,0.2);
+    color: var(--text-primary);
+    border: 1px solid var(--glass-border);
+    padding: 8px 12px;
+    border-radius: 8px;
+    outline: none;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.version-control select option {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+/* Feedback Section */
+.feedback-section {
+    margin-top: 20px;
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    border-left: 4px solid #f59e0b;
+    padding: 16px;
+    border-radius: 8px;
+}
+
+.feedback-section h4 {
+    color: #f59e0b;
+    margin-bottom: 8px;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.feedback-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.feedback-item {
+    background: rgba(0,0,0,0.2);
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+}
+
+.feedback-meta {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.feedback-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.feedback-input-group textarea {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    color: var(--text-primary);
+    padding: 12px;
+    border-radius: 8px;
+    resize: vertical;
+    min-height: 80px;
+}
+
+.feedback-input-group button {
+    align-self: flex-end;
+}
+
+/* Live Readability Bar Animation */
+@keyframes pulseGlow {
+    0% { box-shadow: 0 0 5px rgba(16, 185, 129, 0.2); }
+    50% { box-shadow: 0 0 15px rgba(16, 185, 129, 0.6); }
+    100% { box-shadow: 0 0 5px rgba(16, 185, 129, 0.2); }
+}
+
+#readabilityFill {
+    animation: pulseGlow 2s infinite;
+}
+
+/* Analytics Mini-Charts */
+.chart-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.chart-bar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.chart-bar > span:first-child {
+    width: 80px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    text-transform: capitalize;
+}
+
+.chart-bar .bar-container {
+    flex: 1;
+    height: 8px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.chart-bar .bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), #ff4b4b);
+    border-radius: 4px;
+    transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.chart-bar > span:last-child {
+    width: 40px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-align: right;
+}
+
+/* Audit Log Table */
+.audit-log-container {
+    max-height: 400px;
+    overflow-y: auto;
+    margin-top: 20px;
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    background: rgba(0,0,0,0.2);
+}
+
+.audit-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+
+.audit-table th, .audit-table td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.audit-table th {
+    background: rgba(255,255,255,0.05);
+    font-weight: 600;
+    color: var(--text-muted);
+    position: sticky;
+    top: 0;
+}
+
+.audit-table tbody tr:hover {
+    background: rgba(255,255,255,0.02);
+}
+
+/* SEO Metadata Editor */
+.seo-editor {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 20px;
+    padding: 16px;
+    background: var(--glass);
+    border-radius: 12px;
+    border: 1px dashed var(--glass-border);
+}
+
+.seo-editor h4 {
+    margin-bottom: 4px;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #a78bfa;
+}
+
+.seo-group label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+    display: block;
+}
+
+.seo-group input, .seo-group textarea {
+    width: 100%;
+    background: rgba(0,0,0,0.2);
+    border: 1px solid var(--glass-border);
+    color: var(--text-primary);
+    padding: 8px 12px;
+    border-radius: 6px;
+    outline: none;
+    font-size: 0.9rem;
+}
+
+.seo-group input:focus, .seo-group textarea:focus {
+    border-color: #a78bfa;
+}

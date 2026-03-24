@@ -1,0 +1,387 @@
+/* ============================================================================
+   LGA Blog - Antigravity Glassmorphism Overhaul 2.0
+   ============================================================================ */
+
+/* ROOT THEMES */
+:root {
+    --primary: #b71c1c;
+    --secondary: #d32f2f;
+    --accent: #ff5252;
+    --glass: rgba(255, 255, 255, 0.03);
+    --glass-hover: rgba(255, 255, 255, 0.08);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-shadow: rgba(0, 0, 0, 0.4);
+    --bg-base: #0a0a0a;
+    --text-primary: #f8fafc;
+    --text-muted: #94a3b8;
+    --skeleton-base: rgba(255,255,255,0.05);
+    --skeleton-shine: rgba(255,255,255,0.1);
+}
+
+[data-theme="light"] {
+    --primary: #b71c1c;
+    --secondary: #d32f2f;
+    --accent: #c62828;
+    --glass: rgba(255, 255, 255, 0.7);
+    --glass-hover: rgba(255, 255, 255, 0.9);
+    --glass-border: rgba(0, 0, 0, 0.08);
+    --glass-shadow: rgba(0, 0, 0, 0.05);
+    --bg-base: #f8fafc;
+    --text-primary: #0f172a;
+    --text-muted: #64748b;
+    --skeleton-base: rgba(0,0,0,0.05);
+    --skeleton-shine: rgba(0,0,0,0.1);
+}
+
+body {
+    background-color: transparent;
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+}
+
+/* --------------------------------------------------------------------------
+   ANTIGRAVITY BACKGROUND
+   -------------------------------------------------------------------------- */
+.antigravity-bg {
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    background: var(--bg-base);
+    overflow: hidden;
+}
+
+.orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.5;
+    animation: floatOrb 25s infinite ease-in-out alternate;
+}
+
+.orb-1 {
+    width: 600px; height: 600px;
+    background: var(--primary);
+    top: -10%; left: -10%;
+    animation-delay: 0s;
+}
+
+.orb-2 {
+    width: 500px; height: 500px;
+    background: var(--secondary);
+    bottom: -10%; right: -10%;
+    animation-delay: -5s;
+    animation-direction: alternate-reverse;
+}
+
+.orb-3 {
+    width: 400px; height: 400px;
+    background: var(--accent);
+    top: 40%; left: 40%;
+    animation-delay: -10s;
+}
+
+@keyframes floatOrb {
+    0%   { transform: translate(0, 0) scale(1) rotate(0deg); }
+    33%  { transform: translate(150px, -100px) scale(1.2) rotate(120deg); }
+    66%  { transform: translate(-100px, 150px) scale(0.8) rotate(240deg); }
+    100% { transform: translate(0, 0) scale(1) rotate(360deg); }
+}
+
+/* --------------------------------------------------------------------------
+   LOGO PRELOADER ENHANCEMENT
+   -------------------------------------------------------------------------- */
+#loader {
+    position: fixed; inset: 0;
+    z-index: 99999;
+    background: var(--bg-base);
+    display: flex; align-items: center; justify-content: center;
+    transition: opacity 0.8s, visibility 0.8s;
+}
+
+.loader-container {
+    display: flex; flex-direction: column; align-items: center; gap: 24px;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    padding: 60px;
+    border-radius: 40px;
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    box-shadow: 0 20px 80px var(--glass-shadow);
+    transform: scale(0.9);
+    animation: loaderEntrance 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes loaderEntrance {
+    to { transform: scale(1); }
+}
+
+.loader-logo {
+    width: 120px;
+    height: 120px;
+    border-radius: 24px; /* Squircle logo instead of full circle for modern look */
+    object-fit: contain;
+    background: rgba(255,255,255,0.1);
+    padding: 10px;
+    animation: levitateLogo 3s infinite ease-in-out;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 0 1px var(--glass-border);
+}
+
+@keyframes levitateLogo {
+    0%, 100% { transform: translateY(0) rotate(0deg); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+    50% { transform: translateY(-20px) rotate(2deg); box-shadow: 0 30px 50px rgba(0,0,0,0.3); }
+}
+
+.loader-subtext {
+    font-size: 1.8rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--text-primary), var(--text-muted));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 4px;
+}
+
+.loader-catchphrase {
+    color: var(--accent);
+    font-size: 1rem;
+    font-weight: 500;
+    letter-spacing: 1px;
+}
+
+/* --------------------------------------------------------------------------
+   SKELETON PRELOADER (FLUID GLASS)
+   -------------------------------------------------------------------------- */
+.skeleton {
+    background: var(--skeleton-base);
+    position: relative;
+    overflow: hidden;
+}
+
+.skeleton::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, var(--skeleton-shine), transparent);
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+/* --------------------------------------------------------------------------
+   FLUID GLASS HORIZONTAL CARDS
+   -------------------------------------------------------------------------- */
+.blog-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.fluid-glass {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 28px;
+    box-shadow: 0 15px 35px var(--glass-shadow), inset 0 1px 0 rgba(255,255,255,0.1);
+    transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    overflow: hidden;
+}
+
+.blog-card.horizontal {
+    display: flex;
+    flex-direction: row;
+    height: 280px;
+    cursor: pointer;
+}
+
+.blog-card.horizontal:hover {
+    transform: translateY(-8px) scale(1.01);
+    box-shadow: 0 30px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.2);
+    border-color: rgba(255,255,255,0.2);
+}
+
+.card-image-container {
+    width: 40%;
+    position: relative;
+    overflow: hidden;
+}
+
+.card-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.blog-card.horizontal:hover .card-image-container img {
+    transform: scale(1.08) rotate(1deg);
+}
+
+.card-content-container {
+    width: 60%;
+    padding: 32px 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.card-content-container h3 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    line-height: 1.3;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, var(--text-primary), var(--text-muted));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.card-content-container p {
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.card-content-container .meta {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--primary);
+}
+
+/* SKELETON SPECIFIC GRID CLASSES */
+.blog-card.skeleton .card-image-container {
+    background: var(--skeleton-base);
+}
+.blog-card.skeleton .skeleton-text {
+    height: 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    background: var(--skeleton-base);
+}
+.blog-card.skeleton .skeleton-text.title { height: 32px; width: 80%; }
+.blog-card.skeleton .skeleton-text.subtitle { height: 16px; width: 100%; margin-bottom: 8px; }
+.blog-card.skeleton .skeleton-text.meta { height: 16px; width: 50%; margin-top: auto; }
+
+
+/* RESPONSIVE HORIZONTAL CARDS */
+@media (max-width: 992px) {
+    .blog-card.horizontal {
+        flex-direction: column;
+        height: auto;
+    }
+    .card-image-container {
+        width: 100%;
+        height: 240px;
+    }
+    .card-content-container {
+        width: 100%;
+        padding: 24px;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   NAVBAR & SIDEBAR FLUID UPDATES
+   -------------------------------------------------------------------------- */
+nav {
+    background: var(--glass) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: 100px !important;
+}
+
+.widget {
+    background: var(--glass) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: 28px !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+}
+
+/* --------------------------------------------------------------------------
+   FIX CATEGORY BADGE PADDING 
+   -------------------------------------------------------------------------- */
+.category-badge, .cat-badge {
+    position: absolute !important;
+    top: 20px !important;
+    left: 20px !important;
+    background: var(--primary) !important;
+    color: white !important;
+    padding: 6px 16px !important;
+    border-radius: 20px !important;
+    font-size: 0.8rem !important;
+    font-weight: 800 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
+    height: auto !important;
+    width: auto !important;
+    display: inline-block !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4) !important;
+    z-index: 5 !important;
+    line-height: normal !important;
+    border: none !important;
+}
+
+/* --------------------------------------------------------------------------
+   MODAL SHARE BUTTONS SVG HOVER STATES
+   -------------------------------------------------------------------------- */
+.share-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid var(--glass-border);
+    background: var(--glass);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.share-btn svg {
+    transition: all 0.3s ease;
+    fill: currentColor;
+    width: 20px;
+    height: 20px;
+}
+
+.share-btn:hover {
+    transform: translateY(-4px) scale(1.1);
+}
+
+.share-fb:hover {
+    background: rgba(24, 119, 242, 0.1);
+    color: #1877F2;
+    border-color: #1877F2;
+}
+
+.share-tw:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border-color: white;
+}
+
+.share-wa:hover {
+    background: rgba(37, 211, 102, 0.1);
+    color: #25D366;
+    border-color: #25D366;
+}
+
+.share-native:hover {
+    background: rgba(139, 92, 246, 0.1);
+    color: var(--primary);
+    border-color: var(--primary);
+}
