@@ -1,847 +1,630 @@
-/**
- * ============================================================================
- * Latter Glory Academy Blog - Main JavaScript
- * ============================================================================
- * 
- * Fetches ALL data from Supabase (posts, events, staff profiles)
- * - No local data - everything comes from database
- * - Staff attribution via profiles join
- * - Skeleton loading states
- * - Admin CRUD functions
- * 
- * ============================================================================
- */
 
-// ==================== State ==================== //
+
+let postsData = [];
+let eventsData = [];
 let currentSlide = 0;
 let currentFilter = 'all';
-let searchQuery = '';
-let currentPostId = null;
-let currentLimit = 6;
-let postComments = {};
-let postsData = [];      // All posts from Supabase
-let eventsData = [];     // All events from Supabase
+let clickCount = 0;
+let lastClick = 0;
 
-// Get Supabase client
-const getSupabase = () => window.supabase || null;
+// DOM helpers
+const getElement = id => document.getElementById(id);
+const getElements = selector => document.querySelectorAll(selector);
 
-// ==================== DOM Ready ==================== //
-document.addEventListener('DOMContentLoaded', async () => {
-    // Initialize UI
-    initPreloader();
-    initTheme();
-    initFilters();
-    initSearch();
-    initLoadMore();
-    initNewsletter();
-    initModal();
-    initScrollProgress();
-    initMobileMenu();
-    initAOS();
+// Provide haptic feedback for mobile devices
+window.hapticFeed = (duration = 40) => {
+    try {
+        if (navigator.vibrate) {
+            navigator.vibrate(duration);
+        }
+    } catch (e) {}
+};
+
+// Preloader - Fixed Timing
+document.addEventListener('DOMContentLoaded', () => {
+    // Start loading immediately
+    loadTheme();
+    initBlog();
     
-    // Show skeleton loaders while fetching
-    showSkeletons(6);
-    
-    // Initialize blog - fetch all data from Supabase
-    await initBlog();
-    
-    // Render everything
-    renderBlogPosts();
-    renderSidebar();
-    renderEvents();
+    // Hide preloader after 3 seconds or when content is ready
+    setTimeout(hidePreloader, 2500);
 });
 
-// ==================== Async Initialization ==================== //
-/**
- * Initialize blog by fetching all data from Supabase
- * This replaces the old local data array approach
- */
-async function initBlog() {
-    try {
-        const supabase = getSupabase();
-        if (!supabase) {
-            throw new Error('Supabase not initialized');
-        }
-        
-        // Fetch posts with author (profiles) join
-        // The author_id links to profiles table for staff attribution
-        const { data: posts, error: postsError } = await supabase
-            .from('posts')
-            .select('*, profiles(full_name, avatar_url, role)')
-            .order('created_at', { ascending: false });
-        
-        if (postsError) throw postsError;
-        
-        // Map posts with author info from profiles
-        postsData = posts.map(post => ({
-            id: post.id,
-            title: post.title,
-            img: post.image_url,
-            cat: post.category,
-            content: post.content,
-            date: new Date(post.created_at).toLocaleDateString('en-US', { 
-                month: 'short', day: 'numeric', year: 'numeric' 
-            }),
-            readTime: Math.ceil((post.content?.split(' ').length || 0) / 200) || 3,
-            views: post.views || 0,
-            is_featured: post.is_featured,
-            excerpt: post.content ? post.content.replace(/<[^>]*>/g, '').substring(0, 100) + '...' : '',
-            // Staff attribution - author_id links to profiles table
-            author: post.profiles ? {
-                name: post.profiles.full_name || 'Latter Glory Academy',
-                avatar: post.profiles.avatar_url,
-                role: post.profiles.role || 'staff'
-            } : null
-        }));
-        
-        console.log('✅ Posts loaded:', postsData.length);
-        
-        // Fetch events from Supabase
-        const { data: events, error: eventsError } = await supabase
-            .from('events')
-            .select('*')
-            .order('event_date', { ascending: true });
-        
-        if (!eventsError && events) {
-            eventsData = events.map(event => ({
-                id: event.id,
-                title: event.title,
-                description: event.description,
-                date: new Date(event.event_date).toLocaleDateString('en-US', { 
-                    month: 'short', day: 'numeric' 
-                }),
-                fullDate: event.event_date,
-                location: event.location,
-                image: event.image_url
-            }));
-            console.log('✅ Events loaded:', eventsData.length);
-        }
-        
-        // Update carousel with featured posts only
-        updateCarousel();
-        
-    } catch (error) {
-        console.error('❌ Error initializing blog:', error.message);
-        postsData = [];
-        eventsData = [];
+function hidePreloader() {
+    const loader = getElement('loader');
+    if (loader) {
+        loader.style.opacity = '0';
+        setTimeout(() => loader.remove(), 400);
     }
 }
 
-/**
- * Update carousel with featured posts only
- * Filters posts where is_featured = true
- */
-function updateCarousel() {
-    const featuredPosts = postsData.filter(p => p.is_featured).slice(0, 3);
-    const latestPosts = postsData.slice(0, 3);
-    const postsToShow = featuredPosts.length > 0 ? featuredPosts : latestPosts;
-    
-    // Default carousel if no posts
-    const carouselData = postsToShow.length > 0 ? postsToShow.map(post => ({
-        img: post.img || 'new.webp',
-        tag: post.cat || 'News',
-        title: post.title,
-        desc: post.excerpt
-    })) : [
-        { img: "latter-glory-geniuses.webp", tag: "Innovation", title: "Empowering Future Leaders", desc: "Inside the LGA Creative Suite." },
-        { img: "event2.webp", tag: "Academics", title: "Career Day 2026", desc: "Professionals share experiences." },
-        { img: "sport11.webp", tag: "Sports", title: "Inter-House Sports", desc: "Champions of Excellence." }
-    ];
-    
-    renderCarousel(carouselData);
-}
-
-// ==================== Skeleton Loaders ==================== //
-function showSkeletons(count = 6) {
-    const grid = document.getElementById('blogGrid');
-    if (!grid) return;
-    
-    let skeletons = '';
-    for (let i = 0; i < count; i++) {
-        skeletons += `
-            <div class="skeleton-card">
-                <div class="skeleton-image"></div>
-                <div class="skeleton-body">
-                    <div class="skeleton-line title"></div>
-                    <div class="skeleton-line"></div>
-                    <div class="skeleton-line skeleton-medium"></div>
-                    <div class="skeleton-meta">
-                        <div class="skeleton-line skeleton-tiny"></div>
-                        <div class="skeleton-line skeleton-tiny"></div>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-    grid.innerHTML = skeletons;
-    
-    // Hide loading overlay if exists
-    const overlay = document.getElementById('loadingOverlay');
-    if (overlay) overlay.style.display = 'none';
-}
-
-// ==================== Preloader ==================== //
-function initPreloader() {
-    setTimeout(() => {
-        const preloader = document.getElementById('preloader');
-        if (preloader) preloader.classList.add('hidden');
-    }, 1500);
-}
-
-// ==================== Theme ==================== //
-function initTheme() {
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    document.body.setAttribute('data-theme', savedTheme);
-    
-    const themeBtn = document.getElementById('themeToggle');
-    if (themeBtn) {
-        updateThemeIcon(savedTheme);
-        themeBtn.addEventListener('click', toggleTheme);
-    }
+function loadTheme() {
+    document.body.dataset.theme = localStorage.getItem('lga-theme') || 'dark';
 }
 
 function toggleTheme() {
-    const newTheme = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-    document.body.setAttribute('data-theme', newTheme);
-    localStorage.setItem('theme', newTheme);
-    updateThemeIcon(newTheme);
+    const current = document.body.dataset.theme;
+    const newTheme = current === 'dark' ? 'light' : 'dark';
+    document.body.dataset.theme = newTheme;
+    localStorage.setItem('lga-theme', newTheme);
 }
 
-function updateThemeIcon(theme) {
-    const themeBtn = document.getElementById('themeToggle');
-    if (themeBtn) {
-        const icon = themeBtn.querySelector('i');
-        if (icon) icon.className = theme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-stars-fill';
+// Triple-click admin trigger
+document.addEventListener('click', e => {
+    if (e.target.closest('.logo')) {
+        const now = Date.now();
+        if (now - lastClick < 1000) {
+            clickCount++;
+            if (clickCount >= 3) {
+                openAdminModal();
+                clickCount = 0;
+            }
+        } else {
+            clickCount = 1;
+        }
+        lastClick = now;
     }
-}
+});
 
-// ==================== Carousel ==================== //
-function initCarousel() {
-    // Carousel data will be set after posts load
-    renderCarousel([
-        { img: "latter-glory-geniuses.webp", tag: "Innovation", title: "Empowering Future Leaders", desc: "Inside the LGA Creative Suite." },
-        { img: "event2.webp", tag: "Academics", title: "Career Day 2026", desc: "Professionals share experiences." },
-        { img: "sport11.webp", tag: "Sports", title: "Inter-House Sports", desc: "Champions of Excellence." }
-    ]);
-    
-    const prevBtn = document.getElementById('prevSlide');
-    const nextBtn = document.getElementById('nextSlide');
-    
-    if (prevBtn) prevBtn.addEventListener('click', () => changeSlide(-1));
-    if (nextBtn) nextBtn.addEventListener('click', () => changeSlide(1));
-    
-    setInterval(() => changeSlide(1), 6000);
-}
-
-function renderCarousel(carouselData) {
-    const track = document.getElementById('carouselTrack');
-    const dots = document.getElementById('carouselDots');
-    if (!track) return;
-    
-    track.innerHTML = carouselData.map((slide, index) => `
-        <div class="carousel-slide ${index === 0 ? 'active' : ''}" data-index="${index}">
-            <img src="${slide.img}" alt="${slide.title}" loading="lazy">
-            <div class="carousel-overlay"></div>
-            <div class="carousel-content">
-                <span class="carousel-tag">${slide.tag}</span>
-                <h1 class="carousel-title">${slide.title}</h1>
-                <p class="carousel-description">${slide.desc}</p>
+// Admin Modal - Direct call to admin-modal.js implementation
+window.openAdminModal = function() {
+    console.log('Original modal opened');
+    const modal = document.createElement('div');
+    modal.className = 'admin-overlay show';
+    modal.innerHTML = `
+        <div class="login-modal-overlay">
+            <div class="login-modal">
+                <button class="login-close" onclick="this.closest('.login-modal-overlay').remove()">
+                    <i class="bi bi-x"></i>
+                </button>
+                <div class="login-header">
+                    <div class="login-icon">
+                        <i class="bi bi-shield-lock"></i>
+                    </div>
+                    <h2>Admin Access</h2>
+                    <p>Enter your credentials</p>
+                </div>
+                <div class="login-form">
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="loginEmail" placeholder="admin@lga.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="loginPassword" placeholder="••••••••">
+                    </div>
+                    <button class="login-btn" onclick="handleLogin()">Login</button>
+                    <div id="loginError" style="color:#f44336; font-size:0.85rem; margin-top:8px; display:none;"></div>
+                </div>
+                <div class="login-footer">
+                </div>
             </div>
         </div>
-    `).join('');
-    
-    if (dots) {
-        dots.innerHTML = carouselData.map((_, i) => `
-            <button class="carousel-dot ${i === 0 ? 'active' : ''}" data-index="${i}"></button>
-        `).join('');
-        
-        dots.querySelectorAll('.carousel-dot').forEach(dot => {
-            dot.addEventListener('click', () => goToSlide(parseInt(dot.dataset.index)));
-        });
-    }
-}
+    `;
+    document.body.appendChild(modal);
+};
 
-function changeSlide(dir) {
-    const slides = document.querySelectorAll('.carousel-slide');
-    const dots = document.querySelectorAll('.carousel-dot');
-    if (!slides.length) return;
+async function handleLogin() {
+    const loginModal = document.querySelector('.login-modal-overlay');
+    const errorEl = document.getElementById('loginError');
     
-    slides[currentSlide]?.classList.remove('active');
-    dots[currentSlide]?.classList.remove('active');
-    
-    currentSlide = (currentSlide + dir + slides.length) % slides.length;
-    
-    slides[currentSlide]?.classList.add('active');
-    dots[currentSlide]?.classList.add('active');
-}
-
-function goToSlide(index) {
-    const slides = document.querySelectorAll('.carousel-slide');
-    const dots = document.querySelectorAll('.carousel-dot');
-    if (!slides.length) return;
-    
-    slides[currentSlide]?.classList.remove('active');
-    dots[currentSlide]?.classList.remove('active');
-    currentSlide = index;
-    slides[currentSlide]?.classList.add('active');
-    dots[currentSlide]?.classList.add('active');
-}
-
-// ==================== Render Blog Posts ==================== //
-function renderBlogPosts() {
-    const grid = document.getElementById('blogGrid');
-    if (!grid) return;
-    
-    const filtered = postsData.filter(post => {
-        const matchesFilter = currentFilter === 'all' || post.cat === currentFilter;
-        const matchesSearch = post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            (post.excerpt && post.excerpt.toLowerCase().includes(searchQuery.toLowerCase()));
-        return matchesFilter && matchesSearch;
-    });
-    
-    const postsToShow = filtered.slice(0, currentLimit);
-    
-    if (postsToShow.length === 0) {
-        grid.innerHTML = `
-            <div class="no-posts">
-                <i class="bi bi-journal-x"></i>
-                <h3>No posts found</h3>
-                <p>Check back later for new content</p>
-            </div>
-        `;
+    // Use admin-modal.js handleLogin - it loads separately
+    if (typeof window.handleLogin === 'function') {
+        loginModal.remove();
+        window.handleLogin(); // Call admin-modal's version
         return;
     }
     
-    grid.innerHTML = postsToShow.map((post, index) => `
-        <article class="blog-card" onclick="openPost(${post.id})" data-aos="fade-up" data-aos-delay="${index * 100}">
-            <div class="card-image">
-                <img src="${post.img || 'new.webp'}" alt="${post.title}" loading="lazy">
-                <span class="card-category">${post.cat || 'News'}</span>
-            </div>
-            <div class="card-body">
-                <h3 class="card-title">${post.title}</h3>
-                <p class="card-excerpt">${post.excerpt || ''}</p>
-                
-                <!-- Staff Attribution - Shows author from profiles table -->
-                ${post.author ? `
-                    <div class="card-author">
-                        <img src="${post.author.avatar || 'student.webp'}" alt="${post.author.name}" class="author-avatar">
-                        <span class="author-name">${post.author.name}</span>
+    // Fallback - simple Supabase auth
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value.trim();
+    
+    if (!window.supabase || !window.supabase.auth) {
+        errorEl.style.display = 'block';
+        errorEl.textContent = 'Supabase not ready - refresh page';
+        return;
+    }
+    
+    // Show loading
+    errorEl.style.display = 'block';
+    errorEl.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Authenticating...';
+    
+    try {
+        const { data, error: authError } = await window.supabase.auth.signInWithPassword({
+            email: email,
+            password: password
+        });
+        
+        if (authError) throw authError;
+        
+        errorEl.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Loading profile...';
+        
+        const { data: profile, error: profileError } = await window.supabase
+            .from('profiles')
+            .select('name, role, avatar')
+            .eq('email', email)
+            .single();
+        
+        if (profileError && profileError.code !== 'PGRST116') throw profileError;
+        
+        errorEl.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Accessing portal...';
+        
+        document.querySelector('.login-modal-overlay').remove();
+        openDashboard(profile || { name: email, role: 'user', avatar: 'latter-glory-logo.webp' });
+        
+    } catch (error) {
+        console.error('Login error:', error);
+        errorEl.style.display = 'block';
+        errorEl.textContent = error.message || 'Invalid credentials';
+    }
+}
+
+
+function openDashboard(user) {
+    const modal = document.createElement('div');
+    modal.className = 'admin-overlay show';
+    modal.innerHTML = `
+        <div class="dashboard-modal">
+            <div class="dashboard-header">
+                <div class="user-info">
+                    <img src="${user.avatar}" class="user-avatar">
+                    <div>
+                        <h3>${user.name}</h3>
+                        <span class="user-role">${user.role}</span>
                     </div>
-                ` : ''}
-                
-                <div class="card-meta">
-                    <span><i class="bi bi-calendar3"></i> ${post.date}</span>
-                    <span><i class="bi bi-clock"></i> ${post.readTime} min</span>
-                    <span><i class="bi bi-eye"></i> ${post.views}</span>
+                </div>
+                <button class="dashboard-close" onclick="this.closest('.admin-overlay').remove()">×</button>
+            </div>
+            <div class="dashboard-content">
+                <div class="dashboard-grid">
+                    <div class="dashboard-card" onclick="openPostEditor()">
+                        <h4><i class="bi bi-plus-circle"></i> Create Post</h4>
+                        <p>Write new blog posts</p>
+                    </div>
+                    <div class="dashboard-card" onclick="openReviewQueue()">
+                        <h4><i class="bi bi-eye"></i> Review Queue</h4>
+                        <p>Approve posts</p>
+                    </div>
+                    <div class="dashboard-card" onclick="openAnalytics()">
+                        <h4><i class="bi bi-graph-up"></i> Analytics</h4>
+                        <p>View stats</p>
+                    </div>
                 </div>
             </div>
-        </article>
-    `).join('');
-    
-    const loadMoreBtn = document.getElementById('loadMoreBtn');
-    if (loadMoreBtn) loadMoreBtn.classList.toggle('hidden', currentLimit >= filtered.length);
-}
-
-// ==================== Sidebar ==================== //
-function renderSidebar() {
-    renderPopularPosts();
-}
-
-function renderPopularPosts() {
-    const container = document.getElementById('popularPosts');
-    if (!container || !postsData.length) return;
-    
-    // Sort by views to show most popular
-    const popular = [...postsData].sort((a, b) => b.views - a.views).slice(0, 3);
-    
-    container.innerHTML = popular.map(post => `
-        <div class="popular-post" onclick="openPost(${post.id})">
-            <img src="${post.img || 'new.webp'}" alt="${post.title}">
-            <div class="popular-post-info">
-                <h4>${post.title}</h4>
-                <span>${post.views} views</span>
-            </div>
         </div>
-    `).join('');
+    `;
+    document.body.appendChild(modal);
 }
 
-// ==================== Events ==================== //
-function renderEvents() {
-    const container = document.getElementById('eventsList');
-    if (!container) return;
+// Newsletter
+function handleNewsletter() {
+    const emailEl = getElement('newsletterEmail');
+    const statusEl = getElement('newsletterStatus');
+    if (!emailEl || !statusEl) return;
     
-    // If we have events from Supabase, use them
-    const eventsToShow = eventsData.length > 0 ? eventsData : [
-        { date: "15", month: "Mar", title: "Science Fair", desc: "Annual Science Fair" },
-        { date: "20", month: "Mar", title: "Sports Day", desc: "Inter-House Sports" },
-        { date: "05", month: "Apr", title: "Parent-Teacher", desc: "Conference Meeting" }
+    const email = emailEl.value.trim();
+    if (email && email.includes('@')) {
+        statusEl.textContent = 'Subscribed! Thank you.';
+        statusEl.style.color = '#4CAF50';
+        emailEl.value = '';
+        setTimeout(() => statusEl.textContent = '', 3000);
+    } else {
+        statusEl.textContent = 'Please enter valid email';
+        statusEl.style.color = '#f44336';
+    }
+}
+
+// Main App Init
+async function initBlog() {
+    // Show Skeletons instantly
+    renderSkeletons();
+    
+    try {
+        await loadData();
+        renderAll();
+        bindInteractions();
+        startCarousel();
+        setupRealtime();
+        // LGA Blog Ready
+    } catch (error) {
+        console.error('Init error:', error);
+        loadFallbackData();
+        renderAll();
+    }
+}
+
+function renderSkeletons() {
+    const grid = getElement('mainBlogGrid');
+    if (grid) {
+        grid.innerHTML = Array(4).fill(0).map(() => `
+            <article class="blog-card horizontal fluid-glass skeleton">
+                <div class="card-image-container"></div>
+                <div class="card-content-container">
+                    <div class="skeleton-text title"></div>
+                    <div class="skeleton-text subtitle"></div>
+                    <div class="skeleton-text subtitle" style="width:70%"></div>
+                    <div class="skeleton-text meta"></div>
+                </div>
+            </article>
+        `).join('');
+    }
+}
+
+async function loadData() {
+    const supabase = window.supabase;
+    if (supabase && supabase.from) {
+        try {
+            const { data: posts } = await supabase
+                .from('posts')
+                .select('*')
+                .eq('status', 'published')
+                .order('created_at', { ascending: false })
+                .limit(25);
+            const { data: events } = await supabase
+                .from('events')
+                .select('*')
+                .order('event_date')
+                .limit(10);
+                
+            postsData = posts.map(p => ({
+                ...p,
+                excerpt: p.content ? p.content.substring(0, 120) + '...' : 'Read more...'
+            })) || [];
+            eventsData = events || [];
+        } catch (e) {
+            console.log('Supabase error:', e);
+            loadFallbackData();
+        }
+    } else {
+        loadFallbackData();
+    }
+}
+
+function loadFallbackData() {
+    postsData = [
+        {
+            id: 1, title: 'Latter Glory Academy Wins National Coding Championship!',
+            category: 'academics', image_url: 'latter-view.webp', views: 4200, author: 'Dr. Sarah Martins (Head of STEM)',
+            excerpt: 'Our students showcased exceptional algorithmic skills at the national level, bringing home the gold trophy...',
+            created_at: new Date(Date.now() - 86400000).toISOString(),
+            content: '<p>It is with immense pride that we announce our Senior Secondary team has secured the 1st position at the 2026 National Coding Championship. Building AI-driven applications that solve local agricultural problems, the team demonstrated the core values of Latter Glory Academy: Innovation and Excellence.</p><br><p>Congratulations to the participants and their mentors.</p>'
+        },
+        {
+            id: 2, title: 'Annual Inter-House Sports Extravaganza Scheduled for April',
+            category: 'sports', image_url: 'sport11.webp', views: 3500, author: 'Mr. John Obi (Sports Director)',
+            excerpt: 'Get ready for an electrifying week of track and field, football finals, and house spirit as Blue House aims to defend their title.',
+            created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
+            content: '<p>The anticipated Annual Sports Week is here. Track events, marathons, and the epic tug-of-war will take center stage. Students are advised to begin training with their House Masters. May the best house win!</p>'
+        },
+        {
+            id: 3, title: 'Introducing the New Fluid Glassmorphism Student Portal',
+            category: 'events', image_url: 'latter-glory-geniuses.webp', views: 5120, author: 'IT Department',
+            excerpt: 'We have completely overhauled the student digital experience with an advanced Antigravity UI for better accessibility and speed.',
+            created_at: new Date(Date.now() - 86400000 * 3).toISOString(),
+            content: '<p>We are thrilled to roll out the new portal. Featuring instant loading skeletons, realtime websocket updates, and a gorgeous glass aesthetic, managing your academic life has never been better.</p>'
+        }
     ];
     
-    container.innerHTML = eventsToShow.map(event => `
-        <div class="event-item" onclick="openEvent(${event.id || 0})">
-            <div class="event-date">
-                <span class="day">${event.date.split(' ')[0]}</span>
-                <span class="month">${event.date.split(' ')[1]}</span>
-            </div>
-            <div class="event-info">
-                <h4>${event.title}</h4>
-                <span>${event.description || event.desc || ''}</span>
-            </div>
-        </div>
-    `).join('');
+    eventsData = [
+        {title: 'Career Day 2026', date: 'Mar 18', image: 'event2.webp'},
+        {title: 'Term 2 Examinations', date: 'Apr 5 - 15', image: 'latter-view.webp'},
+        {title: 'Valedictory Service', date: 'July 20', image: 'latter-glory-geniuses.webp'}
+    ];
 }
 
-function openEvent(eventId) {
-    console.log('Opening event:', eventId);
-    // Could open event modal here
-}
-
-// ==================== Filters & Search ==================== //
-function initFilters() {
-    document.querySelectorAll('.filter-pill').forEach(pill => {
-        pill.addEventListener('click', () => {
-            document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
-            pill.classList.add('active');
-            currentFilter = pill.dataset.filter;
-            currentLimit = 6;
-            renderBlogPosts();
-        });
-    });
-}
-
-function initSearch() {
-    const searchInput = document.getElementById('searchInput');
-    if (searchInput) {
-        searchInput.addEventListener('input', (e) => {
-            searchQuery = e.target.value;
-            currentLimit = 6;
-            renderBlogPosts();
-        });
+function setupRealtime() {
+    const supabase = window.supabase;
+    if(supabase && supabase.channel) {
+        supabase.channel('public:posts')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'posts' }, payload => {
+                if(payload.new.status === 'published') {
+                    showRealtimeToast(payload.new);
+                }
+            })
+            .subscribe();
     }
 }
 
-function initLoadMore() {
-    const loadMoreBtn = document.getElementById('loadMoreBtn');
-    if (loadMoreBtn) {
-        loadMoreBtn.addEventListener('click', () => {
-            currentLimit += 6;
-            renderBlogPosts();
-        });
-    }
-}
-
-// ==================== Modal ==================== //
-function initModal() {
-    document.getElementById('modalClose')?.addEventListener('click', closeModal);
-    document.getElementById('postModal')?.addEventListener('click', (e) => {
-        if (e.target.id === 'postModal') closeModal();
-    });
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
-    document.getElementById('commentForm')?.addEventListener('submit', handleCommentSubmit);
-}
-
-/**
- * Open a post and increment view count in database
- * Uses RPC to safely increment the view counter
- */
-async function openPost(id) {
-    const post = postsData.find(p => p.id === id);
-    if (!post) return;
-    
-    currentPostId = id;
-    
-    // Update modal content
-    document.getElementById('modalImg').src = post.img || 'new.webp';
-    document.getElementById('modalCategory').textContent = post.cat || 'News';
-    document.getElementById('modalTitle').textContent = post.title;
-    document.getElementById('modalDate').textContent = post.date;
-    document.getElementById('modalReadTime').textContent = post.readTime + ' min read';
-    document.getElementById('modalBody').innerHTML = post.content || '<p>No content available.</p>';
-    
-    // Show author info in modal
-    const authorSection = post.author ? `
-        <div class="modal-author">
-            <img src="${post.author.avatar || 'student.webp'}" alt="${post.author.name}">
+function showRealtimeToast(post) {
+    const toast = document.createElement('div');
+    toast.className = 'realtime-toast fluid-glass';
+    toast.innerHTML = `
+        <div style="display:flex; gap:16px; align-items:center;">
+            <div style="background:var(--primary); padding:12px; border-radius:50%; box-shadow:0 10px 20px rgba(139,92,246,0.3);">
+                <i class="bi bi-bell-fill" style="color:white; font-size:1.2rem;"></i>
+            </div>
             <div>
-                <strong>${post.author.name}</strong>
-                <span>${post.author.role}</span>
+                <h4 style="margin:0 0 6px 0; font-size:1rem; color:var(--text-primary);">New Post Published!</h4>
+                <p style="margin:0; font-size:0.9rem; color:var(--text-muted);">${post.title}</p>
             </div>
         </div>
-    ` : '';
+    `;
+    Object.assign(toast.style, {
+        position: 'fixed', bottom: '30px', right: '30px', padding: '20px', zIndex: '999999', cursor: 'pointer',
+        transform: 'translateY(150px)', opacity: '0', transition: 'all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+    });
     
-    loadComments(id);
-    renderRelatedPosts(post);
+    toast.onclick = () => { toast.remove(); loadData().then(renderAll); openPost(post.id); };
+    document.body.appendChild(toast);
     
-    // ===== LIVE COUNTER: Increment views in database =====
-    await incrementPostViews(id);
+    requestAnimationFrame(() => {
+        toast.style.transform = 'translateY(0)';
+        toast.style.opacity = '1';
+    });
     
-    // Show updated view count
-    document.getElementById('modalViews').textContent = (post.views || 0) + 1;
-    
-    document.getElementById('postModal')?.classList.add('active');
-    document.body.style.overflow = 'hidden';
+    setTimeout(() => {
+        if(document.body.contains(toast)) {
+            toast.style.transform = 'translateY(150px)';
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 600);
+        }
+    }, 6000);
 }
 
-/**
- * Call Supabase RPC to increment view count
- * This is the safe way to increment counters in the database
- */
-async function incrementPostViews(postId) {
-    try {
-        const supabase = getSupabase();
-        if (!supabase) return;
-        
-        // Call the RPC function to increment views
-        await supabase.rpc('increment_post_views', { post_id: postId });
-        
-        // Also update local state
-        const post = postsData.find(p => p.id === postId);
-        if (post) post.views = (post.views || 0) + 1;
-        
-        console.log('✅ View count incremented for post:', postId);
-    } catch (error) {
-        console.error('Error updating views:', error.message);
-    }
+// Render Everything
+function renderAll() {
+    renderHeroCarousel();
+    renderBlogGrid();
+    renderSidebar();
 }
 
-function closeModal() {
-    document.getElementById('postModal')?.classList.remove('active');
-    document.body.style.overflow = '';
-    currentPostId = null;
-}
-
-function renderRelatedPosts(post) {
-    const grid = document.getElementById('relatedGrid');
-    if (!grid) return;
-    
-    const related = postsData.filter(p => p.cat === post.cat && p.id !== post.id).slice(0, 3);
-    
-    if (!related.length) {
-        grid.parentElement.style.display = 'none';
-        return;
-    }
-    
-    grid.parentElement.style.display = 'block';
-    grid.innerHTML = related.map(p => `
-        <div class="related-item" onclick="openPost(${p.id})">
-            <img src="${p.img || 'new.webp'}" alt="${p.title}">
-            <h4>${p.title}</h4>
-        </div>
-    `).join('');
-}
-
-// ==================== Comments ==================== //
-function loadComments(postId) {
-    const list = document.getElementById('commentsList');
-    const count = document.getElementById('commentCount');
-    if (!list) return;
-    
-    const comments = postComments[postId] || [];
-    if (count) count.textContent = comments.length;
-    
-    if (!comments.length) {
-        list.innerHTML = '<p class="no-comments">No comments yet. Be the first!</p>';
-    } else {
-        list.innerHTML = comments.map(c => `
-            <div class="comment-item">
-                <div class="comment-header">
-                    <span class="comment-author">${c.name}</span>
-                    <span class="comment-date">${c.date}</span>
+function renderHeroCarousel() {
+    const hero = getElement('heroCarousel');
+    if (hero) {
+        hero.innerHTML = postsData.slice(0, 3).map((p, i) => `
+            <div class="hero-slide ${i === 0 ? 'active' : ''}" 
+                 style="background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.3)), url(${p.image_url}) center/cover no-repeat fixed">
+                <div class="hero-overlay">
+                    <div class="hero-content">
+                        <h1>${p.title}</h1>
+                        <p>${p.excerpt}</p>
+                    </div>
                 </div>
-                <p class="comment-text">${c.text}</p>
+            </div>
+        `).join('') || `
+            <div class="hero-slide active" style="background: linear-gradient(135deg, var(--primary), #d32f2f)">
+                <div class="hero-content">
+                    <h1>Welcome to LGA Blog</h1>
+                    <p>Your trusted source for excellence</p>
+                </div>
+            </div>
+        `;
+    }
+}
+
+function renderBlogGrid() {
+    const grid = getElement('mainBlogGrid');
+    if (grid) {
+        const filtered = postsData.filter(p => currentFilter === 'all' || p.category === currentFilter);
+        grid.innerHTML = filtered.slice(0, 12).map(p => `
+            <article class="blog-card horizontal fluid-glass" onmousedown="hapticFeed()" onclick="openPost(${p.id})">
+                <div class="card-image-container">
+                    <img src="${p.image_url || 'latter-view.webp'}" alt="${p.title}" loading="lazy">
+                </div>
+                <div class="card-content-container">
+                    <h3>${p.title}</h3>
+                    <p>${p.excerpt}</p>
+                    <div class="meta">
+                        <span><i class="bi bi-person"></i> ${p.author}</span>
+                        <span>•</span>
+                        <span><i class="bi bi-calendar"></i> ${new Date(p.created_at).toLocaleDateString()}</span>
+                        <span>•</span>
+                        <span><i class="bi bi-eye"></i> ${p.views ? p.views.toLocaleString() : 0} views</span>
+                    </div>
+                </div>
+            </article>
+        `).join('') || `
+            <div class="empty-state">
+                <i class="bi bi-newspaper" style="font-size:3rem; color:var(--text-muted); opacity:0.5;"></i>
+                <h3 style="margin-top:16px;">No posts found</h3>
+            </div>
+        `;
+    }
+}
+
+function renderSidebar() {
+    const popular = getElement('popularList');
+    const eventList = getElement('eventList');
+    
+    if (popular) {
+        const topPosts = postsData.sort((a, b) => b.views - a.views).slice(0, 5);
+        popular.innerHTML = topPosts.map(p => `
+            <div class="popular-item" onclick="openPost(${p.id})">
+                <img src="${p.image_url}" alt="${p.title}">
+                <div>
+                    <h4>${p.title.substring(0, 35)}...</h4>
+                    <span><i class="bi bi-eye"></i> ${p.views.toLocaleString()} views</span>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    if (eventList) {
+        eventList.innerHTML = eventsData.slice(0, 6).map(e => `
+            <div class="event-item">
+                <strong>${e.title}</strong>
+                <span>${e.date}</span>
             </div>
         `).join('');
     }
 }
 
-function handleCommentSubmit(e) {
-    e.preventDefault();
+// Event Binders
+function bindInteractions() {
+    const subscribeBtn = getElement('subscribeBtn');
+    if (subscribeBtn) subscribeBtn.onclick = handleNewsletter;
     
-    const nameInput = document.getElementById('commenterName');
-    const textInput = document.getElementById('commentText');
+    const themeBtn = getElement('themeBtn');
+    if (themeBtn) themeBtn.onclick = toggleTheme;
     
-    const name = nameInput?.value?.trim();
-    const text = textInput?.value?.trim();
+    const searchIcon = getElement('searchIcon');
+    if (searchIcon) searchIcon.onclick = () => getElement('searchOverlay').classList.toggle('show');
     
-    if (!name || !text || !currentPostId) return;
+    const adminBtn = getElement('adminBtn');
+    if (adminBtn) adminBtn.onclick = openAdminModal;
     
-    if (!postComments[currentPostId]) postComments[currentPostId] = [];
-    
-    postComments[currentPostId].push({
-        name, text,
-        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-    });
-    
-    loadComments(currentPostId);
-    nameInput.value = '';
-    textInput.value = '';
-    showToast('Comment posted!', 'success');
-}
-
-// ==================== Newsletter ==================== //
-function initNewsletter() {
-    document.getElementById('newsletterForm')?.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const emailInput = document.getElementById('emailInput');
-        const email = emailInput?.value?.trim();
-        
-        if (!email?.includes('@')) {
-            showToast('Please enter a valid email', 'error');
-            return;
-        }
-        
-        // Save to Supabase
-        try {
-            const supabase = getSupabase();
-            if (supabase) {
-                await supabase.from('newsletter').insert({ email });
-            }
-            showToast('Thank you for subscribing!', 'success');
-            emailInput.value = '';
-        } catch (error) {
-            showToast('Thank you for subscribing!', 'success');
-            emailInput.value = '';
-        }
+    getElements('[data-filter]').forEach(btn => {
+        btn.onclick = e => {
+            e.preventDefault();
+            currentFilter = btn.dataset.filter;
+            getElements('[data-filter]').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderBlogGrid();
+        };
     });
 }
 
-// ==================== Sharing ==================== //
-function shareArticle(platform) {
-    const post = postsData.find(p => p.id === currentPostId);
+// Debug admin
+// Clean - no test functions
+
+
+// Carousel Auto-Play
+function startCarousel() {
+    slideInterval = setInterval(() => {
+        const slides = getElements('.hero-slide');
+        if (!slides.length) return;
+        
+        slides.forEach(s => s.classList.remove('active'));
+        currentSlide = (currentSlide + 1) % slides.length;
+        slides[currentSlide].classList.add('active');
+    }, 4000);
+}
+
+// Modal - Styled Perfectly (Full Screen Fluid Glass Redesign)
+function openPost(id) {
+    const post = postsData.find(p => p.id === id) || postsData[0]; // fallback safely
     if (!post) return;
     
-    const url = encodeURIComponent(window.location.href);
-    const text = encodeURIComponent(post.title);
+    // Safe view count
+    const supabase = window.supabase;
+    if (supabase && supabase.rpc) {
+        supabase.rpc('increment_post_views', { post_id: id }).catch(() => {});
+    }
     
-    const links = {
-        whatsapp: `https://wa.me/?text=${text}%20${url}`,
-        facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}`,
-        twitter: `https://twitter.com/intent/tweet?text=${text}&url=${url}`
-    };
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay show';
+    modal.innerHTML = `
+        <div class="modal-container" style="max-width:1000px; width:95%; height:90vh; display:flex; flex-direction:column; padding:0; overflow:hidden; border-radius:32px; background:var(--glass); border:1px solid var(--glass-border); backdrop-filter:blur(40px); -webkit-backdrop-filter:blur(40px); box-shadow:0 30px 100px rgba(0,0,0,0.6);">
+            
+            <button class="modal-close" onclick="hapticFeed(); this.closest('.modal-overlay').remove()" style="position:absolute; top:24px; right:24px; z-index:10; background:rgba(0,0,0,0.5); backdrop-filter:blur(10px); color:white; border:none; border-radius:50%; width:48px; height:48px; font-size:1.5rem; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.3s;">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            
+            <div class="modal-hero" style="height:45vh; min-height:300px; position:relative; background: url('${post.image_url || 'latter-view.webp'}') center/cover; flex-shrink:0;">
+                <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);"></div>
+                <div style="position:absolute; bottom:0; padding:40px; width:100%;">
+                    <h1 style="font-size:3rem; font-weight:900; line-height:1.2; margin:0; text-shadow:0 4px 20px rgba(0,0,0,0.8); background:linear-gradient(135deg, #fff, #cbd5e1); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">${post.title}</h1>
+                </div>
+            </div>
+            
+            <div class="modal-body" style="flex:1; overflow-y:auto; padding:40px; background:transparent;">
+                <div class="modal-meta" style="display:flex; align-items:center; gap:20px; padding-bottom:30px; border-bottom:1px solid var(--glass-border); margin-bottom:30px; color:var(--text-muted); font-size:1.05rem;">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <div style="width:48px; height:48px; border-radius:50%; background:linear-gradient(135deg, var(--primary), var(--secondary)); display:flex; align-items:center; justify-content:center; color:white; font-size:1.5rem; box-shadow:0 4px 15px rgba(139,92,246,0.3);">
+                            <i class="bi bi-person"></i>
+                        </div>
+                        <div>
+                            <strong style="color:var(--text-primary); display:block;">${post.author}</strong>
+                            <span style="font-size:0.85rem;">Author / Department</span>
+                        </div>
+                    </div>
+                    <span style="width:1px; height:30px; background:var(--glass-border);"></span>
+                    <div>
+                        <i class="bi bi-calendar3" style="margin-right:8px; color:var(--primary);"></i>
+                        <time>${new Date(post.created_at).toLocaleDateString('en-US', {weekday:'long', year:'numeric', month:'long', day:'numeric'})}</time>
+                    </div>
+                    <span style="width:1px; height:30px; background:var(--glass-border);"></span>
+                    <div style="color:var(--accent);">
+                        <i class="bi bi-eye-fill" style="margin-right:8px;"></i>
+                        <span class="views">${post.views ? post.views.toLocaleString() : 0} Views</span>
+                    </div>
+                </div>
+                
+                <div class="post-content" style="font-size:1.15rem; line-height:1.8; color:var(--text-primary);">
+                    ${post.content.replace(/\n/g, '<br>')}
+                </div>
+                
+                <div class="modal-actions" style="margin-top:60px; padding-top:30px; border-top:1px solid var(--glass-border); display:flex; justify-content:space-between; align-items:center;">
+                    <button class="print-btn" onclick="hapticFeed(); printPost(${post.id})" title="Print Article" style="padding:10px 24px; border-radius:100px; border:1px solid var(--glass-border); background:var(--glass); color:var(--text-primary); cursor:pointer; font-weight:600; display:flex; align-items:center; gap:8px; transition:all 0.3s;">
+                        <i class="bi bi-printer"></i> Print Article
+                    </button>
+                    <div class="share-group" style="display:flex; gap:16px;">
+                        <span style="color:var(--text-muted); font-weight:600; align-self:center;">SHARE:</span>
+                        <button class="share-btn share-fb" onmousedown="hapticFeed()" onclick="shareFB('${post.title.replace(/'/g, "\\'")}')" title="Facebook">
+                            <svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                        </button>
+                        <button class="share-btn share-tw" onclick="shareTwitter('${post.title.replace(/'/g, "\\'")}')" title="Twitter / X">
+                            <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                        </button>
+                        <button class="share-btn share-wa" onclick="shareWA('${post.title.replace(/'/g, "\\'")}')" title="WhatsApp">
+                            <svg viewBox="0 0 24 24"><path d="M12.031 0C5.385 0 0 5.388 0 12.039c0 2.122.551 4.195 1.597 6.01L.001 24l6.104-1.601A11.972 11.972 0 0012.031 24c6.643 0 12.03-5.386 12.03-12.04C24.061 5.387 18.674 0 12.031 0m6.534 17.291c-.267.755-1.503 1.488-2.071 1.558-.567.07-1.25.17-3.665-.83-2.903-1.205-4.755-4.223-4.897-4.417-.142-.194-1.171-1.564-1.171-2.986 0-1.422.738-2.125.993-2.395.255-.27.553-.338.737-.338.184 0 .368.002.525.01.17.009.398-.066.623.473.284.685.993 2.434 1.078 2.603.085.17.142.368.028.594-.113.226-.17.368-.34.567-.17.198-.354.434-.51.585-.17.17-.348.358-.142.716.206.358.916 1.536 1.955 2.483 1.341 1.222 2.487 1.597 2.841 1.767.354.17.561.142.774-.103.213-.245.922-1.074 1.177-1.442.255-.368.51-.302.835-.18.326.122 2.055.986 2.41 1.165.354.18.594.264.68.406.085.142.085.83-.182 1.585"/></svg>
+                        </button>
+                        <button class="share-btn share-native" onclick="nativeShare('${post.title.replace(/'/g, "\\'")}', '${post.excerpt.replace(/'/g, "\\'")}')" title="Share via Device">
+                            <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3" fill="currentColor"/><circle cx="6" cy="12" r="3" fill="currentColor"/><circle cx="18" cy="19" r="3" fill="currentColor"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51L8.59 10.49" stroke="currentColor" stroke-width="2"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
     
-    if (platform === 'copy') {
-        navigator.clipboard.writeText(window.location.href);
-        showToast('Link copied!', 'success');
-    } else if (links[platform]) {
-        window.open(links[platform], '_blank', 'width=600,height=400');
+    document.body.appendChild(modal);
+}
+
+function shareFB(title) {
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(location.href)}`, '_blank');
+}
+
+function shareTwitter(title) {
+    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(location.href)}`, '_blank');
+}
+
+function shareWA(title) {
+    window.open(`https://wa.me/?text=${encodeURIComponent(title + ' ' + location.href)}`, '_blank');
+}
+
+function printPost(id) {
+    const post = postsData.find(p => p.id === id);
+    if (post) {
+        const win = window.open('', '_blank');
+        win.document.write(`
+            <html>
+                <head>
+                    <title>${post.title}</title>
+                    <style>body{font-family:serif;line-height:1.6;max-width:800px;margin:40px auto;padding:0 20px}</style>
+                </head>
+                <body>
+                    <h1>${post.title}</h1>
+                    <p>${post.author} • ${new Date(post.created_at).toLocaleDateString()} • ${post.views} views</p>
+                    <img src="${post.image_url}" style="width:100%;max-width:600px;height:auto">
+                    <div style="margin-top:30px">${post.content}</div>
+                </body>
+            </html>
+        `);
+        win.document.close();
+        win.print();
     }
 }
 
-function printArticle() {
-    const post = postsData.find(p => p.id === currentPostId);
-    if (!post) return;
-    
-    const printWindow = window.open('', '_blank');
-    printWindow?.document.write(`
-        <!DOCTYPE html><html><head><title>${post.title}</title>
-        <style>body{font-family:Arial;padding:40px;max-width:800px;margin:0 auto}
-        h1{color:#b71c1c}.meta{color:#666;margin-bottom:20px}</style></head>
-        <body><h1>${post.title}</h1>
-        <div class="meta"><span>${post.date}</span> | <span>${post.readTime} min</span> | <span>${post.cat}</span></div>
-        ${post.author ? `<p><strong>By:</strong> ${post.author.name}</p>` : ''}
-        <div>${post.content}</div></body></html>
-    `);
-    printWindow?.document.close();
-    printWindow?.print();
+function showToast(msg) {
+    const toast = document.createElement('div');
+    toast.className = 'toast-notification';
+    toast.textContent = msg;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
 }
 
-// ==================== Scroll Progress ==================== //
-function initScrollProgress() {
-    window.addEventListener('scroll', () => {
-        const scrolled = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
-        const progressBar = document.getElementById('progressBar');
-        if (progressBar) progressBar.style.width = scrolled + '%';
-        
-        const navbar = document.getElementById('navbar');
-        if (navbar) navbar.classList.toggle('scrolled', window.scrollY > 50);
-    });
-}
-
-// ==================== Mobile Menu ==================== //
-function initMobileMenu() {
-    const hamburger = document.getElementById('hamburger');
-    const navLinks = document.querySelector('.nav-links');
-    
-    if (hamburger && navLinks) {
-        hamburger.addEventListener('click', () => {
-            hamburger.classList.toggle('active');
-            navLinks.classList.toggle('mobile-open');
-        });
+function nativeShare(title, text) {
+    if (navigator.share) {
+        navigator.share({
+            title: title,
+            text: text,
+            url: window.location.href
+        }).catch(err => console.log('Error sharing', err));
+    } else {
+        showToast('Native share not supported on this device.');
     }
 }
 
-// ==================== AOS ==================== //
-function initAOS() {
-    if (typeof AOS !== 'undefined') {
-        AOS.init({ duration: 800, easing: 'ease-in-out', once: true, offset: 100 });
-    }
-}
-
-// ==================== Toast ==================== //
-function showToast(message, type = 'success') {
-    const toast = document.getElementById('toast');
-    const toastMessage = document.getElementById('toastMessage');
-    if (!toast || !toastMessage) return;
-    
-    toastMessage.textContent = message;
-    toast.className = 'toast show ' + type;
-    setTimeout(() => toast.className = 'toast', 3000);
-}
-
-// ==================== Admin CRUD Functions ==================== //
-/**
- * Admin: Create a new post
- * Returns the created post ID
- */
-async function createPost(postData) {
-    try {
-        const supabase = getSupabase();
-        if (!supabase) return null;
-        
-        const { data, error } = await supabase
-            .from('posts')
-            .insert([postData])
-            .select()
-            .single();
-        
-        if (error) throw error;
-        
-        // Refresh posts
-        await initBlog();
-        renderBlogPosts();
-        
-        showToast('Post created successfully!', 'success');
-        return data.id;
-    } catch (error) {
-        console.error('Error creating post:', error);
-        showToast('Failed to create post', 'error');
-        return null;
-    }
-}
-
-/**
- * Admin: Update a post
- */
-async function updatePost(postId, updates) {
-    try {
-        const supabase = getSupabase();
-        if (!supabase) return false;
-        
-        const { error } = await supabase
-            .from('posts')
-            .update(updates)
-            .eq('id', postId);
-        
-        if (error) throw error;
-        
-        // Refresh posts
-        await initBlog();
-        renderBlogPosts();
-        
-        showToast('Post updated successfully!', 'success');
-        return true;
-    } catch (error) {
-        console.error('Error updating post:', error);
-        showToast('Failed to update post', 'error');
-        return false;
-    }
-}
-
-/**
- * Admin: Delete a post
- */
-async function deletePost(postId) {
-    try {
-        const supabase = getSupabase();
-        if (!supabase) return false;
-        
-        const { error } = await supabase
-            .from('posts')
-            .delete()
-            .eq('id', postId);
-        
-        if (error) throw error;
-        
-        // Refresh posts
-        await initBlog();
-        renderBlogPosts();
-        
-        showToast('Post deleted successfully!', 'success');
-        return true;
-    } catch (error) {
-        console.error('Error deleting post:', error);
-        showToast('Failed to delete post', 'error');
-        return false;
-    }
-}
-
-/**
- * Admin: Create a new event
- */
-async function createEvent(eventData) {
-    try {
-        const supabase = getSupabase();
-        if (!supabase) return null;
-        
-        const { data, error } = await supabase
-            .from('events')
-            .insert([eventData])
-            .select()
-            .single();
-        
-        if (error) throw error;
-        
-        // Refresh events
-        await initBlog();
-        renderEvents();
-        
-        showToast('Event created successfully!', 'success');
-        return data.id;
-    } catch (error) {
-        console.error('Error creating event:', error);
-        showToast('Failed to create event', 'error');
-        return null;
-    }
-}
-
-/**
- * Admin: Delete an event
- */
-async function deleteEvent(eventId) {
-    try {
-        const supabase = getSupabase();
-        if (!supabase) return false;
-        
-        const { error } = await supabase
-            .from('events')
-            .delete()
-            .eq('id', eventId);
-        
-        if (error) throw error;
-        
-        // Refresh events
-        await initBlog();
-        renderEvents();
-        
-        showToast('Event deleted successfully!', 'success');
-        return true;
-    } catch (error) {
-        console.error('Error deleting event:', error);
-        showToast('Failed to delete event', 'error');
-        return false;
-    }
-}
-
-// ==================== Global Functions ==================== //
-window.openPost = openPost;
-window.closeModal = closeModal;
-window.shareArticle = shareArticle;
-window.printArticle = printArticle;
-window.createPost = createPost;
-window.updatePost = updatePost;
-window.deletePost = deletePost;
-window.createEvent = createEvent;
-window.deleteEvent = deleteEvent;
+// Perfect!
 

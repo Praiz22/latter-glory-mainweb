@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog | Latter Glory Academy - TEST</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: Arial, sans-serif; 
+            background: linear-gradient(135deg, #f8f9ff 0%, #fff5f7 50%, #f9f5ff 100%);
+            min-height: 100vh;
+            padding-top: 80px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        h1 { color: #b71c1c; margin-bottom: 30px; }
+        .blog-grid { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 20px; 
+        }
+        .blog-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+        .blog-card img { width: 100%; height: 200px; object-fit: cover; }
+        .card-body { padding: 15px; }
+        .card-body h3 { font-size: 16px; margin-bottom: 10px; }
+        .card-category {
+            background: #b71c1c;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+        @media (max-width: 768px) {
+            .blog-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Latest Updates - TEST VERSION</h1>
+        <div class="blog-grid" id="blogGrid"></div>
+
+    <script>
+        // Simple test data
+        var posts = [
+            { id: 1, title: 'Empowering Future Leaders through Digital Innovation', img: 'latter-glory-geniuses.webp', cat: 'academics', excerpt: 'Inside the LGA Creative Suite and Robotics Lab.' },
+            { id: 2, title: "Children's Day 2025: A Celebration of Joy", img: 'childrens day.webp', cat: 'events', excerpt: 'A spectacular celebration!' },
+            { id: 3, title: 'Inter-House Sports: Champions of Excellence', img: 'sport11.webp', cat: 'sports', excerpt: 'Our athletes showcase incredible talent.' },
+            { id: 4, title: 'The Power of Music in Early Childhood', img: 'latter-music1.webp', cat: 'academics', excerpt: 'Music education plays a crucial role.' },
+            { id: 5, title: 'Career Day 2026: Inspiring Future Professionals', img: 'event2.webp', cat: 'events', excerpt: 'Professionals share their experiences.' },
+            { id: 6, title: 'Enrollment Opens for 2026/2027 Session', img: 'new.webp', cat: 'admissions', excerpt: 'Join the Latter Glory Academy family!' }
+        ];
+
+        var grid = document.getElementById('blogGrid');
+        
+        posts.forEach(function(post) {
+            grid.innerHTML += '<div class="blog-card">' +
+                '<img src="' + post.img + '">' +
+                '<div class="card-body">' +
+                '<span class="card-category">' + post.cat + '</span>' +
+                '<h3>' + post.title + '</h3>' +
+                '<p>' + post.excerpt + '</p>' +
+                '</div>';
+        });
+
+        console.log('Rendered', posts.length, 'posts');
+    </script>
+</body>
+</html>
