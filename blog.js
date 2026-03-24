@@ -4,6 +4,7 @@ let postsData = [];
 let eventsData = [];
 let currentSlide = 0;
 let currentFilter = 'all';
+let currentSearchTerm = '';
 let clickCount = 0;
 let lastClick = 0;
 
@@ -197,17 +198,33 @@ function openDashboard(user) {
 }
 
 // Newsletter
-function handleNewsletter() {
+async function handleNewsletter() {
     const emailEl = getElement('newsletterEmail');
     const statusEl = getElement('newsletterStatus');
     if (!emailEl || !statusEl) return;
     
     const email = emailEl.value.trim();
     if (email && email.includes('@')) {
-        statusEl.textContent = 'Subscribed! Thank you.';
-        statusEl.style.color = '#4CAF50';
-        emailEl.value = '';
-        setTimeout(() => statusEl.textContent = '', 3000);
+        statusEl.textContent = 'Subscribing...';
+        statusEl.style.color = 'var(--accent)';
+        
+        try {
+            const supabase = window.supabase;
+            if (supabase && supabase.from) {
+                const { error } = await supabase.from('subscribers').insert([{ email: email, subscribed_at: new Date().toISOString() }]);
+                if (error && error.code !== '23505') throw error; // Ignore duplicate email errors implicitly
+            }
+            
+            statusEl.textContent = 'Subscribed! Thank you.';
+            statusEl.style.color = '#4CAF50';
+            emailEl.value = '';
+        } catch (error) {
+            console.error('Subscription error:', error);
+            statusEl.textContent = 'An error occurred. Try again later.';
+            statusEl.style.color = '#f44336';
+        }
+        
+        setTimeout(() => statusEl.textContent = '', 4000);
     } else {
         statusEl.textContent = 'Please enter valid email';
         statusEl.style.color = '#f44336';
@@ -216,7 +233,7 @@ function handleNewsletter() {
 
 // Main App Init
 async function initBlog() {
-    // Show Skeletons instantly
+    // Show Skeletons instantly  
     renderSkeletons();
     
     try {
@@ -225,11 +242,13 @@ async function initBlog() {
         bindInteractions();
         startCarousel();
         setupRealtime();
-        // LGA Blog Ready
+        hidePreloader(); // Force hide preloader
+        console.log('LGA Blog Ready - Modern carousel initialized');
     } catch (error) {
         console.error('Init error:', error);
-        loadFallbackData();
+        loadFallbackData(); // ✅ Fallback to dummy posts
         renderAll();
+        hidePreloader(); // Force hide even on error
     }
 }
 
@@ -302,6 +321,27 @@ function loadFallbackData() {
             excerpt: 'We have completely overhauled the student digital experience with an advanced Antigravity UI for better accessibility and speed.',
             created_at: new Date(Date.now() - 86400000 * 3).toISOString(),
             content: '<p>We are thrilled to roll out the new portal. Featuring instant loading skeletons, realtime websocket updates, and a gorgeous glass aesthetic, managing your academic life has never been better.</p>'
+        },
+        {
+            id: 4, title: 'Term 3 Registration Deadlines Extended',
+            category: 'academics', image_url: 'event2.webp', views: 2400, author: 'Admin Console',
+            excerpt: 'Please be advised that the late registration window has been pushed to Friday.',
+            created_at: new Date(Date.now() - 86400000 * 4).toISOString(),
+            content: '<p>All parents must complete portal registrations ASAP to secure seating arrangements. Let patience and diligence guide our processes as we wrap up another excellent term.</p>'
+        },
+        {
+            id: 5, title: 'Blue House Takes The Lead In Pre-Tournament Qualifiers',
+            category: 'sports', image_url: 'sport11.webp', views: 1850, author: 'Mr. John Obi (Sports Director)',
+            excerpt: 'The athletics division saw a massive sweep by Blue House athletes this morning.',
+            created_at: new Date(Date.now() - 86400000 * 5).toISOString(),
+            content: '<p>What a spectacular showing by our junior sprinters. We expect the finals tomorrow to break records!</p>'
+        },
+        {
+            id: 6, title: 'Alumni Spotlight: Dr. Sarah Wins Global Tech Award',
+            category: 'events', image_url: 'latter-glory-geniuses.webp', views: 6300, author: 'Media Team',
+            excerpt: 'One of our brightest former students has just been recognized internationally.',
+            created_at: new Date(Date.now() - 86400000 * 6).toISOString(),
+            content: '<p>Congratulations Dr. Sarah for representing the core values of Latter Glory Academy on a global stage in Berlin last week!</p>'
         }
     ];
     
@@ -329,13 +369,13 @@ function showRealtimeToast(post) {
     const toast = document.createElement('div');
     toast.className = 'realtime-toast fluid-glass';
     toast.innerHTML = `
-        <div style="display:flex; gap:16px; align-items:center;">
-            <div style="background:var(--primary); padding:12px; border-radius:50%; box-shadow:0 10px 20px rgba(139,92,246,0.3);">
+        <div style="background:var(--bg-base); padding:16px; border-radius:16px; box-shadow:0 10px 40px rgba(0,0,0,0.5); border:1px solid var(--glass-border); width:340px; display:flex; gap:16px; align-items:center;">
+            <div style="background:var(--primary); padding:12px; border-radius:12px; display:flex; align-items:center; justify-content:center;">
                 <i class="bi bi-bell-fill" style="color:white; font-size:1.2rem;"></i>
             </div>
-            <div>
-                <h4 style="margin:0 0 6px 0; font-size:1rem; color:var(--text-primary);">New Post Published!</h4>
-                <p style="margin:0; font-size:0.9rem; color:var(--text-muted);">${post.title}</p>
+            <div style="flex:1;">
+                <h4 style="margin:0 0 4px 0; font-size:0.95rem; font-weight:700; color:var(--text-primary); letter-spacing:-0.2px;">New Article</h4>
+                <p style="margin:0; font-size:0.85rem; font-weight:500; color:var(--text-muted); line-height:1.3; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;">${post.title}</p>
             </div>
         </div>
     `;
@@ -370,53 +410,86 @@ function renderAll() {
 
 function renderHeroCarousel() {
     const hero = getElement('heroCarousel');
-    if (hero) {
-        hero.innerHTML = postsData.slice(0, 3).map((p, i) => `
-            <div class="hero-slide ${i === 0 ? 'active' : ''}" 
-                 style="background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.3)), url(${p.image_url}) center/cover no-repeat fixed">
-                <div class="hero-overlay">
-                    <div class="hero-content">
-                        <h1>${p.title}</h1>
-                        <p>${p.excerpt}</p>
-                    </div>
-                </div>
-            </div>
-        `).join('') || `
-            <div class="hero-slide active" style="background: linear-gradient(135deg, var(--primary), #d32f2f)">
-                <div class="hero-content">
-                    <h1>Welcome to LGA Blog</h1>
-                    <p>Your trusted source for excellence</p>
-                </div>
-            </div>
-        `;
+    const carouselSection = hero?.closest('.carousel-section');
+    if (!hero || !carouselSection) return;
+    
+    // Only show featured carousel if we are looking at 'all' posts without search
+    if (currentFilter !== 'all' || currentSearchTerm) {
+        carouselSection.classList.add('hidden');
+        return;
     }
+    
+    carouselSection.classList.remove('hidden');
+    const topPosts = postsData.slice(0, 3);
+    
+    hero.innerHTML = topPosts.map((p, i) => `
+        <article class="hero-slide ${i === 0 ? 'active' : ''}" 
+                 data-slide="${i}" 
+                 role="group" 
+                 aria-label="Featured post ${i+1}: ${p.title}"
+                 onmousedown="hapticFeed()" 
+                 onclick="openPost(${p.id})">
+            <div class="slide-media">
+                <img src="${p.image_url || 'latter-view.webp'}" alt="${p.title}" loading="lazy">
+            </div>
+            <div class="slide-content">
+                <div class="cat-badge" aria-label="${p.category} category">${p.category?.toUpperCase()}</div>
+                <h2 class="slide-title">${p.title}</h2>
+                <div class="slide-meta">
+                    <span class="author">${p.author}</span>
+                    <span class="date">${new Date(p.created_at).toLocaleDateString()}</span>
+                </div>
+            </div>
+        </article>
+    `).join('');
+    
+    // Safe init controls after render
+    if (typeof initCarouselControls === 'undefined') {
+        initCarouselControls = () => {};
+        console.warn('initCarouselControls not implemented - using no-op');
+    }
+    initCarouselControls();
 }
 
 function renderBlogGrid() {
     const grid = getElement('mainBlogGrid');
     if (grid) {
-        const filtered = postsData.filter(p => currentFilter === 'all' || p.category === currentFilter);
-        grid.innerHTML = filtered.slice(0, 12).map(p => `
-            <article class="blog-card horizontal fluid-glass" onmousedown="hapticFeed()" onclick="openPost(${p.id})">
-                <div class="card-image-container">
-                    <img src="${p.image_url || 'latter-view.webp'}" alt="${p.title}" loading="lazy">
+        grid.style.gap = '0'; // Remove grid gaps for seamless list
+        grid.style.display = 'block'; // Block layout instead of CSS grid
+
+        let filtered = postsData.filter(p => currentFilter === 'all' || p.category === currentFilter);
+        
+        // Apply Global Search Filtering 
+        if (currentSearchTerm) {
+            const term = currentSearchTerm.toLowerCase();
+            filtered = filtered.filter(p => 
+                (p.title && p.title.toLowerCase().includes(term)) || 
+                (p.excerpt && p.excerpt.toLowerCase().includes(term)) || 
+                (p.author && p.author.toLowerCase().includes(term))
+            );
+        }
+        
+        // For list view, grab items depending on if we are showing featured module
+        const isFeaturedVisible = (currentFilter === 'all' && !currentSearchTerm);
+        const startIndex = isFeaturedVisible ? 3 : 0;
+        const displayPosts = filtered.slice(startIndex, startIndex + 12);
+        
+        grid.innerHTML = displayPosts.map((p, index) => {
+            return `
+            <article class="apple-list-item" onmousedown="hapticFeed()" onclick="openPost(${p.id})">
+                <div class="apple-list-content">
+                    <div style="color:var(--primary); font-size:0.75rem; font-weight:800; letter-spacing:1px; text-transform:uppercase; margin-bottom:8px;">${p.category}</div>
+                    <h3 style="font-size:1.25rem; font-weight:700; line-height:1.25; margin:0 0 8px 0; color:var(--text-primary); letter-spacing:-0.3px; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;">${p.title}</h3>
+                    <div style="color:var(--text-muted); font-size:0.85rem; font-weight:500;">${new Date(p.created_at).toLocaleDateString()}</div>
                 </div>
-                <div class="card-content-container">
-                    <h3>${p.title}</h3>
-                    <p>${p.excerpt}</p>
-                    <div class="meta">
-                        <span><i class="bi bi-person"></i> ${p.author}</span>
-                        <span>•</span>
-                        <span><i class="bi bi-calendar"></i> ${new Date(p.created_at).toLocaleDateString()}</span>
-                        <span>•</span>
-                        <span><i class="bi bi-eye"></i> ${p.views ? p.views.toLocaleString() : 0} views</span>
-                    </div>
-                </div>
+                <img src="${p.image_url || 'latter-view.webp'}" alt="${p.title}" class="apple-list-img">
             </article>
-        `).join('') || `
-            <div class="empty-state">
-                <i class="bi bi-newspaper" style="font-size:3rem; color:var(--text-muted); opacity:0.5;"></i>
-                <h3 style="margin-top:16px;">No posts found</h3>
+            <div class="apple-divider"></div>
+            `;
+        }).join('') || `
+            <div class="empty-state" style="text-align:center; padding:80px 20px;">
+                <h3 style="margin-top:16px; color:var(--text-muted); font-weight:600;">No articles found</h3>
+                <p style="color:var(--text-muted); font-size:1rem;">Adjust your search or filters.</p>
             </div>
         `;
     }
@@ -458,7 +531,34 @@ function bindInteractions() {
     if (themeBtn) themeBtn.onclick = toggleTheme;
     
     const searchIcon = getElement('searchIcon');
-    if (searchIcon) searchIcon.onclick = () => getElement('searchOverlay').classList.toggle('show');
+    if (searchIcon) {
+        searchIcon.onclick = () => {
+            const overlay = getElement('searchOverlay');
+            overlay.classList.toggle('show');
+            if(overlay.classList.contains('show')) {
+                const searchGlobal = getElement('globalSearch');
+                if(searchGlobal) searchGlobal.focus();
+            }
+        };
+    }
+    
+    const searchInput = getElement('globalSearch');
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            currentSearchTerm = e.target.value;
+            renderAll(); // Re-render carousel too
+        });
+    }
+    
+    const searchClear = document.querySelector('.search-clear');
+    if (searchClear && searchInput) {
+        searchClear.onclick = () => {
+            searchInput.value = '';
+            currentSearchTerm = '';
+            renderAll();
+            getElement('searchOverlay').classList.remove('show');
+        };
+    }
     
     const adminBtn = getElement('adminBtn');
     if (adminBtn) adminBtn.onclick = openAdminModal;
@@ -469,25 +569,125 @@ function bindInteractions() {
             currentFilter = btn.dataset.filter;
             getElements('[data-filter]').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            renderBlogGrid();
+            renderAll(); // Re-render carousel too
         };
     });
+    
+    // Carousel interactions
+    bindCarouselInteractions();
 }
+
+function bindCarouselInteractions() {
+    // Arrow controls
+    getElements('.carousel-arrow').forEach(arrow => {
+        arrow.onclick = () => {
+            hapticFeed();
+            const isPrev = arrow.classList.contains('prev');
+            const slides = getElements('.hero-slide');
+            const current = currentSlide;
+            currentSlide = isPrev ? (current - 1 + slides.length) % slides.length : (current + 1) % slides.length;
+            goToSlide(currentSlide);
+        };
+    });
+
+    // Dot controls
+    getElements('.carousel-dot').forEach((dot, index) => {
+        dot.onclick = () => {
+            hapticFeed();
+            goToSlide(index);
+        };
+    });
+
+    // Keyboard navigation
+    document.addEventListener('keydown', e => {
+        if (document.querySelector('.carousel-section:not(.hidden)')) {
+            if (e.key === 'ArrowLeft') {
+                hapticFeed();
+                e.preventDefault();
+                const slides = getElements('.hero-slide');
+                currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+                goToSlide(currentSlide);
+            } else if (e.key === 'ArrowRight') {
+                hapticFeed();
+                e.preventDefault();
+                const slides = getElements('.hero-slide');
+                currentSlide = (currentSlide + 1) % slides.length;
+                goToSlide(currentSlide);
+            }
+        }
+    });
+
+    // Mouse hover pause
+    const carouselSection = getElement('heroCarousel')?.closest('.carousel-section');
+    if (carouselSection) {
+        carouselSection.onmouseenter = pauseCarousel;
+        carouselSection.onmouseleave = () => setTimeout(resumeCarousel, 300);
+    }
+}
+
+window.initCarouselControls = bindCarouselInteractions;
+
 
 // Debug admin
 // Clean - no test functions
 
 
-// Carousel Auto-Play
+// Modern RAF Carousel with pause/resume
+let rafId = null;
+let isPaused = false;
+let pauseTimeout = null;
+
 function startCarousel() {
-    slideInterval = setInterval(() => {
+    if (rafId) cancelAnimationFrame(rafId);
+    
+    function animate() {
+        if (isPaused || !document.querySelector('.hero-slide.active')) {
+            rafId = requestAnimationFrame(animate);
+            return;
+        }
+        
         const slides = getElements('.hero-slide');
         if (!slides.length) return;
         
-        slides.forEach(s => s.classList.remove('active'));
+        slides.forEach(s => {
+            s.classList.remove('active');
+        });
+        
         currentSlide = (currentSlide + 1) % slides.length;
         slides[currentSlide].classList.add('active');
-    }, 4000);
+        announceSlideChange(slides[currentSlide]);
+        
+        rafId = requestAnimationFrame(animate);
+    }
+    
+    rafId = requestAnimationFrame(animate);
+}
+
+function pauseCarousel() {
+    isPaused = true;
+}
+
+function resumeCarousel() {
+    isPaused = false;
+}
+
+function goToSlide(index) {
+    currentSlide = index;
+    const slides = getElements('.hero-slide');
+    slides.forEach((s, i) => {
+        s.classList.toggle('active', i === index);
+    });
+    announceSlideChange(slides[index]);
+    resumeCarousel(); // Resume auto-play after manual nav
+}
+
+function announceSlideChange(slide) {
+    const title = slide.querySelector('.slide-title')?.textContent || 'Featured post';
+    const announce = getElement('carousel-announce');
+    if (announce) {
+        announce.textContent = `Now showing: ${title}`;
+        announce.dispatchEvent(new Event('liveupdate'));
+    }
 }
 
 // Modal - Styled Perfectly (Full Screen Fluid Glass Redesign)
@@ -503,52 +703,34 @@ function openPost(id) {
     
     const modal = document.createElement('div');
     modal.className = 'modal-overlay show';
+    modal.style.background = 'var(--bg-base)';
     modal.innerHTML = `
-        <div class="modal-container" style="max-width:1000px; width:95%; height:90vh; display:flex; flex-direction:column; padding:0; overflow:hidden; border-radius:32px; background:var(--glass); border:1px solid var(--glass-border); backdrop-filter:blur(40px); -webkit-backdrop-filter:blur(40px); box-shadow:0 30px 100px rgba(0,0,0,0.6);">
+        <div class="modal-container" style="width:100vw; max-width:100vw; height:100vh; margin:0; border-radius:0; background:var(--bg-base); display:flex; flex-direction:column; padding:0; overflow-y:auto; overflow-x:hidden;">
             
-            <button class="modal-close" onclick="hapticFeed(); this.closest('.modal-overlay').remove()" style="position:absolute; top:24px; right:24px; z-index:10; background:rgba(0,0,0,0.5); backdrop-filter:blur(10px); color:white; border:none; border-radius:50%; width:48px; height:48px; font-size:1.5rem; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.3s;">
+            <button class="modal-close" onclick="hapticFeed(); this.closest('.modal-overlay').remove()" style="position:fixed; top:20px; right:20px; z-index:10; background:rgba(255,255,255,0.8); backdrop-filter:blur(10px); color:black; border:none; border-radius:16px; width:44px; height:44px; font-size:1.4rem; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 4px 15px rgba(0,0,0,0.3);">
                 <i class="bi bi-x-lg"></i>
             </button>
             
-            <div class="modal-hero" style="height:45vh; min-height:300px; position:relative; background: url('${post.image_url || 'latter-view.webp'}') center/cover; flex-shrink:0;">
-                <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);"></div>
-                <div style="position:absolute; bottom:0; padding:40px; width:100%;">
-                    <h1 style="font-size:3rem; font-weight:900; line-height:1.2; margin:0; text-shadow:0 4px 20px rgba(0,0,0,0.8); background:linear-gradient(135deg, #fff, #cbd5e1); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">${post.title}</h1>
-                </div>
-            </div>
+            <img src="${post.image_url || 'latter-view.webp'}" style="width:100%; height:45vh; min-height:350px; object-fit:cover; flex-shrink:0;">
             
-            <div class="modal-body" style="flex:1; overflow-y:auto; padding:40px; background:transparent;">
-                <div class="modal-meta" style="display:flex; align-items:center; gap:20px; padding-bottom:30px; border-bottom:1px solid var(--glass-border); margin-bottom:30px; color:var(--text-muted); font-size:1.05rem;">
-                    <div style="display:flex; align-items:center; gap:12px;">
-                        <div style="width:48px; height:48px; border-radius:50%; background:linear-gradient(135deg, var(--primary), var(--secondary)); display:flex; align-items:center; justify-content:center; color:white; font-size:1.5rem; box-shadow:0 4px 15px rgba(139,92,246,0.3);">
-                            <i class="bi bi-person"></i>
-                        </div>
-                        <div>
-                            <strong style="color:var(--text-primary); display:block;">${post.author}</strong>
-                            <span style="font-size:0.85rem;">Author / Department</span>
-                        </div>
-                    </div>
-                    <span style="width:1px; height:30px; background:var(--glass-border);"></span>
-                    <div>
-                        <i class="bi bi-calendar3" style="margin-right:8px; color:var(--primary);"></i>
-                        <time>${new Date(post.created_at).toLocaleDateString('en-US', {weekday:'long', year:'numeric', month:'long', day:'numeric'})}</time>
-                    </div>
-                    <span style="width:1px; height:30px; background:var(--glass-border);"></span>
-                    <div style="color:var(--accent);">
-                        <i class="bi bi-eye-fill" style="margin-right:8px;"></i>
-                        <span class="views">${post.views ? post.views.toLocaleString() : 0} Views</span>
-                    </div>
+            <div class="modal-body" style="flex:1; padding:32px 24px 60px 24px; max-width:680px; margin:0 auto; width:100%;">
+                
+                <div style="color:var(--primary); font-size:0.85rem; font-weight:800; letter-spacing:1px; text-transform:uppercase; margin-bottom:12px;">${post.category}</div>
+                <h1 style="font-size:2.8rem; font-weight:900; line-height:1.15; margin:0 0 24px 0; color:var(--text-primary); letter-spacing:-0.5px;">${post.title}</h1>
+                <div style="color:var(--text-muted); font-size:1.1rem; font-weight:600; margin-bottom:32px; display:flex; justify-content:space-between; align-items:center; border-bottom: 2px solid var(--glass-border); padding-bottom: 24px;">
+                    <div>By <span style="color:var(--text-primary);">${post.author}</span><br><span style="font-size:0.9rem; font-weight:500;">${new Date(post.created_at).toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric'})}</span></div>
+                    <div style="font-size:0.9rem; border: 1px solid var(--glass-border); padding: 6px 14px; border-radius:100px;">${post.views ? post.views.toLocaleString() : 0} Views</div>
                 </div>
                 
-                <div class="post-content" style="font-size:1.15rem; line-height:1.8; color:var(--text-primary);">
-                    ${post.content.replace(/\n/g, '<br>')}
+                <div class="post-content" style="font-family: Georgia, serif; font-size:1.25rem; line-height:1.7; color:var(--text-primary);">
+                    ${post.content.replace(/\n/g, '<br><br>')}
                 </div>
                 
-                <div class="modal-actions" style="margin-top:60px; padding-top:30px; border-top:1px solid var(--glass-border); display:flex; justify-content:space-between; align-items:center;">
-                    <button class="print-btn" onclick="hapticFeed(); printPost(${post.id})" title="Print Article" style="padding:10px 24px; border-radius:100px; border:1px solid var(--glass-border); background:var(--glass); color:var(--text-primary); cursor:pointer; font-weight:600; display:flex; align-items:center; gap:8px; transition:all 0.3s;">
-                        <i class="bi bi-printer"></i> Print Article
+                <div class="modal-actions" style="margin-top:60px; padding-top:40px; border-top:1px solid var(--glass-border); display:flex; justify-content:space-between; align-items:center;">
+                    <button class="print-btn" onclick="hapticFeed(); printPost(${post.id})" title="Print Article" style="padding:12px 28px; border-radius:100px; border:none; background:var(--primary); color:white; cursor:pointer; font-weight:700; font-size:1.1rem; display:flex; align-items:center; gap:8px; transition:all 0.3s; box-shadow:0 4px 15px rgba(183,28,28,0.3);">
+                        <i class="bi bi-printer"></i> Print
                     </button>
-                    <div class="share-group" style="display:flex; gap:16px;">
+                    <div class="share-group" style="display:flex; gap:12px;">
                         <span style="color:var(--text-muted); font-weight:600; align-self:center;">SHARE:</span>
                         <button class="share-btn share-fb" onmousedown="hapticFeed()" onclick="shareFB('${post.title.replace(/'/g, "\\'")}')" title="Facebook">
                             <svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>

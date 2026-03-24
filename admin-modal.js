@@ -13,7 +13,7 @@ let leaderboard = [];
 
 
 // Open login modal
-window.openAdminModal = function() {
+window.openAdminModal = function () {
     const modal = document.createElement('div');
     modal.className = 'admin-overlay show';
     modal.innerHTML = `
@@ -55,13 +55,13 @@ async function handleLogin() {
     const email = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value.trim();
     const errorEl = document.getElementById('loginError');
-    
+
     if (!email || !password) {
         errorEl.style.display = 'block';
         errorEl.textContent = 'Please enter both email and password';
         return;
     }
-    
+
     try {
         // Try Supabase authentication first
         const supabase = window.supabase;
@@ -70,22 +70,22 @@ async function handleLogin() {
                 email: email,
                 password: password
             });
-            
+
             if (error) {
                 throw error;
             }
-            
+
             // Get user profile from Supabase
             const { data: profile, error: profileError } = await supabase
                 .from('profiles')
                 .select('*')
                 .eq('email', email)
                 .single();
-            
+
             if (profileError || !profile) {
                 throw new Error('User profile not found');
             }
-            
+
             currentStaff = {
                 username: profile.username,
                 password: password, // Keep for fallback
@@ -93,7 +93,7 @@ async function handleLogin() {
                 avatar: profile.avatar,
                 role: profile.role
             };
-            
+
             errorEl.style.display = 'none';
             document.querySelector('.login-modal-overlay').remove();
             openDashboard();
@@ -102,7 +102,7 @@ async function handleLogin() {
     } catch (supabaseError) {
         console.log('Supabase auth failed, using fallback:', supabaseError.message);
     }
-    
+
     // Fallback to local database
     const staff = staffDatabase[email];
     if (!staff || staff.password !== password) {
@@ -110,7 +110,7 @@ async function handleLogin() {
         errorEl.textContent = 'Invalid credentials';
         return;
     }
-    
+
     currentStaff = staff;
     errorEl.style.display = 'none';
     document.querySelector('.login-modal-overlay').remove();
@@ -147,7 +147,7 @@ function openDashboard() {
 function getDashboardContent() {
     const role = currentStaff.role;
     let content = '';
-    
+
     // Common sections for all roles
     content += `
         <div class="dashboard-grid">
@@ -157,7 +157,7 @@ function getDashboardContent() {
                 <button class="card-btn" onclick="openPostEditor()">Create Post</button>
             </div>
     `;
-    
+
     // Editor-specific sections (Tier 1)
     if (role === 'editor' || role === 'staff') {
         content += `
@@ -176,7 +176,7 @@ function getDashboardContent() {
             </div>
         `;
     }
-    
+
     // Curator-specific sections (Tier 2)
     if (role === 'curator' || role === 'teacher') {
         content += `
@@ -187,7 +187,7 @@ function getDashboardContent() {
             </div>
         `;
     }
-    
+
     // Admin-specific sections (Tier 3)
     if (role === 'admin' || role === 'super') {
         content += `
@@ -208,7 +208,7 @@ function getDashboardContent() {
             </div>
         `;
     }
-    
+
     content += `
             <div class="dashboard-card">
                 <h4><i class="bi bi-list-ul"></i> My Posts</h4>
@@ -217,7 +217,7 @@ function getDashboardContent() {
             </div>
         </div>
     `;
-    
+
     return content;
 }
 
@@ -282,11 +282,11 @@ function openPostEditor() {
         </div>
     `;
     document.body.appendChild(modal);
-    
+
     // Live readability on content
     updateReadabilityInterval = setInterval(updateReadability, 1000);
-    
-    document.getElementById('postForm').onsubmit = function(e) {
+
+    document.getElementById('postForm').onsubmit = function (e) {
         e.preventDefault();
         submitPost();
     };
@@ -296,21 +296,21 @@ function openPostEditor() {
 function updateReadability() {
     const content = document.getElementById('postContent').value;
     if (!content) return;
-    
+
     const sentences = content.split(/[.!?]+/).filter(s => s.trim().length > 10).length || 1;
     const words = content.split(/\s+/).filter(w => w.length > 0).length || 1;
     const syllables = content.match(/[aeiouy]+/gi)?.reduce((a, w) => a + (w.length > 0 ? 1 : 0), 0) || 1;
-    
+
     const asl = words / sentences;
     const asw = syllables / words;
     const score = 206.835 - (1.015 * asl) - (84.6 * asw);
-    
+
     const scoreEl = document.getElementById('readabilityScore');
     const adviceEl = document.getElementById('readabilityAdvice');
     const fill = document.querySelector('#readabilityFill');
-    
+
     scoreEl.textContent = Math.round(score);
-    
+
     if (score > 70) {
         adviceEl.textContent = 'Perfect! Easy reading.';
         fill.style.background = 'var(--success)';
@@ -324,7 +324,7 @@ function updateReadability() {
         fill.style.background = 'var(--danger)';
         fill.style.width = '50%';
     }
-    
+
     document.querySelector('#readabilityLive').textContent = ` (Live: ${Math.round(score)})`;
 }
 
@@ -336,27 +336,27 @@ async function submitPost(isDraft = false) {
     const seoDesc = document.getElementById('seoDescription') ? document.getElementById('seoDescription').value.trim() : '';
     const seoKeys = document.getElementById('seoKeywords') ? document.getElementById('seoKeywords').value.trim() : '';
     const version = document.getElementById('postVersionSelect') ? parseInt(document.getElementById('postVersionSelect').value) : 1;
-    
+
     if (!title || !content) {
         alert('Please fill in all fields');
         return;
     }
-    
+
     try {
         const supabase = window.supabase;
-        
+
         // Check if Supabase is available
         if (!supabase || !supabase.from) {
             throw new Error('Supabase not available');
         }
-        
+
         // Determine status based on role and action
         let status = currentStaff.role === 'super' ? 'published' : 'pending';
         if (isDraft) status = 'draft';
-        
+
         // Create post object
         const seoData = { description: seoDesc, keywords: seoKeys };
-        
+
         const newPost = {
             title: title,
             category: category,
@@ -368,7 +368,7 @@ async function submitPost(isDraft = false) {
             created_at: new Date().toISOString(),
             views: 0
         };
-        
+
         // If editing existing, we'd use update, but for now we insert
         // Insert into Supabase
         const { data, error } = await supabase
@@ -376,13 +376,13 @@ async function submitPost(isDraft = false) {
             .upsert([newPost])
             .select()
             .single();
-            
+
         if (error) throw error;
-        
+
         // Log Audit Trail
-        await logAudit(currentStaff.name, isDraft ? 'Saved Draft' : 'Submitted Post', `Title: ${title}, Version: ${version}`);
+        await logAudit(currentStaff.name, isDraft ? 'Saved Draft' : 'Submitted Post', \`Title: \${title}, Version: \${version}\`);
         
-        showToast(isDraft ? 'Draft saved!' : `Post ${status === 'published' ? 'published' : 'submitted for review'} successfully!`);
+        showToast(isDraft ? 'Draft saved!' : \`Post \${status === 'published' ? 'published' : 'submitted for review'} successfully!\`);
         const overlay = document.querySelector('.modal-overlay');
         if(overlay) overlay.remove();
         
@@ -408,10 +408,10 @@ function newVersion() {
         const newV = currentV + 1;
         const opt = document.createElement('option');
         opt.value = newV;
-        opt.textContent = `Version ${newV} (New)`;
+        opt.textContent = \`Version \${newV} (New)\`;
         select.appendChild(opt);
         select.value = newV;
-        showToast(`Switched to Version ${newV}`);
+        showToast(\`Switched to Version \${newV}\`);
     }
 }
 
@@ -434,7 +434,7 @@ async function openReviewQueue() {
     const modal = document.createElement('div');
     modal.className = 'modal-overlay';
     modal.innerHTML = `
-        <div class="modal-container">
+            < div class= "modal-container" >
             <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">
                 <i class="bi bi-x-lg"></i>
             </button>
@@ -467,14 +467,14 @@ async function openReviewQueue() {
                     </div>
                 `).join('')}
             </div>
-        </div>
-    `;
+        </div >
+            `;
     document.body.appendChild(modal);
 }
 
 // Demo approve/reject with Audit Log
 async function approvePost(id) {
-    const feedbackInput = document.getElementById(`feedback-${id}`);
+    const feedbackInput = document.getElementById(\`feedback-\${id}\`);
     const feedback = feedbackInput ? feedbackInput.value.trim() : '';
     
     try {
@@ -493,7 +493,7 @@ async function approvePost(id) {
         
         if (error) throw error;
         
-        await logAudit(currentStaff.name, 'Approved Post', `Post ID: ${id}, Feedback: ${feedback}`);
+        await logAudit(currentStaff.name, 'Approved Post', \`Post ID: \${id}, Feedback: \${feedback}\`);
         
         showToast('Post approved and published!');
         const overlay = document.querySelector('.modal-overlay');
@@ -505,7 +505,7 @@ async function approvePost(id) {
 }
 
 async function rejectPost(id) {
-    const feedbackInput = document.getElementById(`feedback-${id}`);
+    const feedbackInput = document.getElementById(\`feedback-\${id}\`);
     const feedback = feedbackInput ? feedbackInput.value.trim() : '';
     
     if(!feedback) {
@@ -523,7 +523,7 @@ async function rejectPost(id) {
         
         if (error) throw error;
         
-        await logAudit(currentStaff.name, 'Returned Post', `Post ID: ${id}, Reason: ${feedback}`);
+        await logAudit(currentStaff.name, 'Returned Post', \`Post ID: \${id}, Reason: \${feedback}\`);
         
         showToast('Post returned to editor as draft with feedback.');
         const overlay = document.querySelector('.modal-overlay');
@@ -567,7 +567,7 @@ async function openUserManagement() {
         const modal = document.createElement('div');
         modal.className = 'modal-overlay';
         modal.innerHTML = `
-            <div class="modal-container">
+            < div class= "modal-container" >
                 <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">
                     <i class="bi bi-x-lg"></i>
                 </button>
@@ -593,8 +593,8 @@ async function openUserManagement() {
                         `).join('')}
                     </div>
                 </div>
-            </div>
-        `;
+            </div >
+            `;
         document.body.appendChild(modal);
         
     } catch (error) {
@@ -620,7 +620,7 @@ async function editUser(email) {
         const modal = document.createElement('div');
         modal.className = 'modal-overlay';
         modal.innerHTML = `
-            <div class="modal-container">
+            < div class= "modal-container" >
                 <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">
                     <i class="bi bi-x-lg"></i>
                 </button>
@@ -647,8 +647,8 @@ async function editUser(email) {
                         </div>
                     </form>
                 </div>
-            </div>
-        `;
+            </div >
+            `;
         document.body.appendChild(modal);
         
         document.getElementById('userForm').onsubmit = async function(e) {
@@ -733,7 +733,7 @@ async function openAnalytics() {
     const modal = document.createElement('div');
     modal.className = 'modal-overlay';
     modal.innerHTML = `
-        <div class="modal-container">
+            < div class= "modal-container" >
             <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">
                 <i class="bi bi-x-lg"></i>
             </button>
@@ -778,8 +778,8 @@ async function openAnalytics() {
                     </div>
                 </div>
             </div>
-        </div>
-    `;
+        </div >
+            `;
     document.body.appendChild(modal);
 }
 
@@ -789,7 +789,7 @@ function openMyPosts() {
     const modal = document.createElement('div');
     modal.className = 'modal-overlay';
     modal.innerHTML = `
-        <div class="modal-container">
+            < div class= "modal-container" >
             <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">
                 <i class="bi bi-x-lg"></i>
             </button>
@@ -817,8 +817,8 @@ function openMyPosts() {
                     `).join('')
                 }
             </div>
-        </div>
-    `;
+        </div >
+            `;
     document.body.appendChild(modal);
 }
 
@@ -867,7 +867,7 @@ async function openMyDrafts() {
     const modal = document.createElement('div');
     modal.className = 'modal-overlay';
     modal.innerHTML = `
-        <div class="modal-container">
+            < div class= "modal-container" >
             <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">
                 <i class="bi bi-x-lg"></i>
             </button>
@@ -895,8 +895,8 @@ async function openMyDrafts() {
                     `).join('')
                 }
             </div>
-        </div>
-    `;
+        </div >
+            `;
     document.body.appendChild(modal);
 }
 
@@ -927,7 +927,7 @@ async function openAuditTrail() {
     const modal = document.createElement('div');
     modal.className = 'modal-overlay';
     modal.innerHTML = `
-        <div class="modal-container" style="max-width:800px;">
+            < div class= "modal-container" style = "max-width:800px;" >
             <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">
                 <i class="bi bi-x-lg"></i>
             </button>
@@ -959,7 +959,7 @@ async function openAuditTrail() {
                     </table>
                 </div>
             </div>
-        </div>
-    `;
+        </div >
+            `;
     document.body.appendChild(modal);
 }
