@@ -103,8 +103,9 @@ async function handleLogin() {
         console.log('Supabase auth failed, using fallback:', supabaseError.message);
     }
 
-    // Fallback to local database
-    const staff = staffDatabase[email];
+    // Fallback to local database (if available)
+    const db = (typeof staffDatabase !== 'undefined') ? staffDatabase : {};
+    const staff = db[email];
     if (!staff || staff.password !== password) {
         errorEl.style.display = 'block';
         errorEl.textContent = 'Invalid credentials';
@@ -380,9 +381,9 @@ async function submitPost(isDraft = false) {
         if (error) throw error;
 
         // Log Audit Trail
-        await logAudit(currentStaff.name, isDraft ? 'Saved Draft' : 'Submitted Post', \`Title: \${title}, Version: \${version}\`);
+        await logAudit(currentStaff.name, isDraft ? 'Saved Draft' : 'Submitted Post', `Title: ${title}, Version: ${version}`);
         
-        showToast(isDraft ? 'Draft saved!' : \`Post \${status === 'published' ? 'published' : 'submitted for review'} successfully!\`);
+        showToast(isDraft ? 'Draft saved!' : `Post ${status === 'published' ? 'published' : 'submitted for review'} successfully!`);
         const overlay = document.querySelector('.modal-overlay');
         if(overlay) overlay.remove();
         
@@ -408,10 +409,10 @@ function newVersion() {
         const newV = currentV + 1;
         const opt = document.createElement('option');
         opt.value = newV;
-        opt.textContent = \`Version \${newV} (New)\`;
+        opt.textContent = `Version ${newV} (New)`;
         select.appendChild(opt);
         select.value = newV;
-        showToast(\`Switched to Version \${newV}\`);
+        showToast(`Switched to Version ${newV}`);
     }
 }
 
@@ -434,7 +435,7 @@ async function openReviewQueue() {
     const modal = document.createElement('div');
     modal.className = 'modal-overlay';
     modal.innerHTML = `
-            < div class= "modal-container" >
+        <div class="modal-container">
             <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">
                 <i class="bi bi-x-lg"></i>
             </button>
@@ -467,14 +468,14 @@ async function openReviewQueue() {
                     </div>
                 `).join('')}
             </div>
-        </div >
-            `;
+        </div>
+    `;
     document.body.appendChild(modal);
 }
 
 // Demo approve/reject with Audit Log
 async function approvePost(id) {
-    const feedbackInput = document.getElementById(\`feedback-\${id}\`);
+    const feedbackInput = document.getElementById(`feedback-${id}`);
     const feedback = feedbackInput ? feedbackInput.value.trim() : '';
     
     try {
@@ -493,7 +494,7 @@ async function approvePost(id) {
         
         if (error) throw error;
         
-        await logAudit(currentStaff.name, 'Approved Post', \`Post ID: \${id}, Feedback: \${feedback}\`);
+        await logAudit(currentStaff.name, 'Approved Post', `Post ID: ${id}, Feedback: ${feedback}`);
         
         showToast('Post approved and published!');
         const overlay = document.querySelector('.modal-overlay');
@@ -505,7 +506,7 @@ async function approvePost(id) {
 }
 
 async function rejectPost(id) {
-    const feedbackInput = document.getElementById(\`feedback-\${id}\`);
+    const feedbackInput = document.getElementById(`feedback-${id}`);
     const feedback = feedbackInput ? feedbackInput.value.trim() : '';
     
     if(!feedback) {
@@ -523,7 +524,7 @@ async function rejectPost(id) {
         
         if (error) throw error;
         
-        await logAudit(currentStaff.name, 'Returned Post', \`Post ID: \${id}, Reason: \${feedback}\`);
+        await logAudit(currentStaff.name, 'Returned Post', `Post ID: ${id}, Reason: ${feedback}`);
         
         showToast('Post returned to editor as draft with feedback.');
         const overlay = document.querySelector('.modal-overlay');
@@ -567,7 +568,7 @@ async function openUserManagement() {
         const modal = document.createElement('div');
         modal.className = 'modal-overlay';
         modal.innerHTML = `
-            < div class= "modal-container" >
+            <div class="modal-container">
                 <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">
                     <i class="bi bi-x-lg"></i>
                 </button>
@@ -593,8 +594,8 @@ async function openUserManagement() {
                         `).join('')}
                     </div>
                 </div>
-            </div >
-            `;
+            </div>
+        `;
         document.body.appendChild(modal);
         
     } catch (error) {
@@ -620,7 +621,7 @@ async function editUser(email) {
         const modal = document.createElement('div');
         modal.className = 'modal-overlay';
         modal.innerHTML = `
-            < div class= "modal-container" >
+            <div class="modal-container">
                 <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">
                     <i class="bi bi-x-lg"></i>
                 </button>
@@ -635,7 +636,7 @@ async function editUser(email) {
                         </div>
                         <div class="form-group">
                             <label>Role</label>
-                <select id="editRole">
+                            <select id="editRole">
                                 <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin (Tier 3)</option>
                                 <option value="curator" ${user.role === 'curator' ? 'selected' : ''}>Curator (Tier 2)</option>
                                 <option value="editor" ${user.role === 'editor' ? 'selected' : ''}>Editor (Tier 1)</option>
@@ -647,8 +648,8 @@ async function editUser(email) {
                         </div>
                     </form>
                 </div>
-            </div >
-            `;
+            </div>
+        `;
         document.body.appendChild(modal);
         
         document.getElementById('userForm').onsubmit = async function(e) {
@@ -733,7 +734,7 @@ async function openAnalytics() {
     const modal = document.createElement('div');
     modal.className = 'modal-overlay';
     modal.innerHTML = `
-            < div class= "modal-container" >
+        <div class="modal-container">
             <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">
                 <i class="bi bi-x-lg"></i>
             </button>
@@ -778,8 +779,8 @@ async function openAnalytics() {
                     </div>
                 </div>
             </div>
-        </div >
-            `;
+        </div>
+    `;
     document.body.appendChild(modal);
 }
 
@@ -789,7 +790,7 @@ function openMyPosts() {
     const modal = document.createElement('div');
     modal.className = 'modal-overlay';
     modal.innerHTML = `
-            < div class= "modal-container" >
+        <div class="modal-container">
             <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">
                 <i class="bi bi-x-lg"></i>
             </button>
@@ -817,8 +818,8 @@ function openMyPosts() {
                     `).join('')
                 }
             </div>
-        </div >
-            `;
+        </div>
+    `;
     document.body.appendChild(modal);
 }
 
@@ -867,7 +868,7 @@ async function openMyDrafts() {
     const modal = document.createElement('div');
     modal.className = 'modal-overlay';
     modal.innerHTML = `
-            < div class= "modal-container" >
+        <div class="modal-container">
             <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">
                 <i class="bi bi-x-lg"></i>
             </button>
@@ -895,8 +896,8 @@ async function openMyDrafts() {
                     `).join('')
                 }
             </div>
-        </div >
-            `;
+        </div>
+    `;
     document.body.appendChild(modal);
 }
 
@@ -927,7 +928,7 @@ async function openAuditTrail() {
     const modal = document.createElement('div');
     modal.className = 'modal-overlay';
     modal.innerHTML = `
-            < div class= "modal-container" style = "max-width:800px;" >
+        <div class="modal-container" style="max-width:800px;">
             <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">
                 <i class="bi bi-x-lg"></i>
             </button>
@@ -959,7 +960,7 @@ async function openAuditTrail() {
                     </table>
                 </div>
             </div>
-        </div >
-            `;
+        </div>
+    `;
     document.body.appendChild(modal);
 }
