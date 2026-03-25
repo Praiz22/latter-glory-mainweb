@@ -30,9 +30,6 @@ if (typeof window.supabase === 'undefined') {
     }
 }
 
-// Make supabase globally accessible
-const supabase = window.supabase;
-
 // Log initialization
 console.log('✅ Supabase client initialized for project: bavxclrpfhxmjebdimkk');
 

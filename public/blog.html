@@ -64,7 +64,7 @@
         </main>
 
         <aside class="sidebar">
-            <div class="widget">
+            <div class="widget popular-widget">
                 <h4>
                     <i class="bi bi-fire fire-icon"></i> 
                     Popular Right Now
@@ -81,20 +81,15 @@
             </div>
         </aside>
     </div>
-      <div class="widget">
-                <h4>
-                    <i class="bi bi-envelope"></i> 
-                    Newsletter
-                </h4>
-                <div class="newsletter-form">
-                    <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:16px;">Stay updated with our latest news and events</p>
-                    <div style="display:flex; gap:8px; margin-bottom:12px;">
-                        <input type="email" id="newsletterEmail" placeholder="Your email address" style="flex:1; padding:12px; border-radius:12px; border:1px solid var(--glass-border); background:var(--glass); color:var(--text-primary); outline:none;">
-                        <button id="subscribeBtn" style="padding:12px 20px; background:var(--primary); color:white; border:none; border-radius:12px; font-weight:600; cursor:pointer; transition:all 0.3s;">Subscribe</button>
-                    </div>
-                    <p id="newsletterStatus" style="font-size:0.8rem; color:var(--text-muted); min-height:18px;"></p>
-                </div>
+        <div class="newsletter-card-modern">
+            <h4><i class="bi bi-envelope-paper-heart" style="color:var(--primary); margin-right:10px;"></i>Stay with the Glory </h4>
+            <p style="color:rgba(255,255,255,0.6); font-size:1rem;">Get the latest insights and news from Latter Glory Academy.</p>
+            <div class="newsletter-form-container">
+                <input type="email" id="newsletterEmail" class="newsletter-input" placeholder="Enter your email">
+                <button id="subscribeBtn" class="apple-btn" onclick="handleNewsletter()">Subscribe</button>
             </div>
+            <p id="newsletterStatus" style="font-size:0.85rem; margin-top:15px; min-height:20px;"></p>
+        </div>
 
 
     <footer>

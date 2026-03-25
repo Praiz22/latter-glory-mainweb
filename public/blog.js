@@ -1,6 +1,87 @@
 
 
-let postsData = [];
+let postsData = [
+    {
+        id: 1,
+        title: "Empowering Futures: LGA Career Day 2026 Highlights",
+        category: "Academic",
+        author: "Admin",
+        image_url: "career-day.webp",
+        content: "Our annual Career Day was a resounding success! Students from all grades dressed in their future professional attire, from surgeons to space engineers. The event featured guest speakers from various industries who shared inspiring stories of resilience and success. At Latter Glory Academy, we believe in nurturing dreams from a young age.",
+        views: 1240,
+        created_at: "2026-03-24T10:00:00Z"
+    },
+    {
+        id: 2,
+        title: "Laughter and Joy: Celebrating Children's Day at LGA",
+        category: "Events",
+        author: "Editor",
+        image_url: "childrens day.webp",
+        content: "Children are the heritage of the Lord, and at LGA, we celebrated them in grand style! From face painting to bouncy castles and inter-class dance competitions, the atmosphere was electric with pure joy. The school management provided special treats for all students, making it a day to remember.",
+        views: 980,
+        created_at: "2026-03-23T09:00:00Z"
+    },
+    {
+        id: 3,
+        title: "Honoring Our Superstars: A Special Mothers' Day Tribute",
+        category: "Community",
+        author: "Staff",
+        image_url: "mothers day.webp",
+        content: "Mothers are the backbone of our community. This year's Mothers' Day celebration at LGA was deeply emotional and beautiful. Students presented poems, songs, and handmade cards to their mothers. We hosted a special breakfast session where mothers shared their experiences and bonded over the shared goal of raising excellence.",
+        views: 1560,
+        created_at: "2026-03-22T08:30:00Z"
+    },
+    {
+        id: 4,
+        title: "The Rhythm of Leadership: Highlights from the Cultural Gala",
+        category: "Arts",
+        author: "Principal",
+        image_url: "proprietress_dancing.webp",
+        content: "Our Cultural Gala was headlined by a spectacular performance from our very own Proprietress, who led the traditional dance troop with grace and energy. The event showcased the rich diversity of our heritage through music, dance, and drama. It was a powerful reminder that leadership is about participation and passion.",
+        views: 2100,
+        created_at: "2026-03-21T11:00:00Z"
+    },
+    {
+        id: 5,
+        title: "Velocity and Valor: The 15th Annual Inter-House Sports Meet",
+        category: "Sports",
+        author: "Coach Sam",
+        image_url: "sport11.webp",
+        content: "The tracks were on fire as Blue House emerged victorious in this year's Inter-House Sports competition! Special mentions to our track stars in the 100m senior relay. The spirit of sportsmanship was evident in every race, as students pushed their limits and cheered for their peers regardless of the outcome.",
+        views: 3200,
+        created_at: "2026-03-20T14:00:00Z"
+    },
+    {
+        id: 6,
+        title: "Stage of Dreams: LGA Dramatics and Arts Performance",
+        category: "Arts",
+        author: "Arts Dept",
+        image_url: "latter-glory-drama.png",
+        content: "The LGA Drama Club presented 'The Glory of Persistence' in front of a packed auditorium. The performance was a masterclass in storytelling, featuring high-quality costumes and set designs. Our students demonstrated incredible dramatic range, moving the audience to both laughter and tears.",
+        views: 890,
+        created_at: "2026-03-19T10:00:00Z"
+    },
+    {
+        id: 7,
+        title: "Faces of Excellence: Unveiling Our 2026 Scholars",
+        category: "Academic",
+        author: "Admin",
+        image_url: "photoshoot.webp",
+        content: "Meet the brilliant minds shaping the future. Our latest official school photoshoot captured the essence of LGA: discipline, excellence, and a hunger for knowledge. These scholars have maintained outstanding academic records and shown exemplary leadership within the school community.",
+        views: 1100,
+        created_at: "2026-03-18T09:00:00Z"
+    },
+    {
+        id: 8,
+        title: "Active Minds, Active Bodies: Exploring the New Playground",
+        category: "Lifestyle",
+        author: "Staff",
+        image_url: "playground.webp",
+        content: "Outdoor play is essential for holistic development. We are excited to unveil our newly upgraded playground, featuring state-of-the-art equipment designed for safety and maximum fun. From the climbing walls to the creative sand pits, there's a new world of adventure waiting for our students.",
+        views: 1340,
+        created_at: "2026-03-17T08:00:00Z"
+    }
+];
 let eventsData = [];
 let currentSlide = 0;
 let currentFilter = 'all';
@@ -18,7 +99,7 @@ window.hapticFeed = (duration = 40) => {
         if (navigator.vibrate) {
             navigator.vibrate(duration);
         }
-    } catch (e) {}
+    } catch (e) { }
 };
 
 // Preloader - Fixed Timing
@@ -26,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Start loading immediately
     loadTheme();
     initBlog();
-    
+
     // Hide preloader after 3 seconds or when content is ready
     setTimeout(hidePreloader, 2500);
 });
@@ -68,7 +149,7 @@ document.addEventListener('click', e => {
 });
 
 // Admin Modal - Direct call to admin-modal.js implementation
-window.openAdminModal = function() {
+window.openAdminModal = function () {
     console.log('Original modal opened');
     const modal = document.createElement('div');
     modal.className = 'admin-overlay show';
@@ -108,51 +189,51 @@ window.openAdminModal = function() {
 async function handleLogin() {
     const loginModal = document.querySelector('.login-modal-overlay');
     const errorEl = document.getElementById('loginError');
-    
+
     // Use admin-modal.js handleLogin - it loads separately
     if (typeof window.handleLogin === 'function') {
         loginModal.remove();
         window.handleLogin(); // Call admin-modal's version
         return;
     }
-    
+
     // Fallback - simple Supabase auth
     const email = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value.trim();
-    
+
     if (!window.supabase || !window.supabase.auth) {
         errorEl.style.display = 'block';
         errorEl.textContent = 'Supabase not ready - refresh page';
         return;
     }
-    
+
     // Show loading
     errorEl.style.display = 'block';
     errorEl.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Authenticating...';
-    
+
     try {
         const { data, error: authError } = await window.supabase.auth.signInWithPassword({
             email: email,
             password: password
         });
-        
+
         if (authError) throw authError;
-        
+
         errorEl.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Loading profile...';
-        
+
         const { data: profile, error: profileError } = await window.supabase
             .from('profiles')
             .select('name, role, avatar')
             .eq('email', email)
             .single();
-        
+
         if (profileError && profileError.code !== 'PGRST116') throw profileError;
-        
+
         errorEl.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Accessing portal...';
-        
+
         document.querySelector('.login-modal-overlay').remove();
         openDashboard(profile || { name: email, role: 'user', avatar: 'latter-glory-logo.webp' });
-        
+
     } catch (error) {
         console.error('Login error:', error);
         errorEl.style.display = 'block';
@@ -202,28 +283,34 @@ async function handleNewsletter() {
     const emailEl = getElement('newsletterEmail');
     const statusEl = getElement('newsletterStatus');
     if (!emailEl || !statusEl) return;
-    
+
     const email = emailEl.value.trim();
     if (email && email.includes('@')) {
         statusEl.textContent = 'Subscribing...';
         statusEl.style.color = 'var(--accent)';
-        
+
         try {
             const supabase = window.supabase;
             if (supabase && supabase.from) {
                 const { error } = await supabase.from('subscribers').insert([{ email: email, subscribed_at: new Date().toISOString() }]);
                 if (error && error.code !== '23505') throw error; // Ignore duplicate email errors implicitly
             }
-            
+
             statusEl.textContent = 'Subscribed! Thank you.';
             statusEl.style.color = '#4CAF50';
             emailEl.value = '';
+            
+            const card = document.querySelector('.newsletter-card-modern');
+            if (card) {
+                card.classList.add('success');
+                setTimeout(() => card.classList.remove('success'), 2000);
+            }
         } catch (error) {
             console.error('Subscription error:', error);
             statusEl.textContent = 'An error occurred. Try again later.';
             statusEl.style.color = '#f44336';
         }
-        
+
         setTimeout(() => statusEl.textContent = '', 4000);
     } else {
         statusEl.textContent = 'Please enter valid email';
@@ -235,7 +322,7 @@ async function handleNewsletter() {
 async function initBlog() {
     // Show Skeletons instantly  
     renderSkeletons();
-    
+
     try {
         await loadData();
         renderAll();
@@ -284,7 +371,7 @@ async function loadData() {
                 .select('*')
                 .order('event_date')
                 .limit(10);
-                
+
             postsData = posts.map(p => ({
                 ...p,
                 excerpt: p.content ? p.content.substring(0, 120) + '...' : 'Read more...'
@@ -300,64 +387,24 @@ async function loadData() {
 }
 
 function loadFallbackData() {
-    postsData = [
-        {
-            id: 1, title: 'Latter Glory Academy Wins National Coding Championship!',
-            category: 'academics', image_url: 'latter-view.webp', views: 4200, author: 'Dr. Sarah Martins (Head of STEM)',
-            excerpt: 'Our students showcased exceptional algorithmic skills at the national level, bringing home the gold trophy...',
-            created_at: new Date(Date.now() - 86400000).toISOString(),
-            content: '<p>It is with immense pride that we announce our Senior Secondary team has secured the 1st position at the 2026 National Coding Championship. Building AI-driven applications that solve local agricultural problems, the team demonstrated the core values of Latter Glory Academy: Innovation and Excellence.</p><br><p>Congratulations to the participants and their mentors.</p>'
-        },
-        {
-            id: 2, title: 'Annual Inter-House Sports Extravaganza Scheduled for April',
-            category: 'sports', image_url: 'sport11.webp', views: 3500, author: 'Mr. John Obi (Sports Director)',
-            excerpt: 'Get ready for an electrifying week of track and field, football finals, and house spirit as Blue House aims to defend their title.',
-            created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
-            content: '<p>The anticipated Annual Sports Week is here. Track events, marathons, and the epic tug-of-war will take center stage. Students are advised to begin training with their House Masters. May the best house win!</p>'
-        },
-        {
-            id: 3, title: 'Introducing the New Fluid Glassmorphism Student Portal',
-            category: 'events', image_url: 'latter-glory-geniuses.webp', views: 5120, author: 'IT Department',
-            excerpt: 'We have completely overhauled the student digital experience with an advanced Antigravity UI for better accessibility and speed.',
-            created_at: new Date(Date.now() - 86400000 * 3).toISOString(),
-            content: '<p>We are thrilled to roll out the new portal. Featuring instant loading skeletons, realtime websocket updates, and a gorgeous glass aesthetic, managing your academic life has never been better.</p>'
-        },
-        {
-            id: 4, title: 'Term 3 Registration Deadlines Extended',
-            category: 'academics', image_url: 'event2.webp', views: 2400, author: 'Admin Console',
-            excerpt: 'Please be advised that the late registration window has been pushed to Friday.',
-            created_at: new Date(Date.now() - 86400000 * 4).toISOString(),
-            content: '<p>All parents must complete portal registrations ASAP to secure seating arrangements. Let patience and diligence guide our processes as we wrap up another excellent term.</p>'
-        },
-        {
-            id: 5, title: 'Blue House Takes The Lead In Pre-Tournament Qualifiers',
-            category: 'sports', image_url: 'sport11.webp', views: 1850, author: 'Mr. John Obi (Sports Director)',
-            excerpt: 'The athletics division saw a massive sweep by Blue House athletes this morning.',
-            created_at: new Date(Date.now() - 86400000 * 5).toISOString(),
-            content: '<p>What a spectacular showing by our junior sprinters. We expect the finals tomorrow to break records!</p>'
-        },
-        {
-            id: 6, title: 'Alumni Spotlight: Dr. Sarah Wins Global Tech Award',
-            category: 'events', image_url: 'latter-glory-geniuses.webp', views: 6300, author: 'Media Team',
-            excerpt: 'One of our brightest former students has just been recognized internationally.',
-            created_at: new Date(Date.now() - 86400000 * 6).toISOString(),
-            content: '<p>Congratulations Dr. Sarah for representing the core values of Latter Glory Academy on a global stage in Berlin last week!</p>'
-        }
-    ];
-    
+    // Already populated at top, but ensure it's reset if needed
+    if (postsData.length === 0) {
+        // Fallback to original content matches the top-level declaration
+    }
+
     eventsData = [
-        {title: 'Career Day 2026', date: 'Mar 18', image: 'event2.webp'},
-        {title: 'Term 2 Examinations', date: 'Apr 5 - 15', image: 'latter-view.webp'},
-        {title: 'Valedictory Service', date: 'July 20', image: 'latter-glory-geniuses.webp'}
+        { title: 'Career Day 2026', date: 'Mar 18', image: 'career-day.webp' },
+        { title: 'Inter-House Sports', date: 'Apr 5 - 15', image: 'sport11.webp' },
+        { title: 'Valedictory Service', date: 'July 20', image: 'photoshoot.webp' }
     ];
 }
 
 function setupRealtime() {
     const supabase = window.supabase;
-    if(supabase && supabase.channel) {
+    if (supabase && supabase.channel) {
         supabase.channel('public:posts')
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'posts' }, payload => {
-                if(payload.new.status === 'published') {
+                if (payload.new.status === 'published') {
                     showRealtimeToast(payload.new);
                 }
             })
@@ -383,17 +430,17 @@ function showRealtimeToast(post) {
         position: 'fixed', bottom: '30px', right: '30px', padding: '20px', zIndex: '999999', cursor: 'pointer',
         transform: 'translateY(150px)', opacity: '0', transition: 'all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
     });
-    
+
     toast.onclick = () => { toast.remove(); loadData().then(renderAll); openPost(post.id); };
     document.body.appendChild(toast);
-    
+
     requestAnimationFrame(() => {
         toast.style.transform = 'translateY(0)';
         toast.style.opacity = '1';
     });
-    
+
     setTimeout(() => {
-        if(document.body.contains(toast)) {
+        if (document.body.contains(toast)) {
             toast.style.transform = 'translateY(150px)';
             toast.style.opacity = '0';
             setTimeout(() => toast.remove(), 600);
@@ -412,43 +459,48 @@ function renderHeroCarousel() {
     const hero = getElement('heroCarousel');
     const carouselSection = hero?.closest('.carousel-section');
     if (!hero || !carouselSection) return;
-    
+
     // Only show featured carousel if we are looking at 'all' posts without search
     if (currentFilter !== 'all' || currentSearchTerm) {
         carouselSection.classList.add('hidden');
         return;
     }
-    
+
     carouselSection.classList.remove('hidden');
     const topPosts = postsData.slice(0, 3);
-    
-    hero.innerHTML = topPosts.map((p, i) => `
-        <article class="hero-slide ${i === 0 ? 'active' : ''}" 
-                 data-slide="${i}" 
-                 role="group" 
-                 aria-label="Featured post ${i+1}: ${p.title}"
-                 onmousedown="hapticFeed()" 
-                 onclick="openPost(${p.id})">
-            <div class="slide-media">
-                <img src="${p.image_url || 'latter-view.webp'}" alt="${p.title}" loading="lazy">
-            </div>
-            <div class="slide-content">
-                <div class="cat-badge" aria-label="${p.category} category">${p.category?.toUpperCase()}</div>
-                <h2 class="slide-title">${p.title}</h2>
-                <div class="slide-meta">
-                    <span class="author">${p.author}</span>
-                    <span class="date">${new Date(p.created_at).toLocaleDateString()}</span>
+
+    hero.innerHTML = `
+        <div class="carousel-container">
+            ${topPosts.map((post, index) => `
+                <div class="hero-slide ${index === 0 ? 'active' : ''}" data-index="${index}">
+                    <div class="slide-media">
+                        <img src="${post.image_url || 'latter-glory-logo.webp'}" alt="${post.title}" loading="lazy" style="width:100%; height:100%; object-fit:cover;">
+                    </div>
+                    <div class="slide-content">
+                        <span class="slide-category">${post.category}</span>
+                        <h2 class="slide-title">${post.title}</h2>
+                        <p class="slide-excerpt">${post.content ? post.content.substring(0, 150) : 'No excerpt available.'}...</p>
+                        <button class="apple-btn" onclick="openPost(${post.id})">Read Article</button>
+                    </div>
                 </div>
+            `).join('')}
+            <div class="carousel-dots">
+                ${topPosts.map((_, index) => `
+                    <div class="dot ${index === 0 ? 'active' : ''}" onclick="goToSlide(${index})"></div>
+                `).join('')}
             </div>
-        </article>
-    `).join('');
-    
+        </div>
+    `;
+
     // Safe init controls after render
     if (typeof initCarouselControls === 'undefined') {
-        initCarouselControls = () => {};
+        initCarouselControls = () => { };
         console.warn('initCarouselControls not implemented - using no-op');
     }
     initCarouselControls();
+
+    // Start auto-play
+    startCarousel();
 }
 
 function renderBlogGrid() {
@@ -458,22 +510,22 @@ function renderBlogGrid() {
         grid.style.display = 'block'; // Block layout instead of CSS grid
 
         let filtered = postsData.filter(p => currentFilter === 'all' || p.category === currentFilter);
-        
+
         // Apply Global Search Filtering 
         if (currentSearchTerm) {
             const term = currentSearchTerm.toLowerCase();
-            filtered = filtered.filter(p => 
-                (p.title && p.title.toLowerCase().includes(term)) || 
-                (p.excerpt && p.excerpt.toLowerCase().includes(term)) || 
+            filtered = filtered.filter(p =>
+                (p.title && p.title.toLowerCase().includes(term)) ||
+                (p.excerpt && p.excerpt.toLowerCase().includes(term)) ||
                 (p.author && p.author.toLowerCase().includes(term))
             );
         }
-        
+
         // For list view, grab items depending on if we are showing featured module
         const isFeaturedVisible = (currentFilter === 'all' && !currentSearchTerm);
         const startIndex = isFeaturedVisible ? 3 : 0;
         const displayPosts = filtered.slice(startIndex, startIndex + 12);
-        
+
         grid.innerHTML = displayPosts.map((p, index) => {
             return `
             <article class="apple-list-item" onmousedown="hapticFeed()" onclick="openPost(${p.id})">
@@ -498,7 +550,7 @@ function renderBlogGrid() {
 function renderSidebar() {
     const popular = getElement('popularList');
     const eventList = getElement('eventList');
-    
+
     if (popular) {
         const topPosts = postsData.sort((a, b) => b.views - a.views).slice(0, 5);
         popular.innerHTML = topPosts.map(p => `
@@ -511,7 +563,7 @@ function renderSidebar() {
             </div>
         `).join('');
     }
-    
+
     if (eventList) {
         eventList.innerHTML = eventsData.slice(0, 6).map(e => `
             <div class="event-item">
@@ -524,24 +576,24 @@ function renderSidebar() {
 
 // Event Binders
 function bindInteractions() {
-    const subscribeBtn = getElement('subscribeBtn');
+    const subscribeBtn = getElement('newsletterEmail')?.nextElementSibling; // Assuming button is next sibling
     if (subscribeBtn) subscribeBtn.onclick = handleNewsletter;
-    
+
     const themeBtn = getElement('themeBtn');
     if (themeBtn) themeBtn.onclick = toggleTheme;
-    
+
     const searchIcon = getElement('searchIcon');
     if (searchIcon) {
         searchIcon.onclick = () => {
             const overlay = getElement('searchOverlay');
             overlay.classList.toggle('show');
-            if(overlay.classList.contains('show')) {
+            if (overlay.classList.contains('show')) {
                 const searchGlobal = getElement('globalSearch');
-                if(searchGlobal) searchGlobal.focus();
+                if (searchGlobal) searchGlobal.focus();
             }
         };
     }
-    
+
     const searchInput = getElement('globalSearch');
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
@@ -549,7 +601,7 @@ function bindInteractions() {
             renderAll(); // Re-render carousel too
         });
     }
-    
+
     const searchClear = document.querySelector('.search-clear');
     if (searchClear && searchInput) {
         searchClear.onclick = () => {
@@ -559,10 +611,10 @@ function bindInteractions() {
             getElement('searchOverlay').classList.remove('show');
         };
     }
-    
+
     const adminBtn = getElement('adminBtn');
     if (adminBtn) adminBtn.onclick = openAdminModal;
-    
+
     getElements('[data-filter]').forEach(btn => {
         btn.onclick = e => {
             e.preventDefault();
@@ -572,7 +624,7 @@ function bindInteractions() {
             renderAll(); // Re-render carousel too
         };
     });
-    
+
     // Carousel interactions
     bindCarouselInteractions();
 }
@@ -591,7 +643,7 @@ function bindCarouselInteractions() {
     });
 
     // Dot controls
-    getElements('.carousel-dot').forEach((dot, index) => {
+    getElements('.carousel-dots .dot').forEach((dot, index) => { // Updated selector for dots
         dot.onclick = () => {
             hapticFeed();
             goToSlide(index);
@@ -618,7 +670,7 @@ function bindCarouselInteractions() {
     });
 
     // Mouse hover pause
-    const carouselSection = getElement('heroCarousel')?.closest('.carousel-section');
+    const carouselSection = getElement('heroCarousel')?.closest('.carousel-container'); // Updated selector
     if (carouselSection) {
         carouselSection.onmouseenter = pauseCarousel;
         carouselSection.onmouseleave = () => setTimeout(resumeCarousel, 300);
@@ -635,31 +687,37 @@ window.initCarouselControls = bindCarouselInteractions;
 // Modern RAF Carousel with pause/resume
 let rafId = null;
 let isPaused = false;
-let pauseTimeout = null;
+let lastTransition = Date.now();
+const TRANSITION_DELAY = 5000;
 
 function startCarousel() {
     if (rafId) cancelAnimationFrame(rafId);
-    
+    lastTransition = Date.now();
+
     function animate() {
-        if (isPaused || !document.querySelector('.hero-slide.active')) {
+        const now = Date.now();
+
+        if (isPaused) {
+            lastTransition = now; // Reset timer when paused
             rafId = requestAnimationFrame(animate);
             return;
         }
-        
-        const slides = getElements('.hero-slide');
-        if (!slides.length) return;
-        
-        slides.forEach(s => {
-            s.classList.remove('active');
-        });
-        
-        currentSlide = (currentSlide + 1) % slides.length;
-        slides[currentSlide].classList.add('active');
-        announceSlideChange(slides[currentSlide]);
-        
+
+        if (now - lastTransition >= TRANSITION_DELAY) {
+            const slides = getElements('.hero-slide');
+            const dots = getElements('.carousel-dots .dot'); // Updated selector for dots
+            if (slides.length > 0) {
+                currentSlide = (currentSlide + 1) % slides.length;
+                slides.forEach((s, i) => s.classList.toggle('active', i === currentSlide));
+                dots.forEach((d, i) => d.classList.toggle('active', i === currentSlide));
+                announceSlideChange(slides[currentSlide]);
+            }
+            lastTransition = now;
+        }
+
         rafId = requestAnimationFrame(animate);
     }
-    
+
     rafId = requestAnimationFrame(animate);
 }
 
@@ -672,13 +730,27 @@ function resumeCarousel() {
 }
 
 function goToSlide(index) {
+    if (index === currentSlide && document.querySelector('.hero-slide.active')) return;
+
     currentSlide = index;
     const slides = getElements('.hero-slide');
+    const dots = getElements('.carousel-dots .dot'); // Updated selector for dots
+
     slides.forEach((s, i) => {
         s.classList.toggle('active', i === index);
     });
+
+    dots.forEach((d, i) => {
+        d.classList.toggle('active', i === index);
+    });
+
     announceSlideChange(slides[index]);
-    resumeCarousel(); // Resume auto-play after manual nav
+
+    // Reset timer on manual navigation
+    if (rafId) {
+        cancelAnimationFrame(rafId);
+        startCarousel();
+    }
 }
 
 function announceSlideChange(slide) {
@@ -694,44 +766,44 @@ function announceSlideChange(slide) {
 function openPost(id) {
     const post = postsData.find(p => p.id === id) || postsData[0]; // fallback safely
     if (!post) return;
-    
-    // Safe view count
-    const supabase = window.supabase;
-    if (supabase && supabase.rpc) {
-        supabase.rpc('increment_post_views', { post_id: id }).catch(() => {});
-    }
-    
+
+    hapticFeed();
+
+    // Track view (simple local increment for demo)
+    post.views = (post.views || 0) + 1;
+
     const modal = document.createElement('div');
     modal.className = 'modal-overlay show';
-    modal.style.background = 'var(--bg-base)';
     modal.innerHTML = `
-        <div class="modal-container" style="width:100vw; max-width:100vw; height:100vh; margin:0; border-radius:0; background:var(--bg-base); display:flex; flex-direction:column; padding:0; overflow-y:auto; overflow-x:hidden;">
-            
-            <button class="modal-close" onclick="hapticFeed(); this.closest('.modal-overlay').remove()" style="position:fixed; top:20px; right:20px; z-index:10; background:rgba(255,255,255,0.8); backdrop-filter:blur(10px); color:black; border:none; border-radius:16px; width:44px; height:44px; font-size:1.4rem; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 4px 15px rgba(0,0,0,0.3);">
+        <div class="post-reader">
+            <button class="reader-close" onclick="closePostModal()">
                 <i class="bi bi-x-lg"></i>
             </button>
             
-            <img src="${post.image_url || 'latter-view.webp'}" style="width:100%; height:45vh; min-height:350px; object-fit:cover; flex-shrink:0;">
+            <div class="reader-hero">
+                <img src="${post.image_url || 'latter-glory-logo.webp'}" alt="${post.title}" class="reader-img">
+                <div class="reader-vignette"></div>
+                <div class="reader-header-content">
+                    <span class="post-category">${post.category}</span>
+                    <h1 class="post-title">${post.title}</h1>
+                    <div class="post-meta">
+                        <img src="latter-glory-logo.webp" alt="${post.author}" class="author-img">
+                        <span>by ${post.author} • ${new Date(post.created_at).toLocaleDateString()}</span>
+                    </div>
+                </div>
+            </div>
             
-            <div class="modal-body" style="flex:1; padding:32px 24px 60px 24px; max-width:680px; margin:0 auto; width:100%;">
-                
-                <div style="color:var(--primary); font-size:0.85rem; font-weight:800; letter-spacing:1px; text-transform:uppercase; margin-bottom:12px;">${post.category}</div>
-                <h1 style="font-size:2.8rem; font-weight:900; line-height:1.15; margin:0 0 24px 0; color:var(--text-primary); letter-spacing:-0.5px;">${post.title}</h1>
-                <div style="color:var(--text-muted); font-size:1.1rem; font-weight:600; margin-bottom:32px; display:flex; justify-content:space-between; align-items:center; border-bottom: 2px solid var(--glass-border); padding-bottom: 24px;">
-                    <div>By <span style="color:var(--text-primary);">${post.author}</span><br><span style="font-size:0.9rem; font-weight:500;">${new Date(post.created_at).toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric'})}</span></div>
-                    <div style="font-size:0.9rem; border: 1px solid var(--glass-border); padding: 6px 14px; border-radius:100px;">${post.views ? post.views.toLocaleString() : 0} Views</div>
+            <div class="reader-body">
+                <div class="reader-main-content">
+                    ${post.content.split('\n').map(p => p.trim() ? `<p>${p}</p>` : '').join('')}
                 </div>
                 
-                <div class="post-content" style="font-family: Georgia, serif; font-size:1.25rem; line-height:1.7; color:var(--text-primary);">
-                    ${post.content.replace(/\n/g, '<br><br>')}
-                </div>
-                
-                <div class="modal-actions" style="margin-top:60px; padding-top:40px; border-top:1px solid var(--glass-border); display:flex; justify-content:space-between; align-items:center;">
-                    <button class="print-btn" onclick="hapticFeed(); printPost(${post.id})" title="Print Article" style="padding:12px 28px; border-radius:100px; border:none; background:var(--primary); color:white; cursor:pointer; font-weight:700; font-size:1.1rem; display:flex; align-items:center; gap:8px; transition:all 0.3s; box-shadow:0 4px 15px rgba(183,28,28,0.3);">
+                <div class="reader-footer">
+                    <button class="apple-btn" onclick="printPost(${post.id})">
                         <i class="bi bi-printer"></i> Print
                     </button>
-                    <div class="share-group" style="display:flex; gap:12px;">
-                        <span style="color:var(--text-muted); font-weight:600; align-self:center;">SHARE:</span>
+                    <div class="share-group">
+                        <span class="share-label">SHARE:</span>
                         <button class="share-btn share-fb" onmousedown="hapticFeed()" onclick="shareFB('${post.title.replace(/'/g, "\\'")}')" title="Facebook">
                             <svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
                         </button>
@@ -741,7 +813,7 @@ function openPost(id) {
                         <button class="share-btn share-wa" onclick="shareWA('${post.title.replace(/'/g, "\\'")}')" title="WhatsApp">
                             <svg viewBox="0 0 24 24"><path d="M12.031 0C5.385 0 0 5.388 0 12.039c0 2.122.551 4.195 1.597 6.01L.001 24l6.104-1.601A11.972 11.972 0 0012.031 24c6.643 0 12.03-5.386 12.03-12.04C24.061 5.387 18.674 0 12.031 0m6.534 17.291c-.267.755-1.503 1.488-2.071 1.558-.567.07-1.25.17-3.665-.83-2.903-1.205-4.755-4.223-4.897-4.417-.142-.194-1.171-1.564-1.171-2.986 0-1.422.738-2.125.993-2.395.255-.27.553-.338.737-.338.184 0 .368.002.525.01.17.009.398-.066.623.473.284.685.993 2.434 1.078 2.603.085.17.142.368.028.594-.113.226-.17.368-.34.567-.17.198-.354.434-.51.585-.17.17-.348.358-.142.716.206.358.916 1.536 1.955 2.483 1.341 1.222 2.487 1.597 2.841 1.767.354.17.561.142.774-.103.213-.245.922-1.074 1.177-1.442.255-.368.51-.302.835-.18.326.122 2.055.986 2.41 1.165.354.18.594.264.68.406.085.142.085.83-.182 1.585"/></svg>
                         </button>
-                        <button class="share-btn share-native" onclick="nativeShare('${post.title.replace(/'/g, "\\'")}', '${post.excerpt.replace(/'/g, "\\'")}')" title="Share via Device">
+                        <button class="share-btn share-native" onclick="nativeShare('${post.title.replace(/'/g, "\\'")}', '')" title="Share via Device">
                             <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3" fill="currentColor"/><circle cx="6" cy="12" r="3" fill="currentColor"/><circle cx="18" cy="19" r="3" fill="currentColor"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51L8.59 10.49" stroke="currentColor" stroke-width="2"/></svg>
                         </button>
                     </div>
@@ -749,8 +821,18 @@ function openPost(id) {
             </div>
         </div>
     `;
-    
+
     document.body.appendChild(modal);
+    document.body.style.overflow = 'hidden'; // Lock scroll
+}
+
+function closePostModal() {
+    hapticFeed();
+    const modal = document.querySelector('.modal-overlay');
+    if (modal) {
+        modal.remove();
+        document.body.style.overflow = 'auto'; // Unlock scroll
+    }
 }
 
 function shareFB(title) {
