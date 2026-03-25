@@ -33,7 +33,7 @@
         <div style="display:flex; gap:20px; align-items:center;">
             <i class="bi bi-moon-stars-fill" id="themeBtn" style="cursor:pointer" onclick="toggleTheme()"></i>
             <span style="width:1px; height:20px; background:var(--glass-border)"></span>
-            <i class="bi bi-search" id="searchIcon" style="cursor:pointer; font-size:1.3rem;" onclick="toggleSearch()"></i>
+            <i class="bi bi-search" id="searchIcon" style="cursor:pointer; font-size:1.3rem;"></i>
         </div>
     </nav>
 
@@ -45,12 +45,13 @@
     <script src="blog.js"></script>
 
     <!-- Search Overlay -->
-    <div id="searchOverlay" class="search-overlay" style="display:none;">
+    <div id="searchOverlay" class="search-overlay">
             <div class="search-container">
                 <i class="bi bi-search"></i>
-                <input type="text" id="globalSearch" placeholder="Search posts, categories, authors...">
-                <button class="search-clear" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:1.2rem; opacity:0.6; transition:all 0.3s;">×</button>
+                <input type="text" id="globalSearch" placeholder="Search posts, categories, authors..." autocomplete="off">
+                <button id="closeSearch" class="search-clear">×</button>
             </div>
+            <div id="searchResults" class="search-results-list"></div>
     </div>
 
     <section class="carousel-section">

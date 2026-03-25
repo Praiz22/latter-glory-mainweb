@@ -329,6 +329,7 @@ async function initBlog() {
         bindInteractions();
         startCarousel();
         setupRealtime();
+        prepopulateSupabase(); // Prepopulate if empty
         hidePreloader(); // Force hide preloader
         console.log('LGA Blog Ready - Modern carousel initialized');
     } catch (error) {
@@ -574,55 +575,118 @@ function renderSidebar() {
     }
 }
 
+// Search logic
+window.toggleSearch = function(forceClose = false) {
+    const overlay = getElement('searchOverlay');
+    if (!overlay) return;
+    
+    // Check strictly for true, because event objects are truthy
+    if (forceClose === true) {
+        overlay.classList.remove('show');
+    } else {
+        overlay.classList.toggle('show');
+    }
+
+    if (overlay.classList.contains('show')) {
+        const input = getElement('globalSearch');
+        if (input) {
+            input.value = ''; // Clear on open
+            input.focus();
+        }
+        renderSearchResults(''); // Clear results on open
+    }
+};
+
+function renderSearchResults(term) {
+    const list = getElement('searchResults');
+    if (!list) return;
+
+    if (!term || term.length < 1) {
+        list.innerHTML = '';
+        return;
+    }
+
+    const lowTerm = term.toLowerCase();
+    const filtered = postsData.filter(p => 
+        p.title.toLowerCase().includes(lowTerm) || 
+        p.category.toLowerCase().includes(lowTerm) ||
+        p.content.toLowerCase().includes(lowTerm)
+    );
+
+    if (filtered.length === 0) {
+        list.innerHTML = `<div class="search-no-results">No results found for "${term}"</div>`;
+        return;
+    }
+
+    list.innerHTML = filtered.map(p => `
+        <div class="search-result-item" onclick="openAndCloseSearch(${p.id})">
+            <div class="search-result-info">
+                <span class="search-result-category">${p.category}</span>
+                <span class="search-result-title">${p.title}</span>
+            </div>
+            <i class="bi bi-arrow-right"></i>
+        </div>
+    `).join('');
+}
+
+window.openAndCloseSearch = (id) => {
+    toggleSearch(true);
+    openPost(id);
+};
+
+async function prepopulateSupabase() {
+    const supabase = window.supabase;
+    if (!supabase || !supabase.from) return;
+
+    try {
+        const { data: existing } = await supabase.from('posts').select('id').limit(1);
+        if (existing && existing.length === 0) {
+            console.log('Prepopulating Supabase with production dummy data...');
+            const toInsert = postsData.map(({id, ...rest}) => ({
+                ...rest,
+                status: 'published'
+            }));
+            const { error } = await supabase.from('posts').insert(toInsert);
+            if (error) console.error('Populate error:', error);
+            else console.log('Supabase populated successfully!');
+        }
+    } catch (e) {
+        console.error('Supabase check failed:', e);
+    }
+}
+
 // Event Binders
 function bindInteractions() {
-    const subscribeBtn = getElement('newsletterEmail')?.nextElementSibling; // Assuming button is next sibling
+    const subscribeBtn = getElement('subscribeBtn'); 
     if (subscribeBtn) subscribeBtn.onclick = handleNewsletter;
 
     const themeBtn = getElement('themeBtn');
     if (themeBtn) themeBtn.onclick = toggleTheme;
 
     const searchIcon = getElement('searchIcon');
-    if (searchIcon) {
-        searchIcon.onclick = () => {
-            const overlay = getElement('searchOverlay');
-            overlay.classList.toggle('show');
-            if (overlay.classList.contains('show')) {
-                const searchGlobal = getElement('globalSearch');
-                if (searchGlobal) searchGlobal.focus();
-            }
-        };
-    }
+    if (searchIcon) searchIcon.onclick = toggleSearch;
 
     const searchInput = getElement('globalSearch');
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
-            currentSearchTerm = e.target.value;
-            renderAll(); // Re-render carousel too
+            const term = e.target.value;
+            currentSearchTerm = term;
+            renderSearchResults(term);
+            renderAll(); // Keep background list updated too
         });
     }
 
-    const searchClear = document.querySelector('.search-clear');
-    if (searchClear && searchInput) {
-        searchClear.onclick = () => {
-            searchInput.value = '';
-            currentSearchTerm = '';
-            renderAll();
-            getElement('searchOverlay').classList.remove('show');
-        };
+    const closeSearch = getElement('closeSearch');
+    if (closeSearch) {
+        closeSearch.onclick = () => toggleSearch(true);
     }
 
-    const adminBtn = getElement('adminBtn');
-    if (adminBtn) adminBtn.onclick = openAdminModal;
-
-    getElements('[data-filter]').forEach(btn => {
-        btn.onclick = e => {
-            e.preventDefault();
-            currentFilter = btn.dataset.filter;
-            getElements('[data-filter]').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            renderAll(); // Re-render carousel too
-        };
+    // Escape key to close search or modal
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') {
+            toggleSearch(true);
+            closePostModal();
+        }
     });
 
     // Carousel interactions
