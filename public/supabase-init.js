@@ -1,45 +1,40 @@
-/**
- * ============================================================================
- * Supabase Initialization for Latter Glory Academy Blog
- * ============================================================================
- * 
- * This file initializes the Supabase client for the blog.
- * 
- * HOW TO FIND YOUR KEYS:
- * 1. Go to https://supabase.com/dashboard
- * 2. Select your project: "bavxclrpfhxmjebdimkk"
- * 3. Go to Settings (gear icon) > API
- * 4. Find your keys under "Project API keys"
- * 
- * ENVIRONMENT VARIABLES:
- * - SUPABASE_URL: Found in the "URL" section
- * - SUPABASE_ANON_KEY: Found as "anon public" key
- * 
- * ============================================================================
- */
 
 // Supabase Configuration
 const SUPABASE_URL = 'https://bavxclrpfhxmjebdimkk.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJhdnhjbHJwZmh4bWplYmRpbWtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4NzA3NTMsImV4cCI6MjA4ODQ0Njc1M30.RbxdKdWNUAEhcmxgL06iQOIET1imCTaSI6WukVJiAUU';
 
-// Initialize Supabase client (if not already initialized)
-if (typeof window.supabase === 'undefined') {
-    const { createClient } = window.supabase || {};
-    if (createClient) {
-        window.supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let supabaseInitFailed = false;
+
+// Initialize Supabase client
+(function() {
+    const checkSupabase = () => {
+        const supabaseLib = window.supabase;
+        if (supabaseLib && supabaseLib.createClient) {
+            window.supabase = supabaseLib.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            console.log('✅ Supabase Client Ready');
+            return true;
+        }
+        return false;
+    };
+
+    if (!checkSupabase()) {
+        // If not immediately available, wait up to 1.5 seconds
+        setTimeout(() => {
+            if (!checkSupabase()) {
+                console.warn('⚠️ Supabase library failed to load (CDN timeout or offline). Switching to Offline Mode.');
+                supabaseInitFailed = true;
+            }
+        }, 1500);
     }
-}
+})();
 
-// Log initialization
-console.log('✅ Supabase client initialized for project: bavxclrpfhxmjebdimkk');
+// Helper to get Supabase client with verification
+window.getSupabase = function() {
+    if (supabaseInitFailed) return null;
+    const s = window.supabase;
+    if (s && typeof s.from === 'function') return s;
+    return null; // Silence warnings, caller handles null
+};
 
-/**
- * Available Keys Reference:
- * -----------------------
- * anon key (public):     eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJhdnhjbHJwZmh4bWplYmRpbWtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4NzA3NTMsImV4cCI6MjA4ODQ0Njc1M30.RbxdKdWNUAEhcmxgL06iQOIET1imCTaSI6WukVJiAUU
- * service role (private): eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJhdnhjbHJwZmh4bWplYmRpbWtrIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3Mjg3MDc1MywiZXhwIjoyMDg4NDQ2NzUzfQ.JQgtvi9OhsrSXhHhSOUxUp489E0-fuP9MjbI1pCmK6Y
- * 
- * ⚠️ SECURITY NOTE: Never expose the service role key in client-side code!
- * The anon key is safe for client-side use with RLS policies.
- */
-
+// Log initialization (Production Safety: Reduced Logging)
+console.log('✅ Supabase initialized');
