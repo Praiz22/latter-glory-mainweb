@@ -304,7 +304,7 @@ nav i:hover {
     height: 100vh;
     position: relative;
     margin: 0;
-    margin-top: -90px;
+    margin-top: 0;
     overflow: hidden;
     padding: 0;
     display: flex;
