@@ -1,88 +1,19 @@
+// Security: Safe HTML Sanitizer
+const safeHTML = (str) => {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;")
+        .replace(/javascript:/gi, "no-js:");
+};
 
-
-let postsData = [
-    {
-        id: 1,
-        title: "Empowering Futures: LGA Career Day 2026 Highlights",
-        category: "Academic",
-        author: "Admin",
-        image_url: "career-day.webp",
-        content: "Our annual Career Day was a resounding success! Students from all grades dressed in their future professional attire, from surgeons to space engineers. The event featured guest speakers from various industries who shared inspiring stories of resilience and success. At Latter Glory Academy, we believe in nurturing dreams from a young age.",
-        views: 1240,
-        created_at: "2026-03-24T10:00:00Z"
-    },
-    {
-        id: 2,
-        title: "Laughter and Joy: Celebrating Children's Day at LGA",
-        category: "Events",
-        author: "Editor",
-        image_url: "childrens day.webp",
-        content: "Children are the heritage of the Lord, and at LGA, we celebrated them in grand style! From face painting to bouncy castles and inter-class dance competitions, the atmosphere was electric with pure joy. The school management provided special treats for all students, making it a day to remember.",
-        views: 980,
-        created_at: "2026-03-23T09:00:00Z"
-    },
-    {
-        id: 3,
-        title: "Honoring Our Superstars: A Special Mothers' Day Tribute",
-        category: "Community",
-        author: "Staff",
-        image_url: "mothers day.webp",
-        content: "Mothers are the backbone of our community. This year's Mothers' Day celebration at LGA was deeply emotional and beautiful. Students presented poems, songs, and handmade cards to their mothers. We hosted a special breakfast session where mothers shared their experiences and bonded over the shared goal of raising excellence.",
-        views: 1560,
-        created_at: "2026-03-22T08:30:00Z"
-    },
-    {
-        id: 4,
-        title: "The Rhythm of Leadership: Highlights from the Cultural Gala",
-        category: "Arts",
-        author: "Principal",
-        image_url: "proprietress_dancing.webp",
-        content: "Our Cultural Gala was headlined by a spectacular performance from our very own Proprietress, who led the traditional dance troop with grace and energy. The event showcased the rich diversity of our heritage through music, dance, and drama. It was a powerful reminder that leadership is about participation and passion.",
-        views: 2100,
-        created_at: "2026-03-21T11:00:00Z"
-    },
-    {
-        id: 5,
-        title: "Velocity and Valor: The 15th Annual Inter-House Sports Meet",
-        category: "Sports",
-        author: "Coach Sam",
-        image_url: "sport11.webp",
-        content: "The tracks were on fire as Blue House emerged victorious in this year's Inter-House Sports competition! Special mentions to our track stars in the 100m senior relay. The spirit of sportsmanship was evident in every race, as students pushed their limits and cheered for their peers regardless of the outcome.",
-        views: 3200,
-        created_at: "2026-03-20T14:00:00Z"
-    },
-    {
-        id: 6,
-        title: "Stage of Dreams: LGA Dramatics and Arts Performance",
-        category: "Arts",
-        author: "Arts Dept",
-        image_url: "latter-glory-drama.png",
-        content: "The LGA Drama Club presented 'The Glory of Persistence' in front of a packed auditorium. The performance was a masterclass in storytelling, featuring high-quality costumes and set designs. Our students demonstrated incredible dramatic range, moving the audience to both laughter and tears.",
-        views: 890,
-        created_at: "2026-03-19T10:00:00Z"
-    },
-    {
-        id: 7,
-        title: "Faces of Excellence: Unveiling Our 2026 Scholars",
-        category: "Academic",
-        author: "Admin",
-        image_url: "photoshoot.webp",
-        content: "Meet the brilliant minds shaping the future. Our latest official school photoshoot captured the essence of LGA: discipline, excellence, and a hunger for knowledge. These scholars have maintained outstanding academic records and shown exemplary leadership within the school community.",
-        views: 1100,
-        created_at: "2026-03-18T09:00:00Z"
-    },
-    {
-        id: 8,
-        title: "Active Minds, Active Bodies: Exploring the New Playground",
-        category: "Lifestyle",
-        author: "Staff",
-        image_url: "playground.webp",
-        content: "Outdoor play is essential for holistic development. We are excited to unveil our newly upgraded playground, featuring state-of-the-art equipment designed for safety and maximum fun. From the climbing walls to the creative sand pits, there's a new world of adventure waiting for our students.",
-        views: 1340,
-        created_at: "2026-03-17T08:00:00Z"
-    }
-];
+let postsData = [];
 let eventsData = [];
+
+
 let currentSlide = 0;
 let currentFilter = 'all';
 let currentSearchTerm = '';
@@ -102,21 +33,22 @@ window.hapticFeed = (duration = 40) => {
     } catch (e) { }
 };
 
-// Preloader - Fixed Timing
+// Preloader - Optimized for performance
 document.addEventListener('DOMContentLoaded', () => {
-    // Start loading immediately
     loadTheme();
     initBlog();
-
-    // Hide preloader after 3 seconds or when content is ready
-    setTimeout(hidePreloader, 2500);
+    
+    // Safety timeout to hide preloader even if init hangs
+    setTimeout(hidePreloader, 3000);
 });
 
 function hidePreloader() {
     const loader = getElement('loader');
-    if (loader) {
+    if (loader && loader.style.opacity !== '0') {
         loader.style.opacity = '0';
-        setTimeout(() => loader.remove(), 400);
+        setTimeout(() => {
+            if (loader.parentNode) loader.remove();
+        }, 400);
     }
 }
 
@@ -148,135 +80,8 @@ document.addEventListener('click', e => {
     }
 });
 
-// Admin Modal - Direct call to admin-modal.js implementation
-window.openAdminModal = function () {
-    console.log('Original modal opened');
-    const modal = document.createElement('div');
-    modal.className = 'admin-overlay show';
-    modal.innerHTML = `
-        <div class="login-modal-overlay">
-            <div class="login-modal">
-                <button class="login-close" onclick="this.closest('.login-modal-overlay').remove()">
-                    <i class="bi bi-x"></i>
-                </button>
-                <div class="login-header">
-                    <div class="login-icon">
-                        <i class="bi bi-shield-lock"></i>
-                    </div>
-                    <h2>Admin Access</h2>
-                    <p>Enter your credentials</p>
-                </div>
-                <div class="login-form">
-                    <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" id="loginEmail" placeholder="admin@lga.com">
-                    </div>
-                    <div class="form-group">
-                        <label>Password</label>
-                        <input type="password" id="loginPassword" placeholder="••••••••">
-                    </div>
-                    <button class="login-btn" onclick="handleLogin()">Login</button>
-                    <div id="loginError" style="color:#f44336; font-size:0.85rem; margin-top:8px; display:none;"></div>
-                </div>
-                <div class="login-footer">
-                </div>
-            </div>
-        </div>
-    `;
-    document.body.appendChild(modal);
-};
-
-async function handleLogin() {
-    const loginModal = document.querySelector('.login-modal-overlay');
-    const errorEl = document.getElementById('loginError');
-
-    // Use admin-modal.js handleLogin - it loads separately
-    if (typeof window.handleLogin === 'function') {
-        loginModal.remove();
-        window.handleLogin(); // Call admin-modal's version
-        return;
-    }
-
-    // Fallback - simple Supabase auth
-    const email = document.getElementById('loginEmail').value.trim();
-    const password = document.getElementById('loginPassword').value.trim();
-
-    if (!window.supabase || !window.supabase.auth) {
-        errorEl.style.display = 'block';
-        errorEl.textContent = 'Supabase not ready - refresh page';
-        return;
-    }
-
-    // Show loading
-    errorEl.style.display = 'block';
-    errorEl.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Authenticating...';
-
-    try {
-        const { data, error: authError } = await window.supabase.auth.signInWithPassword({
-            email: email,
-            password: password
-        });
-
-        if (authError) throw authError;
-
-        errorEl.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Loading profile...';
-
-        const { data: profile, error: profileError } = await window.supabase
-            .from('profiles')
-            .select('name, role, avatar')
-            .eq('email', email)
-            .single();
-
-        if (profileError && profileError.code !== 'PGRST116') throw profileError;
-
-        errorEl.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Accessing portal...';
-
-        document.querySelector('.login-modal-overlay').remove();
-        openDashboard(profile || { name: email, role: 'user', avatar: 'latter-glory-logo.webp' });
-
-    } catch (error) {
-        console.error('Login error:', error);
-        errorEl.style.display = 'block';
-        errorEl.textContent = error.message || 'Invalid credentials';
-    }
-}
-
-
-function openDashboard(user) {
-    const modal = document.createElement('div');
-    modal.className = 'admin-overlay show';
-    modal.innerHTML = `
-        <div class="dashboard-modal">
-            <div class="dashboard-header">
-                <div class="user-info">
-                    <img src="${user.avatar}" class="user-avatar">
-                    <div>
-                        <h3>${user.name}</h3>
-                        <span class="user-role">${user.role}</span>
-                    </div>
-                </div>
-                <button class="dashboard-close" onclick="this.closest('.admin-overlay').remove()">×</button>
-            </div>
-            <div class="dashboard-content">
-                <div class="dashboard-grid">
-                    <div class="dashboard-card" onclick="openPostEditor()">
-                        <h4><i class="bi bi-plus-circle"></i> Create Post</h4>
-                        <p>Write new blog posts</p>
-                    </div>
-                    <div class="dashboard-card" onclick="openReviewQueue()">
-                        <h4><i class="bi bi-eye"></i> Review Queue</h4>
-                        <p>Approve posts</p>
-                    </div>
-                    <div class="dashboard-card" onclick="openAnalytics()">
-                        <h4><i class="bi bi-graph-up"></i> Analytics</h4>
-                        <p>View stats</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-    document.body.appendChild(modal);
-}
+// Admin Entrance Logic - Delegated to admin-modal.js
+// No local definition here to avoid recursion. admin-modal.js will override window.openAdminModal.
 
 // Newsletter
 async function handleNewsletter() {
@@ -290,16 +95,16 @@ async function handleNewsletter() {
         statusEl.style.color = 'var(--accent)';
 
         try {
-            const supabase = window.supabase;
+            const supabase = getSupabase();
             if (supabase && supabase.from) {
-                const { error } = await supabase.from('subscribers').insert([{ email: email, subscribed_at: new Date().toISOString() }]);
-                if (error && error.code !== '23505') throw error; // Ignore duplicate email errors implicitly
+                const { error } = await supabase.from('newsletter_subscriptions').insert([{ email: email, status: 'active' }]);
+                if (error && error.code !== '23505') throw error; 
             }
 
             statusEl.textContent = 'Subscribed! Thank you.';
             statusEl.style.color = '#4CAF50';
             emailEl.value = '';
-            
+
             const card = document.querySelector('.newsletter-card-modern');
             if (card) {
                 card.classList.add('success');
@@ -330,13 +135,24 @@ async function initBlog() {
         startCarousel();
         setupRealtime();
         prepopulateSupabase(); // Prepopulate if empty
-        hidePreloader(); // Force hide preloader
-        console.log('LGA Blog Ready - Modern carousel initialized');
+        
+        // Deep Linking: Open post if ID is in URL
+        const params = new URLSearchParams(window.location.search);
+        if (params.has('id')) {
+            const postId = parseInt(params.get('id'));
+            if (!isNaN(postId)) {
+                console.log('Deep linking to post:', postId);
+                setTimeout(() => openPost(postId), 800); // Slight delay for smoothness
+            }
+        }
+        
+        console.log('Blog initialized');
     } catch (error) {
         console.error('Init error:', error);
         loadFallbackData(); // ✅ Fallback to dummy posts
         renderAll();
-        hidePreloader(); // Force hide even on error
+    } finally {
+        hidePreloader(); // Force hide when work is done
     }
 }
 
@@ -358,39 +174,93 @@ function renderSkeletons() {
 }
 
 async function loadData() {
-    const supabase = window.supabase;
+    const supabase = getSupabase();
+    const statusEl = document.querySelector('.nav-links'); // We'll append a status badge here or near logo
+
+    const setOnlineStatus = (isOnline) => {
+        const logo = document.querySelector('.logo span');
+        if (logo) {
+            logo.innerHTML = `LGA ${isOnline ? '<span class="status-dot online" title="Live"></span>' : '<span class="status-dot offline" title="Offline Mode"></span>'}`;
+        }
+    };
+
     if (supabase && supabase.from) {
         try {
-            const { data: posts } = await supabase
+            const { data: posts, error: postError } = await supabase
                 .from('posts')
                 .select('*')
                 .eq('status', 'published')
                 .order('created_at', { ascending: false })
                 .limit(25);
-            const { data: events } = await supabase
+
+            const { data: events, error: eventError } = await supabase
                 .from('events')
                 .select('*')
                 .order('event_date')
                 .limit(10);
 
-            postsData = posts.map(p => ({
-                ...p,
-                excerpt: p.content ? p.content.substring(0, 120) + '...' : 'Read more...'
-            })) || [];
-            eventsData = events || [];
+            if (postError || eventError) {
+                console.warn('Supabase fetch failed, using fallback.');
+                setOnlineStatus(false);
+                loadFallbackData();
+            } else {
+                setOnlineStatus(true);
+                postsData = (posts || []).map(p => ({
+                    ...p,
+                    excerpt: p.content ? p.content.substring(0, 120) + '...' : 'Read more...'
+                }));
+                eventsData = events || [];
+                if (postsData.length === 0) loadFallbackData();
+            }
         } catch (e) {
-            console.log('Supabase error:', e);
+            console.error('Supabase load exception:', e);
+            setOnlineStatus(false);
             loadFallbackData();
         }
     } else {
+        setOnlineStatus(false);
         loadFallbackData();
     }
 }
 
 function loadFallbackData() {
-    // Already populated at top, but ensure it's reset if needed
+    // If Supabase is unreachable, we show these high-value SEO articles as a safety net.
     if (postsData.length === 0) {
-        // Fallback to original content matches the top-level declaration
+        postsData = [
+            {
+                id: 101,
+                title: "How to Pass WAEC 2026 Without Stress: The Ultimate Reading Guide",
+                category: "Exam Success",
+                author: "Academic Director",
+                views: 12450,
+                image_url: "waec-prep.png",
+                excerpt: "Preparing for WAEC? Most students fail because of poor preparation, not lack of intelligence. Here are the top 5 secrets to mastering your syllabus in 3 months...",
+                content: "Preparing for WAEC? Most students fail because of poor preparation, not lack of intelligence. Here are the top 5 secrets to mastering your syllabus in 3 months. 1. Start Early. 2. Use the Syllabus. 3. Practice Past Questions. 4. Active Recall. 5. Health is Wealth. At Latter Glory Academy, we specialize in helping students achieve A1 results through structured guidance.",
+                created_at: "2026-03-20T15:00:00Z"
+            },
+            {
+                id: 102,
+                title: "5 Signs Your Child is Struggling in School (And How to Help Them)",
+                category: "Parenting",
+                author: "Principal",
+                views: 8900,
+                image_url: "parenting-tips.png",
+                excerpt: "Academic success starts at home. If you notice these 5 patterns in your child's behavior, it might be time to intervene...",
+                content: "Academic success starts at home. If you notice these 5 patterns in your child's behavior (sudden loss of interest, hiding grades, isolation, fatigue, or defensive talk), it might be time to intervene. Our counseling department at LGA works closely with parents to identify and resolve these learning barriers early.",
+                created_at: "2026-03-19T16:00:00Z"
+            },
+            {
+                id: 103,
+                title: "Why Latter Glory Academy is Ranked Top in Ogbomoso for 2026",
+                category: "Featured",
+                author: "LGA Admin",
+                views: 15600,
+                image_url: "school-rank.png",
+                excerpt: "Choosing a school is the most important decision for your child's future. See why our holistic approach sets us apart...",
+                content: "Choosing a school is the most important decision for your child's future. LGA has been ranked #1 due to our world-class facilities, dedicated staff, and consistent result excellence. We don't just teach; we transform lives.",
+                created_at: "2026-03-18T17:00:00Z"
+            }
+        ];
     }
 
     eventsData = [
@@ -400,8 +270,10 @@ function loadFallbackData() {
     ];
 }
 
+window.realtimeInitialized = false;
 function setupRealtime() {
-    const supabase = window.supabase;
+    if (window.realtimeInitialized) return;
+    const supabase = getSupabase();
     if (supabase && supabase.channel) {
         supabase.channel('public:posts')
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'posts' }, payload => {
@@ -410,6 +282,7 @@ function setupRealtime() {
                 }
             })
             .subscribe();
+        window.realtimeInitialized = true;
     }
 }
 
@@ -468,19 +341,29 @@ function renderHeroCarousel() {
     }
 
     carouselSection.classList.remove('hidden');
-    const topPosts = postsData.slice(0, 3);
+
+    // Prioritize 'Featured' and high-value categories for the hero
+    const topPosts = postsData
+        .sort((a, b) => {
+            if (a.category === 'Featured' && b.category !== 'Featured') return -1;
+            if (b.category === 'Featured' && a.category !== 'Featured') return 1;
+            if (a.category === 'Exam Success' && b.category !== 'Exam Success') return -1;
+            if (b.category === 'Exam Success' && a.category !== 'Exam Success') return 1;
+            return (b.views || 0) - (a.views || 0); // Then by views
+        })
+        .slice(0, 3);
 
     hero.innerHTML = `
         <div class="carousel-container">
             ${topPosts.map((post, index) => `
                 <div class="hero-slide ${index === 0 ? 'active' : ''}" data-index="${index}">
                     <div class="slide-media">
-                        <img src="${post.image_url || 'latter-glory-logo.webp'}" alt="${post.title}" loading="lazy" style="width:100%; height:100%; object-fit:cover;">
+                        <img src="${post.image_url || 'latter-glory-logo.webp'}" alt="${safeHTML(post.title)}" loading="lazy" style="width:100%; height:100%; object-fit:cover;">
                     </div>
                     <div class="slide-content">
                         <span class="slide-category">${post.category}</span>
-                        <h2 class="slide-title">${post.title}</h2>
-                        <p class="slide-excerpt">${post.content ? post.content.substring(0, 150) : 'No excerpt available.'}...</p>
+                        <h2 class="slide-title">${safeHTML(post.title)}</h2>
+                        <p class="slide-excerpt">${post.content ? safeHTML(post.content.substring(0, 150)) : 'No excerpt available.'}...</p>
                         <button class="apple-btn" onclick="openPost(${post.id})">Read Article</button>
                     </div>
                 </div>
@@ -524,7 +407,8 @@ function renderBlogGrid() {
 
         // For list view, grab items depending on if we are showing featured module
         const isFeaturedVisible = (currentFilter === 'all' && !currentSearchTerm);
-        const startIndex = isFeaturedVisible ? 3 : 0;
+        // Only skip the first 3 posts (for the hero carousel) if we have plenty of posts
+        const startIndex = (isFeaturedVisible && filtered.length > 5) ? 3 : 0;
         const displayPosts = filtered.slice(startIndex, startIndex + 12);
 
         grid.innerHTML = displayPosts.map((p, index) => {
@@ -532,10 +416,10 @@ function renderBlogGrid() {
             <article class="apple-list-item" onmousedown="hapticFeed()" onclick="openPost(${p.id})">
                 <div class="apple-list-content">
                     <div style="color:var(--primary); font-size:0.75rem; font-weight:800; letter-spacing:1px; text-transform:uppercase; margin-bottom:8px;">${p.category}</div>
-                    <h3 style="font-size:1.25rem; font-weight:700; line-height:1.25; margin:0 0 8px 0; color:var(--text-primary); letter-spacing:-0.3px; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;">${p.title}</h3>
+                    <h3 style="font-size:1.25rem; font-weight:700; line-height:1.25; margin:0 0 8px 0; color:var(--text-primary); letter-spacing:-0.3px; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;">${safeHTML(p.title)}</h3>
                     <div style="color:var(--text-muted); font-size:0.85rem; font-weight:500;">${new Date(p.created_at).toLocaleDateString()}</div>
                 </div>
-                <img src="${p.image_url || 'latter-view.webp'}" alt="${p.title}" class="apple-list-img">
+                <img src="${p.image_url || 'latter-view.webp'}" alt="${safeHTML(p.title)}" class="apple-list-img">
             </article>
             <div class="apple-divider"></div>
             `;
@@ -571,15 +455,21 @@ function renderSidebar() {
                 <strong>${e.title}</strong>
                 <span>${e.date}</span>
             </div>
-        `).join('');
+        `).join('') + `
+            <div class="sidebar-cta-card fluid-glass" style="margin-top:24px; padding:24px; text-align:center; border:1px solid var(--primary);">
+                <h4 style="color:var(--primary); font-size:1.1rem; margin-bottom:12px;">Secure Your Child's Future</h4>
+                <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:20px;">Admissions for the 2026/2027 Academic Session are now open. Start the journey today.</p>
+                <button class="apple-btn" style="width:100%;" onclick="showToast('Redirecting to Admissions Portal...')">Enroll Now</button>
+            </div>
+        `;
     }
 }
 
 // Search logic
-window.toggleSearch = function(forceClose = false) {
+window.toggleSearch = function (forceClose = false) {
     const overlay = getElement('searchOverlay');
     if (!overlay) return;
-    
+
     // Check strictly for true, because event objects are truthy
     if (forceClose === true) {
         overlay.classList.remove('show');
@@ -607,8 +497,8 @@ function renderSearchResults(term) {
     }
 
     const lowTerm = term.toLowerCase();
-    const filtered = postsData.filter(p => 
-        p.title.toLowerCase().includes(lowTerm) || 
+    const filtered = postsData.filter(p =>
+        p.title.toLowerCase().includes(lowTerm) ||
         p.category.toLowerCase().includes(lowTerm) ||
         p.content.toLowerCase().includes(lowTerm)
     );
@@ -635,29 +525,36 @@ window.openAndCloseSearch = (id) => {
 };
 
 async function prepopulateSupabase() {
-    const supabase = window.supabase;
+    const supabase = getSupabase();
     if (!supabase || !supabase.from) return;
 
     try {
-        const { data: existing } = await supabase.from('posts').select('id').limit(1);
+        const { data: existing, error: checkError } = await supabase.from('posts').select('id').limit(1);
+        if (checkError) throw checkError;
+
         if (existing && existing.length === 0) {
             console.log('Prepopulating Supabase with production dummy data...');
-            const toInsert = postsData.map(({id, ...rest}) => ({
+            loadFallbackData(); // Ensure we have the fallback posts loaded to insert
+            const toInsert = postsData.map(({ id, ...rest }) => ({
                 ...rest,
                 status: 'published'
             }));
             const { error } = await supabase.from('posts').insert(toInsert);
             if (error) console.error('Populate error:', error);
-            else console.log('Supabase populated successfully!');
+            else {
+                console.log('Supabase populated successfully!');
+                await loadData(); // Reload database to get real IDs
+                renderAll();      // Rerender the grid and carousel
+            }
         }
     } catch (e) {
-        console.error('Supabase check failed:', e);
+        console.warn('Supabase prepopulate check failed (expected if offline):', e.message || e);
     }
 }
 
 // Event Binders
 function bindInteractions() {
-    const subscribeBtn = getElement('subscribeBtn'); 
+    const subscribeBtn = getElement('subscribeBtn');
     if (subscribeBtn) subscribeBtn.onclick = handleNewsletter;
 
     const themeBtn = getElement('themeBtn');
@@ -826,6 +723,19 @@ function announceSlideChange(slide) {
     }
 }
 
+async function incrementViews(id) {
+    try {
+        const supabase = getSupabase();
+        if (!supabase) return;
+        const post = postsData.find(p => p.id === id);
+        if (post) {
+            await supabase.from('posts').update({ views: post.views }).eq('id', id);
+        }
+    } catch (e) {
+        console.warn('View sync failed');
+    }
+}
+
 // Modal - Styled Perfectly (Full Screen Fluid Glass Redesign)
 function openPost(id) {
     const post = postsData.find(p => p.id === id) || postsData[0]; // fallback safely
@@ -835,6 +745,11 @@ function openPost(id) {
 
     // Track view (simple local increment for demo)
     post.views = (post.views || 0) + 1;
+    // Increase view count
+    incrementViews(id);
+    
+    // Update Meta Tags for SEO (Client-side switcher)
+    updateMetaTags(post);
 
     const modal = document.createElement('div');
     modal.className = 'modal-overlay show';
@@ -845,21 +760,51 @@ function openPost(id) {
             </button>
             
             <div class="reader-hero">
-                <img src="${post.image_url || 'latter-glory-logo.webp'}" alt="${post.title}" class="reader-img">
+                <img src="${post.image_url}" class="reader-image" alt="${post.seo_metadata?.image_alt || post.title}">
+                ${post.seo_metadata?.image_description ? `<div class="image-caption-overlay">${post.seo_metadata.image_description}</div>` : ''}
+            </div>
                 <div class="reader-vignette"></div>
                 <div class="reader-header-content">
                     <span class="post-category">${post.category}</span>
                     <h1 class="post-title">${post.title}</h1>
-                    <div class="post-meta">
-                        <img src="latter-glory-logo.webp" alt="${post.author}" class="author-img">
-                        <span>by ${post.author} • ${new Date(post.created_at).toLocaleDateString()}</span>
+                    <div class="post-meta" style="display:flex; justify-content:space-between; align-items:center;">
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            <img src="latter-glory-logo.webp" alt="${post.author}" class="author-img">
+                            <span>by ${post.author} • ${new Date(post.created_at).toLocaleDateString()}</span>
+                        </div>
+                        <button class="apple-btn share-global-btn" onclick="nativeShare('${post.title.replace(/'/g, "\\'")}', 'Check out this article from Latter Glory Academy!')" style="padding:8px 16px; font-size:14px; background:var(--glass); border:1px solid var(--glass-border);">
+                            <i class="bi bi-share"></i> Share
+                        </button>
                     </div>
                 </div>
             </div>
-            
             <div class="reader-body">
                 <div class="reader-main-content">
                     ${post.content.split('\n').map(p => p.trim() ? `<p>${p}</p>` : '').join('')}
+                </div>
+
+                <div class="reader-conversion-section" style="margin-top:60px; padding:40px; background:var(--glass); border-radius:20px; border:1px solid var(--primary); text-align:center;">
+                    <h2 style="font-size:2rem; font-weight:800; margin-bottom:16px;">Ready to give your child the best?</h2>
+                    <p style="color:var(--text-muted); font-size:1.1rem; margin-bottom:24px;">Join the LGA family and experience academic excellence like never before.</p>
+                    <div style="display:flex; gap:16px; justify-content:center;">
+                        <button class="apple-btn" onclick="showToast('Admissions Portal Opening...')">Apply for Admission</button>
+                        <button class="apple-btn" style="background:transparent; border:1px solid var(--glass-border);" onclick="showToast('Downloading Prospectus...')">Download Prospectus</button>
+                    </div>
+                </div>
+
+                <div class="related-posts-section" style="margin-top:60px;">
+                    <h3 style="font-size:1.5rem; font-weight:800; margin-bottom:24px; color:var(--text-primary);">More for You</h3>
+                    <div class="related-grid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:24px;">
+                        ${postsData
+            .filter(p => p.id !== post.id && (p.category === post.category || p.category === 'Featured'))
+            .slice(0, 2)
+            .map(p => `
+                                <div class="related-card" onclick="closePostModal(); setTimeout(() => openPost(${p.id}), 300)" style="cursor:pointer;">
+                                    <img src="${p.image_url}" style="width:100%; height:160px; object-fit:cover; border-radius:12px; margin-bottom:12px;">
+                                    <h4 style="font-size:1.1rem; font-weight:700; color:var(--text-primary); margin:0;">${p.title}</h4>
+                                </div>
+                            `).join('')}
+                    </div>
                 </div>
                 
                 <div class="reader-footer">
@@ -867,18 +812,15 @@ function openPost(id) {
                         <i class="bi bi-printer"></i> Print
                     </button>
                     <div class="share-group">
-                        <span class="share-label">SHARE:</span>
-                        <button class="share-btn share-fb" onmousedown="hapticFeed()" onclick="shareFB('${post.title.replace(/'/g, "\\'")}')" title="Facebook">
+                        <span class="share-label">SHARE STORY:</span>
+                        <button class="share-btn share-fb" onclick="sharePost('fb', '${post.id}', '${post.title.replace(/'/g, "\\'")}')" title="Facebook">
                             <svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
                         </button>
-                        <button class="share-btn share-tw" onclick="shareTwitter('${post.title.replace(/'/g, "\\'")}')" title="Twitter / X">
+                        <button class="share-btn share-tw" onclick="sharePost('tw', '${post.id}', '${post.title.replace(/'/g, "\\'")}')" title="Twitter / X">
                             <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
                         </button>
-                        <button class="share-btn share-wa" onclick="shareWA('${post.title.replace(/'/g, "\\'")}')" title="WhatsApp">
+                        <button class="share-btn share-wa" onclick="sharePost('wa', '${post.id}', '${post.title.replace(/'/g, "\\'")}')" title="WhatsApp">
                             <svg viewBox="0 0 24 24"><path d="M12.031 0C5.385 0 0 5.388 0 12.039c0 2.122.551 4.195 1.597 6.01L.001 24l6.104-1.601A11.972 11.972 0 0012.031 24c6.643 0 12.03-5.386 12.03-12.04C24.061 5.387 18.674 0 12.031 0m6.534 17.291c-.267.755-1.503 1.488-2.071 1.558-.567.07-1.25.17-3.665-.83-2.903-1.205-4.755-4.223-4.897-4.417-.142-.194-1.171-1.564-1.171-2.986 0-1.422.738-2.125.993-2.395.255-.27.553-.338.737-.338.184 0 .368.002.525.01.17.009.398-.066.623.473.284.685.993 2.434 1.078 2.603.085.17.142.368.028.594-.113.226-.17.368-.34.567-.17.198-.354.434-.51.585-.17.17-.348.358-.142.716.206.358.916 1.536 1.955 2.483 1.341 1.222 2.487 1.597 2.841 1.767.354.17.561.142.774-.103.213-.245.922-1.074 1.177-1.442.255-.368.51-.302.835-.18.326.122 2.055.986 2.41 1.165.354.18.594.264.68.406.085.142.085.83-.182 1.585"/></svg>
-                        </button>
-                        <button class="share-btn share-native" onclick="nativeShare('${post.title.replace(/'/g, "\\'")}', '')" title="Share via Device">
-                            <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3" fill="currentColor"/><circle cx="6" cy="12" r="3" fill="currentColor"/><circle cx="18" cy="19" r="3" fill="currentColor"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51L8.59 10.49" stroke="currentColor" stroke-width="2"/></svg>
                         </button>
                     </div>
                 </div>
@@ -890,26 +832,71 @@ function openPost(id) {
     document.body.style.overflow = 'hidden'; // Lock scroll
 }
 
+window.updateMetaTags = function(post) {
+    const metaDesc = document.querySelector('meta[name="description"]');
+    const metaKeys = document.querySelector('meta[name="keywords"]');
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    const ogDesc = document.querySelector('meta[property="og:description"]');
+    const ogImage = document.querySelector('meta[property="og:image"]');
+    const twTitle = document.querySelector('meta[name="twitter:title"]');
+    const twDesc = document.querySelector('meta[name="twitter:description"]');
+    const twImage = document.querySelector('meta[name="twitter:image"]');
+
+    const desc = post.seo_metadata?.description || post.content.substring(0, 160).replace(/\n/g, ' ') + '...';
+    const keys = post.seo_metadata?.keywords || "Latter Glory Academy Blog, school news Ogbomoso";
+    const title = `${post.title} | LGA Blog`;
+
+    if (metaDesc) metaDesc.setAttribute('content', desc);
+    if (metaKeys) metaKeys.setAttribute('content', keys);
+    if (ogTitle) ogTitle.setAttribute('content', title);
+    if (ogDesc) ogDesc.setAttribute('content', desc);
+    if (ogImage) ogImage.setAttribute('content', post.image_url);
+    if (twTitle) twTitle.setAttribute('content', title);
+    if (twDesc) twDesc.setAttribute('content', desc);
+    if (twImage) twImage.setAttribute('content', post.image_url);
+    
+    document.title = title;
+};
+
+window.resetMetaTags = function() {
+    const title = "Blog | Latter Glory Academy - Insights & Excellence";
+    const desc = "Official Blog of Latter Glory Academy - Insights into academic excellence, school culture, and student success stories.";
+    const metaDesc = document.querySelector('meta[name="description"]');
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    const ogDesc = document.querySelector('meta[property="og:description"]');
+    const ogImage = document.querySelector('meta[property="og:image"]');
+    
+    if (metaDesc) metaDesc.setAttribute('content', desc);
+    if (ogTitle) ogTitle.setAttribute('content', title);
+    if (ogDesc) ogDesc.setAttribute('content', desc);
+    if (ogImage) ogImage.setAttribute('content', 'https://www.latterglory.com.ng/latter-glory-logo.webp');
+    
+    document.title = title;
+};
+
 function closePostModal() {
     hapticFeed();
     const modal = document.querySelector('.modal-overlay');
     if (modal) {
         modal.remove();
         document.body.style.overflow = 'auto'; // Unlock scroll
+        resetMetaTags();
     }
 }
 
-function shareFB(title) {
-    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(location.href)}`, '_blank');
-}
-
-function shareTwitter(title) {
-    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(location.href)}`, '_blank');
-}
-
-function shareWA(title) {
-    window.open(`https://wa.me/?text=${encodeURIComponent(title + ' ' + location.href)}`, '_blank');
-}
+window.sharePost = function(platform, id, title) {
+    const shareUrl = `${window.location.origin}${window.location.pathname}?id=${id}`;
+    const text = `Check out this story from Latter Glory Academy: ${title}`;
+    
+    let url = '';
+    switch(platform) {
+        case 'fb': url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`; break;
+        case 'tw': url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(shareUrl)}`; break;
+        case 'wa': url = `https://wa.me/?text=${encodeURIComponent(text + ' ' + shareUrl)}`; break;
+    }
+    if (url) window.open(url, '_blank');
+    hapticFeed();
+};
 
 function printPost(id) {
     const post = postsData.find(p => p.id === id);
@@ -942,6 +929,64 @@ function showToast(msg) {
     setTimeout(() => toast.remove(), 3000);
 }
 
+// SEO Engine
+function updateSEOMetadata(post) {
+    if (!post) return;
+    
+    // Core Title & Meta
+    document.title = `${post.title} | Latter Glory Academy Blog`;
+    
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) metaDesc.setAttribute('content', post.seo_metadata?.description || post.content.substring(0, 160));
+    
+    // OpenGraph (Social Sharing)
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    const ogDesc = document.querySelector('meta[property="og:description"]');
+    const ogImage = document.querySelector('meta[property="og:image"]');
+    
+    if (ogTitle) ogTitle.setAttribute('content', post.title);
+    if (ogDesc) ogDesc.setAttribute('content', post.seo_metadata?.description || post.content.substring(0, 150));
+    if (ogImage) ogImage.setAttribute('content', post.image_url);
+
+    // Schema.org Structured Data
+    injectJSONLD(post);
+}
+
+function injectJSONLD(post) {
+    // Remove existing
+    const existing = document.getElementById('lga-schema');
+    if (existing) existing.remove();
+    
+    const schema = {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": post.title,
+        "image": [post.image_url],
+        "datePublished": post.created_at,
+        "author": [{
+            "@type": "Person",
+            "name": post.author,
+            "url": window.location.href
+        }],
+        "publisher": {
+            "@type": "EducationalOrganization",
+            "name": "Latter Glory Academy",
+            "logo": {
+                "@type": "ImageObject",
+                "url": "https://lga.com/logo.png" // Replace with real logo
+            }
+        },
+        "description": post.seo_metadata?.description || post.content.substring(0, 160)
+    };
+    
+    const script = document.createElement('script');
+    script.id = 'lga-schema';
+    script.type = 'application/ld+json';
+    script.text = JSON.stringify(schema);
+    document.head.appendChild(script);
+}
+
+// Share helpers
 function nativeShare(title, text) {
     if (navigator.share) {
         navigator.share({

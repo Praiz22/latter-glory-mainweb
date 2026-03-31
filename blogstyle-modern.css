@@ -575,22 +575,19 @@ nav {
    NEWSLETTER PREMIUM CARD
    -------------------------------------------------------------------------- */
 .newsletter-card-modern {
-    background: var(--glass) !important;
+    background: var(--glass);
     backdrop-filter: blur(20px);
-    border: 1px solid var(--glass-border) !important;
-    border-radius: 20px !important;
-    padding: 40px 30px !important;
-    margin-top: 40px;
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 30px;
+    margin-top: 60px;
     text-align: center;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-    animation: floatingNewsletter 6s infinite ease-in-out;
-    position: relative;
-    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease;
 }
 
-@keyframes floatingNewsletter {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
+.newsletter-card-modern:hover {
+    transform: translateY(-5px);
 }
 
 .newsletter-card-modern::before {
@@ -792,9 +789,12 @@ nav {
 }
 
 .reader-close {
-    position: fixed;
+    position: sticky;
     top: 30px;
-    right: 30px;
+    margin-left: auto;
+    margin-right: 30px;
+    margin-top: 30px;
+    margin-bottom: -74px; /* Pull the content back up */
     z-index: 10010;
     width: 44px;
     height: 44px;
@@ -826,6 +826,8 @@ nav {
 }
 
 .reader-img {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -965,5 +967,57 @@ nav {
     margin-right: 8px;
     text-transform: uppercase;
     letter-spacing: 1px;
+}
+
+/* --------------------------------------------------------------------------
+   IOS LIQUID GLASS NAVBAR OVERRIDE
+   -------------------------------------------------------------------------- */
+nav {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 50px !important;
+    padding: 12px 24px !important;
+    width: 90% !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    backdrop-filter: blur(40px) saturate(200%) !important;
+    -webkit-backdrop-filter: blur(40px) saturate(200%) !important;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3) !important;
+    position: fixed !important;
+    top: 20px !important;
+    z-index: 1000 !important;
+}
+
+[data-theme="light"] nav {
+    background: rgba(255, 255, 255, 0.7) !important;
+    border: 1px solid rgba(0, 0, 0, 0.05) !important;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.05) !important;
+}
+
+.image-caption-overlay {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 14px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+    z-index: 5;
+    text-align: center;
+}
+
+.reader-hero:hover .image-caption-overlay {
+    opacity: 1;
+    transform: translateY(0);
 }
 
