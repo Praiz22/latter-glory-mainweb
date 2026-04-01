@@ -33,13 +33,14 @@
     --skeleton-shine: rgba(0,0,0,0.1);
 }
 
-body {
+html, body {
     background-color: var(--bg-base);
     color: var(--text-primary);
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     letter-spacing: -0.2px;
     overflow-x: hidden;
+    width: 100%;
 }
 
 /* --------------------------------------------------------------------------
@@ -136,6 +137,15 @@ body {
     display: flex;
     flex-direction: column;
     gap: 32px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+    .content-wrapper {
+        padding: 0 15px;
+        overflow-x: hidden;
+    }
 }
 
 .fluid-glass {
@@ -847,6 +857,15 @@ nav {
     padding: 0 40px;
     max-width: 900px;
     margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+@media (max-width: 600px) {
+    .reader-header-content {
+        padding: 0 20px;
+        bottom: 30px;
+    }
 }
 
 .reader-header-content .post-category {
@@ -978,6 +997,7 @@ nav {
     border-radius: 50px !important;
     padding: 12px 24px !important;
     width: 90% !important;
+    max-width: 1200px;
     left: 50% !important;
     transform: translateX(-50%) !important;
     backdrop-filter: blur(40px) saturate(200%) !important;
@@ -986,6 +1006,16 @@ nav {
     position: fixed !important;
     top: 20px !important;
     z-index: 1000 !important;
+}
+
+@media (max-width: 600px) {
+    nav {
+        width: 95% !important;
+        padding: 8px 16px !important;
+        top: 10px !important;
+    }
+    .logo img { width: 32px !important; height: 32px !important; }
+    .logo span { font-size: 0.9rem !important; }
 }
 
 [data-theme="light"] nav {

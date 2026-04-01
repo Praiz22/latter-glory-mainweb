@@ -39,8 +39,37 @@ document.addEventListener('DOMContentLoaded', () => {
     initBlog();
     
     // Safety timeout to hide preloader even if init hangs
-    setTimeout(hidePreloader, 3000);
+    checkDeepLink();
+    renderAll();
+    setupImageObserver();
+    
+    // Hide preloader if exists
+    const preloader = document.getElementById('preloader');
+    if (preloader) {
+        setTimeout(() => {
+            preloader.style.opacity = '0';
+            setTimeout(() => preloader.style.display = 'none', 500);
+        }, 1000);
+    }
 });
+
+// --- DEEP LINKING ---
+function checkDeepLink() {
+    const params = new URLSearchParams(window.location.search);
+    const postId = params.get('post');
+    if (postId) {
+        // Wait for data to be loaded then open
+        const checkInterval = setInterval(() => {
+            if (postsData && postsData.length > 0) {
+                const id = parseInt(postId);
+                if (!isNaN(id)) openPost(id, false); // false = don't push state again
+                clearInterval(checkInterval);
+            }
+        }, 100);
+        // Timeout after 5s
+        setTimeout(() => clearInterval(checkInterval), 5000);
+    }
+}
 
 function hidePreloader() {
     const loader = getElement('loader');
@@ -135,16 +164,6 @@ async function initBlog() {
         startCarousel();
         setupRealtime();
         prepopulateSupabase(); // Prepopulate if empty
-        
-        // Deep Linking: Open post if ID is in URL
-        const params = new URLSearchParams(window.location.search);
-        if (params.has('id')) {
-            const postId = parseInt(params.get('id'));
-            if (!isNaN(postId)) {
-                console.log('Deep linking to post:', postId);
-                setTimeout(() => openPost(postId), 800); // Slight delay for smoothness
-            }
-        }
         
         console.log('Blog initialized');
     } catch (error) {
@@ -737,16 +756,18 @@ async function incrementViews(id) {
 }
 
 // Modal - Styled Perfectly (Full Screen Fluid Glass Redesign)
-function openPost(id) {
-    const post = postsData.find(p => p.id === id) || postsData[0]; // fallback safely
+window.openPost = (id, pushState = true) => {
+    const post = postsData.find(p => p.id === id);
     if (!post) return;
 
-    hapticFeed();
+    // Deep Link State Update
+    if (pushState) {
+        const newUrl = window.location.origin + window.location.pathname + '?post=' + id;
+        history.pushState({ postId: id }, post.title, newUrl);
+    }
 
-    // Track view (simple local increment for demo)
-    post.views = (post.views || 0) + 1;
-    // Increase view count
-    incrementViews(id);
+    // Increment Views (Optimistic)
+    incrementViews(post.id);
     
     // Update Meta Tags for SEO (Client-side switcher)
     updateMetaTags(post);
@@ -787,7 +808,7 @@ function openPost(id) {
                     <h2 style="font-size:2rem; font-weight:800; margin-bottom:16px;">Ready to give your child the best?</h2>
                     <p style="color:var(--text-muted); font-size:1.1rem; margin-bottom:24px;">Join the LGA family and experience academic excellence like never before.</p>
                     <div style="display:flex; gap:16px; justify-content:center;">
-                        <button class="apple-btn" onclick="showToast('Admissions Portal Opening...')">Apply for Admission</button>
+                        <button class="apple-btn" onclick="window.location.href='admission.html'">Apply for Admission</button>
                         <button class="apple-btn" style="background:transparent; border:1px solid var(--glass-border);" onclick="showToast('Downloading Prospectus...')">Download Prospectus</button>
                     </div>
                 </div>
@@ -830,11 +851,10 @@ function openPost(id) {
 
     document.body.appendChild(modal);
     document.body.style.overflow = 'hidden'; // Lock scroll
-}
+};
 
 window.updateMetaTags = function(post) {
     const metaDesc = document.querySelector('meta[name="description"]');
-    const metaKeys = document.querySelector('meta[name="keywords"]');
     const ogTitle = document.querySelector('meta[property="og:title"]');
     const ogDesc = document.querySelector('meta[property="og:description"]');
     const ogImage = document.querySelector('meta[property="og:image"]');
@@ -842,12 +862,10 @@ window.updateMetaTags = function(post) {
     const twDesc = document.querySelector('meta[name="twitter:description"]');
     const twImage = document.querySelector('meta[name="twitter:image"]');
 
-    const desc = post.seo_metadata?.description || post.content.substring(0, 160).replace(/\n/g, ' ') + '...';
-    const keys = post.seo_metadata?.keywords || "Latter Glory Academy Blog, school news Ogbomoso";
-    const title = `${post.title} | LGA Blog`;
+    const desc = post.seo_metadata?.description || post.title + ": " + post.content.substring(0, 120).replace(/\n/g, ' ') + '...';
+    const title = post.title; // Keep it clean for the preview caption
 
     if (metaDesc) metaDesc.setAttribute('content', desc);
-    if (metaKeys) metaKeys.setAttribute('content', keys);
     if (ogTitle) ogTitle.setAttribute('content', title);
     if (ogDesc) ogDesc.setAttribute('content', desc);
     if (ogImage) ogImage.setAttribute('content', post.image_url);
@@ -855,7 +873,7 @@ window.updateMetaTags = function(post) {
     if (twDesc) twDesc.setAttribute('content', desc);
     if (twImage) twImage.setAttribute('content', post.image_url);
     
-    document.title = title;
+    document.title = `${title} | LGA Blog`;
 };
 
 window.resetMetaTags = function() {
@@ -874,28 +892,71 @@ window.resetMetaTags = function() {
     document.title = title;
 };
 
-function closePostModal() {
-    hapticFeed();
+window.closePostModal = () => {
     const modal = document.querySelector('.modal-overlay');
     if (modal) {
-        modal.remove();
-        document.body.style.overflow = 'auto'; // Unlock scroll
-        resetMetaTags();
+        modal.classList.remove('show');
+        setTimeout(() => modal.remove(), 400);
+        document.body.style.overflow = 'auto';
+        
+        // Clear deep link on close
+        history.pushState(null, '', window.location.pathname);
     }
-}
+};
 
-window.sharePost = function(platform, id, title) {
-    const shareUrl = `${window.location.origin}${window.location.pathname}?id=${id}`;
-    const text = `Check out this story from Latter Glory Academy: ${title}`;
+window.nativeShare = async (title, text) => {
+    const params = new URLSearchParams(window.location.search);
+    const postId = params.get('post');
+    const shareUrl = window.location.origin + window.location.pathname + (postId ? `?post=${postId}` : '');
+
+    if (navigator.share) {
+        try {
+            await navigator.share({
+                title: title,
+                text: text,
+                url: shareUrl
+            });
+        } catch (err) {
+            console.log('Share failed:', err);
+            showToast('Fallback: Copy link from address bar');
+        }
+    } else {
+        // Fallback for browsers without Web Share API
+        const dummy = document.createElement('input');
+        document.body.appendChild(dummy);
+        dummy.value = shareUrl;
+        dummy.select();
+        document.execCommand('copy');
+        document.body.removeChild(dummy);
+        showToast('Link copied to clipboard!');
+    }
+};
+
+window.sharePost = (platform, id, title) => {
+    const post = postsData.find(p => p.id == id);
+    const baseUrl = window.location.origin + window.location.pathname;
+    const shareUrl = encodeURIComponent(`${baseUrl}?post=${id}`);
+    
+    // Explicit headline caption
+    const textHeadline = `${title.toUpperCase()}\n\nDiscover more at Latter Glory Academy:`;
+    const encodedHeadline = encodeURIComponent(textHeadline);
     
     let url = '';
+
     switch(platform) {
-        case 'fb': url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`; break;
-        case 'tw': url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(shareUrl)}`; break;
-        case 'wa': url = `https://wa.me/?text=${encodeURIComponent(text + ' ' + shareUrl)}`; break;
+        case 'fb': 
+            url = `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`; 
+            break;
+        case 'tw': 
+            url = `https://twitter.com/intent/tweet?text=${encodedHeadline}&url=${shareUrl}`; 
+            break;
+        case 'wa': 
+            // WhatsApp allows multi-line text which acts as a caption
+            url = `https://api.whatsapp.com/send?text=*${encodedHeadline}*%0A%0A${shareUrl}`; 
+            break;
     }
-    if (url) window.open(url, '_blank');
-    hapticFeed();
+
+    if (url) window.open(url, '_blank', 'width=600,height=400');
 };
 
 function printPost(id) {
