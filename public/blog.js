@@ -33,89 +33,25 @@ window.hapticFeed = (duration = 40) => {
     } catch (e) { }
 };
 
-// Define setupImageObserver at top level
-window.setupImageObserver = () => {
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const img = entry.target;
-                if (img.dataset.src) {
-                    img.src = img.dataset.src;
-                    img.onload = () => img.classList.add('loaded');
-                    observer.unobserve(img);
-                }
-            }
-        });
-    }, { threshold: 0.1 });
-    document.querySelectorAll('img[data-src]').forEach(img => observer.observe(img));
-};
-
 // Preloader - Optimized for performance
 document.addEventListener('DOMContentLoaded', () => {
     loadTheme();
-    
-    // 1. Render all skeletons immediately
-    renderAllSkeletons();
-    
-    // 2. Start incremental init
     initBlog();
     
-    // 3. Safety checks
+    // Safety timeout to hide preloader even if init hangs
     checkDeepLink();
+    renderAll();
+    setupImageObserver();
     
-    // Hide global preloader
+    // Hide preloader if exists
     const preloader = document.getElementById('preloader');
     if (preloader) {
         setTimeout(() => {
             preloader.style.opacity = '0';
             setTimeout(() => preloader.style.display = 'none', 500);
-        }, 800);
+        }, 1000);
     }
 });
-
-function renderAllSkeletons() {
-    renderHeroSkeleton();
-    renderGridSkeleton();
-    renderSidebarSkeleton();
-}
-
-function renderHeroSkeleton() {
-    const carousel = document.querySelector('.carousel-inner');
-    if (carousel) {
-        carousel.innerHTML = `
-            <div class="carousel-item active skeleton-item" style="height:600px; width:100%;">
-                <div class="carousel-caption">
-                    <div class="skeleton-text" style="width:200px; height:30px; margin-bottom:20px;"></div>
-                    <div class="skeleton-text" style="width:80%; height:60px;"></div>
-                </div>
-            </div>
-        `;
-    }
-}
-
-function renderGridSkeleton() {
-    const grid = getElement('mainBlogGrid');
-    if (grid) {
-        grid.innerHTML = Array(6).fill(0).map(() => `
-            <article class="apple-list-item skeleton-item" style="height:140px; width:100%; margin-bottom:16px; border-radius:12px;">
-                <div class="apple-list-content">
-                    <div class="skeleton-text" style="width:100px; height:15px; margin-bottom:10px;"></div>
-                    <div class="skeleton-text" style="width:90%; height:25px; margin-bottom:8px;"></div>
-                    <div class="skeleton-text" style="width:60%; height:20px;"></div>
-                </div>
-            </article>
-        `).join('');
-    }
-}
-
-function renderSidebarSkeleton() {
-    const popular = getElement('popularList');
-    if (popular) {
-        popular.innerHTML = Array(4).fill(0).map(() => `
-            <div class="popular-item skeleton-item" style="height:70px; margin-bottom:12px; border-radius:8px;"></div>
-        `).join('');
-    }
-}
 
 // --- DEEP LINKING ---
 function checkDeepLink() {
@@ -216,54 +152,27 @@ async function handleNewsletter() {
     }
 }
 
-// Main App Init - Incremental
+// Main App Init
 async function initBlog() {
-    const supabase = getSupabase();
-    
-    // A. Fetch Core Posts First (for Hero and Grid)
-    try {
-        const { data: posts, error } = await supabase
-            .from('posts')
-            .select('*')
-            .eq('status', 'published')
-            .order('created_at', { ascending: false });
+    // Show Skeletons instantly  
+    renderSkeletons();
 
-        if (posts && posts.length > 0) {
-            postsData = posts;
-            renderHero();      // Render Hero as soon as posts arrive
-            renderBlogGrid();  // Render Grid
-        } else {
-            loadFallbackData();
-            renderHero();
-            renderBlogGrid();
-        }
-    } catch (e) {
-        console.error('Posts load error:', e);
-        loadFallbackData();
-        renderHero();
-        renderBlogGrid();
-    }
-
-    // B. Fetch Events Second (Sidebar)
     try {
-        const { data: events } = await supabase
-            .from('events')
-            .select('*')
-            .order('date', { ascending: true })
-            .limit(6);
+        await loadData();
+        renderAll();
+        bindInteractions();
+        startCarousel();
+        setupRealtime();
+        prepopulateSupabase(); // Prepopulate if empty
         
-        if (events) {
-            eventsData = events;
-            renderSidebar();
-        }
-    } catch (e) {
-        console.error('Events load error:', e);
+        console.log('Blog initialized');
+    } catch (error) {
+        console.error('Init error:', error);
+        loadFallbackData(); // ✅ Fallback to dummy posts
+        renderAll();
+    } finally {
+        hidePreloader(); // Force hide when work is done
     }
-
-    // C. Finish Up
-    bindInteractions();
-    startCarousel();
-    setTimeout(setupImageObserver, 800);
 }
 
 function renderSkeletons() {
@@ -1028,8 +937,8 @@ window.sharePost = (platform, id, title) => {
     const baseUrl = window.location.origin + window.location.pathname;
     const shareUrl = encodeURIComponent(`${baseUrl}?post=${id}`);
     
-    // EXTREME HEADLINE VISIBILITY: Title first, bolded for platforms that support it
-    const textHeadline = `${title.toUpperCase()}\n━━━━━━━━━━━━━━━━━━━━\nRead the full update from Latter Glory Academy:`;
+    // Explicit headline caption
+    const textHeadline = `${title.toUpperCase()}\n\nDiscover more at Latter Glory Academy:`;
     const encodedHeadline = encodeURIComponent(textHeadline);
     
     let url = '';
