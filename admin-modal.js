@@ -461,3 +461,81 @@ window.deleteAnyPost = async function(id) {
         openManageAllPosts();
     } catch(e) {}
 };
+
+window.openReviewQueue = async function() {
+    try {
+        const { data: posts } = await getSupabase().from('posts').select('*').eq('status', 'pending');
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay';
+        modal.innerHTML = `
+            <div class="modal-container" style="max-width:800px;">
+                <button class="modal-close" onclick="this.closest('.modal-overlay').remove()"><i class="bi bi-x-lg"></i></button>
+                <div class="modal-header"><h2>Review Queue</h2></div>
+                <div class="modal-body">
+                    ${posts.length ? posts.map(p => `
+                        <div class="dashboard-card" style="margin-bottom:15px; text-align:left;">
+                            <h4>${p.title}</h4>
+                            <p>${p.author} • ${p.category}</p>
+                            <div style="margin-top:10px; display:flex; gap:10px;">
+                                <button class="btn-primary btn-sm" onclick="approvePost(${p.id})">Approve</button>
+                                <button class="btn-outline btn-sm" onclick="editAnyPost(${p.id})">Edit</button>
+                            </div>
+                        </div>
+                    `).join('') : '<p>No pending posts.</p>'}
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    } catch(e) {}
+};
+
+window.approvePost = async function(id) {
+    try {
+        await getSupabase().from('posts').update({ status: 'published' }).eq('id', id);
+        showToast('Post Approved! 🚀');
+        document.querySelector('.modal-overlay').remove();
+        openReviewQueue();
+    } catch(e) {}
+};
+
+window.openUserManagement = async function() {
+    try {
+        const { data: users } = await getSupabase().from('profiles').select('*');
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay';
+        modal.innerHTML = `
+            <div class="modal-container" style="max-width:800px;">
+                <button class="modal-close" onclick="this.closest('.modal-overlay').remove()"><i class="bi bi-x-lg"></i></button>
+                <div class="modal-header"><h2>User Management</h2></div>
+                <div class="modal-body">
+                    <table style="width:100%; border-collapse:collapse;">
+                        <thead><tr style="text-align:left; border-bottom:1px solid var(--glass-border);"><th>Name</th><th>Role</th><th>Action</th></tr></thead>
+                        <tbody>
+                            ${users.map(u => `
+                                <tr style="border-bottom:1px solid var(--glass-border);">
+                                    <td>${u.name}</td>
+                                    <td>
+                                        <select onchange="updateUserRole('${u.id}', this.value)" style="background:transparent; color:white; border:1px solid var(--glass-border); border-radius:4px;">
+                                            <option value="staff" ${u.role==='staff'?'selected':''}>Staff</option>
+                                            <option value="editor" ${u.role==='editor'?'selected':''}>Editor</option>
+                                            <option value="admin" ${u.role==='admin'?'selected':''}>Admin</option>
+                                        </select>
+                                    </td>
+                                    <td><button class="btn-danger btn-sm" onclick="deleteUser('${u.id}')">Remove</button></td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    } catch(e) {}
+};
+
+window.updateUserRole = async function(userId, newRole) {
+    try {
+        await getSupabase().from('profiles').update({ role: newRole }).eq('id', userId);
+        showToast('Role updated');
+    } catch(e) {}
+};

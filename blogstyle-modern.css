@@ -141,11 +141,21 @@ html, body {
     margin: 0 auto;
 }
 
-@media (max-width: 768px) {
-    .content-wrapper {
-        padding: 0 15px;
-        overflow-x: hidden;
-    }
+/* Skeleton Loader */
+.skeleton-item {
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.05) 25%,
+        rgba(255, 255, 255, 0.1) 50%,
+        rgba(255, 255, 255, 0.05) 75%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite linear;
+}
+
+@keyframes skeleton-loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
 }
 
 .fluid-glass {
@@ -780,9 +790,12 @@ nav {
     inset: 0;
     z-index: 10000;
     background: #000;
-    overflow-y: overlay; /* Better scrollbar integration */
-    scrollbar-width: none; /* Hide scrollbar but keep functionality */
-    display: block; /* Ensure it's a block container for scrolling */
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    width: 100%;
+    height: 100%;
 }
 
 .modal-overlay::-webkit-scrollbar {
@@ -790,12 +803,14 @@ nav {
 }
 
 .post-reader {
-    width: 100vw;
+    width: 100%;
+    max-width: 100%;
     min-height: 100vh;
     background: var(--bg-base);
     color: var(--text-primary);
     position: relative;
     box-sizing: border-box;
+    overflow-x: hidden;
 }
 
 .reader-close {
@@ -827,20 +842,26 @@ nav {
 
 .reader-hero {
     width: 100%;
-    min-height: 70vh; /* Better min-height */
+    min-height: 60vh;
     position: relative;
     background: #000;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
+    overflow: hidden;
 }
 
-.reader-img {
+.reader-image {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
+}
+
+@media (max-width: 600px) {
+    .reader-hero { min-height: 50vh; }
+    .reader-header-content h1 { font-size: 1.8rem !important; }
 }
 
 .reader-vignette {
