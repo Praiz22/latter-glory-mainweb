@@ -33,6 +33,24 @@ window.hapticFeed = (duration = 40) => {
     } catch (e) { }
 };
 
+// Lazy-load images via IntersectionObserver
+function setupImageObserver() {
+    if (!('IntersectionObserver' in window)) return;
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const img = entry.target;
+                if (img.dataset.src) {
+                    img.src = img.dataset.src;
+                    img.onload = () => img.classList.add('loaded');
+                    observer.unobserve(img);
+                }
+            }
+        });
+    }, { rootMargin: '200px', threshold: 0.01 });
+    document.querySelectorAll('img[data-src]').forEach(img => observer.observe(img));
+}
+
 // Preloader - Optimized for performance
 document.addEventListener('DOMContentLoaded', () => {
     loadTheme();
@@ -53,22 +71,48 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// --- DEEP LINKING ---
+// --- DEEP LINKING (HASH UPGRADE - ALPHANUMERIC) ---
 function checkDeepLink() {
-    const params = new URLSearchParams(window.location.search);
-    const postId = params.get('post');
-    if (postId) {
+    const hash = window.location.hash.substring(1); // Remove the '#'
+    if (hash) {
         // Wait for data to be loaded then open
         const checkInterval = setInterval(() => {
             if (postsData && postsData.length > 0) {
-                const id = parseInt(postId);
-                if (!isNaN(id)) openPost(id, false); // false = don't push state again
+                // Prioritize matching by the new alphanumeric 'short_id'
+                let post = postsData.find(p => p.short_id === hash);
+                
+                // Fallback: If not found by short_id, check slug or numeric id (legacy support)
+                if (!post) {
+                    const numericId = parseInt(hash);
+                    post = isNaN(numericId)
+                        ? postsData.find(p => p.slug === hash)   // slug match
+                        : postsData.find(p => p.id === numericId); // numeric match
+                }
+                
+                if (post) openPost(post.id, false);
                 clearInterval(checkInterval);
             }
         }, 100);
         // Timeout after 5s
         setTimeout(() => clearInterval(checkInterval), 5000);
     }
+}
+
+// Add HashChange listener for back/forward navigation within the post reader
+window.addEventListener('hashchange', () => {
+    const hash = window.location.hash.substring(1);
+    if (!hash) {
+        closePostModal(); // Close if hash is cleared (back button)
+    } else {
+        checkDeepLink();
+    }
+});
+
+// Utility: compute estimated reading time from content string
+function computeReadingTime(content) {
+    if (!content) return 1;
+    const words = content.trim().split(/\s+/).length;
+    return Math.max(1, Math.ceil(words / 200)); // average 200 wpm
 }
 
 function hidePreloader() {
@@ -205,31 +249,58 @@ async function loadData() {
 
     if (supabase && supabase.from) {
         try {
-            const { data: posts, error: postError } = await supabase
-                .from('posts')
-                .select('*')
-                .eq('status', 'published')
-                .order('created_at', { ascending: false })
-                .limit(25);
+            // --- UNBREAKABLE FETCH ENGINE ---
+            let finalPosts = null;
+            let finalEvents = [];
 
-            const { data: events, error: eventError } = await supabase
-                .from('events')
-                .select('*')
-                .order('event_date')
-                .limit(10);
+            // 1. Try Posts (Joined first, then simple)
+            try {
+                const { data, error } = await supabase
+                    .from('posts')
+                    .select('*, profiles(name, avatar)')
+                    .eq('status', 'published')
+                    .order('created_at', { ascending: false })
+                    .limit(25);
 
-            if (postError || eventError) {
-                console.warn('Supabase fetch failed, using fallback.');
+                if (error) throw error;
+                finalPosts = data;
+            } catch (postErr) {
+                console.warn('Joined fetch failed, attempting simple fetch...', postErr.message);
+                const { data, error } = await supabase
+                    .from('posts')
+                    .select('*')
+                    .eq('status', 'published')
+                    .order('created_at', { ascending: false })
+                    .limit(25);
+                
+                if (!error) finalPosts = data;
+            }
+
+            // 2. Try Events
+            try {
+                const { data, error } = await supabase
+                    .from('events')
+                    .select('*')
+                    .order('event_date')
+                    .limit(10);
+                
+                if (!error) finalEvents = data || [];
+            } catch (eventErr) {
+                console.warn('Events table not found or inaccessible.', eventErr.message);
+            }
+
+            // --- FINAL DATA ASSEMBLY ---
+            if (!finalPosts || finalPosts.length === 0) {
+                console.warn('No posts reachable from Supabase. Using fallback data.');
                 setOnlineStatus(false);
                 loadFallbackData();
             } else {
                 setOnlineStatus(true);
-                postsData = (posts || []).map(p => ({
+                postsData = finalPosts.map(p => ({
                     ...p,
                     excerpt: p.content ? p.content.substring(0, 120) + '...' : 'Read more...'
                 }));
-                eventsData = events || [];
-                if (postsData.length === 0) loadFallbackData();
+                eventsData = finalEvents;
             }
         } catch (e) {
             console.error('Supabase load exception:', e);
@@ -377,7 +448,7 @@ function renderHeroCarousel() {
             ${topPosts.map((post, index) => `
                 <div class="hero-slide ${index === 0 ? 'active' : ''}" data-index="${index}">
                     <div class="slide-media">
-                        <img src="${post.image_url || 'latter-glory-logo.webp'}" alt="${safeHTML(post.title)}" loading="lazy" style="width:100%; height:100%; object-fit:cover;">
+                        <img src="${post.image_url || 'latter-glory-logo.webp'}" alt="${safeHTML(post.title)}" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover;">
                     </div>
                     <div class="slide-content">
                         <span class="slide-category">${post.category}</span>
@@ -436,9 +507,9 @@ function renderBlogGrid() {
                 <div class="apple-list-content">
                     <div style="color:var(--primary); font-size:0.75rem; font-weight:800; letter-spacing:1px; text-transform:uppercase; margin-bottom:8px;">${p.category}</div>
                     <h3 style="font-size:1.25rem; font-weight:700; line-height:1.25; margin:0 0 8px 0; color:var(--text-primary); letter-spacing:-0.3px; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;">${safeHTML(p.title)}</h3>
-                    <div style="color:var(--text-muted); font-size:0.85rem; font-weight:500;">${new Date(p.created_at).toLocaleDateString()}</div>
+                    <div style="color:var(--text-muted); font-size:0.85rem; font-weight:500;">${new Date(p.created_at).toLocaleDateString()} &bull; ${computeReadingTime(p.content)} min read</div>
                 </div>
-                <img src="${p.image_url || 'latter-view.webp'}" alt="${safeHTML(p.title)}" class="apple-list-img">
+                <img src="${p.image_url || 'latter-view.webp'}" alt="${safeHTML(p.title)}" class="apple-list-img" loading="lazy">
             </article>
             <div class="apple-divider"></div>
             `;
@@ -459,7 +530,7 @@ function renderSidebar() {
         const topPosts = postsData.sort((a, b) => b.views - a.views).slice(0, 5);
         popular.innerHTML = topPosts.map(p => `
             <div class="popular-item" onclick="openPost(${p.id})">
-                <img src="${p.image_url}" alt="${p.title}">
+                <img src="${p.image_url}" alt="${p.title}" loading="lazy">
                 <div>
                     <h4>${p.title.substring(0, 35)}...</h4>
                     <span><i class="bi bi-eye"></i> ${p.views.toLocaleString()} views</span>
@@ -478,7 +549,7 @@ function renderSidebar() {
             <div class="sidebar-cta-card fluid-glass" style="margin-top:24px; padding:24px; text-align:center; border:1px solid var(--primary);">
                 <h4 style="color:var(--primary); font-size:1.1rem; margin-bottom:12px;">Secure Your Child's Future</h4>
                 <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:20px;">Admissions for the 2026/2027 Academic Session are now open. Start the journey today.</p>
-                <button class="apple-btn" style="width:100%;" onclick="showToast('Redirecting to Admissions Portal...')">Enroll Now</button>
+                <button class="apple-btn" style="width:100%;" onclick="window.location.href='admission.html'">Enroll Now</button>
             </div>
         `;
     }
@@ -760,9 +831,10 @@ window.openPost = (id, pushState = true) => {
     const post = postsData.find(p => p.id === id);
     if (!post) return;
 
-    // Deep Link State Update
+    // Deep Link State Update — using alphanumeric Short ID (e.g., #a8b2c4d1)
+    const postHash = post.short_id || post.slug || String(id);
     if (pushState) {
-        const newUrl = window.location.origin + window.location.pathname + '?post=' + id;
+        const newUrl = window.location.origin + window.location.pathname + '#' + postHash;
         history.pushState({ postId: id }, post.title, newUrl);
     }
 
@@ -782,18 +854,16 @@ window.openPost = (id, pushState = true) => {
             
             <div class="reader-hero">
                 <img src="${post.image_url}" class="reader-image" alt="${post.seo_metadata?.image_alt || post.title}">
-                ${post.seo_metadata?.image_description ? `<div class="image-caption-overlay">${post.seo_metadata.image_description}</div>` : ''}
-            </div>
                 <div class="reader-vignette"></div>
                 <div class="reader-header-content">
                     <span class="post-category">${post.category}</span>
                     <h1 class="post-title">${post.title}</h1>
                     <div class="post-meta" style="display:flex; justify-content:space-between; align-items:center;">
                         <div style="display:flex; align-items:center; gap:12px;">
-                            <img src="latter-glory-logo.webp" alt="${post.author}" class="author-img">
-                            <span>by ${post.author} • ${new Date(post.created_at).toLocaleDateString()}</span>
+                            <img src="${post.profiles?.avatar || 'latter-glory-logo.webp'}" alt="${post.profiles?.name || post.author}" class="author-img" loading="lazy" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
+                            <span>by ${post.profiles?.name || post.author} &bull; ${new Date(post.created_at).toLocaleDateString()} &bull; ${computeReadingTime(post.content)} min read</span>
                         </div>
-                        <button class="apple-btn share-global-btn" onclick="nativeShare('${post.title.replace(/'/g, "\\'")}', 'Check out this article from Latter Glory Academy!')" style="padding:8px 16px; font-size:14px; background:var(--glass); border:1px solid var(--glass-border);">
+                        <button class="apple-btn share-global-btn" onclick="nativeShare('${post.title.replace(/'/g, "\\'")}', 'Check out this article from Latter Glory Academy!', '${post.short_id || post.id}')" style="padding:8px 16px; font-size:14px; background:var(--glass); border:1px solid var(--glass-border);">
                             <i class="bi bi-share"></i> Share
                         </button>
                     </div>
@@ -904,10 +974,9 @@ window.closePostModal = () => {
     }
 };
 
-window.nativeShare = async (title, text) => {
-    const params = new URLSearchParams(window.location.search);
-    const postId = params.get('post');
-    const shareUrl = window.location.origin + window.location.pathname + (postId ? `?post=${postId}` : '');
+window.nativeShare = async (title, text, shortId) => {
+    const postHash = shortId || '';
+    const shareUrl = window.location.origin + window.location.pathname + (postHash ? `#${postHash}` : '');
 
     if (navigator.share) {
         try {
@@ -934,8 +1003,9 @@ window.nativeShare = async (title, text) => {
 
 window.sharePost = (platform, id, title) => {
     const post = postsData.find(p => p.id == id);
+    const postHash = post ? (post.short_id || post.id) : id;
     const baseUrl = window.location.origin + window.location.pathname;
-    const shareUrl = encodeURIComponent(`${baseUrl}?post=${id}`);
+    const shareUrl = encodeURIComponent(`${baseUrl}#${postHash}`);
     
     // Explicit headline caption
     const textHeadline = `${title.toUpperCase()}\n\nDiscover more at Latter Glory Academy:`;
@@ -1032,9 +1102,12 @@ function injectJSONLD(post) {
         "publisher": {
             "@type": "EducationalOrganization",
             "name": "Latter Glory Academy",
+            "url": "https://www.latterglory.com.ng",
             "logo": {
                 "@type": "ImageObject",
-                "url": "https://lga.com/logo.png" // Replace with real logo
+                "url": "https://www.latterglory.com.ng/latter-glory-logo.webp",
+                "width": 112,
+                "height": 112
             }
         },
         "description": post.seo_metadata?.description || post.content.substring(0, 160)
