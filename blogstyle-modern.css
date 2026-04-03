@@ -561,7 +561,11 @@ nav {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.4) 50%, transparent 100%);
+    /* Stronger cinematic overlay for superior text contrast */
+    background: linear-gradient(to top, 
+        rgba(0, 0, 0, 0.98) 0%, 
+        rgba(0, 0, 0, 0.7) 35%, 
+        rgba(0, 0, 0, 0) 100%);
     z-index: 2;
 }
 
