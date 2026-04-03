@@ -145,60 +145,97 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- 4. PDF GENERATION ---
+    // --- 4. PDF GENERATION (PREMIUM BRANDING) ---
 
     async function generatePDF(data) {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
+        const primaryColor = [183, 28, 28]; // LGA RED
 
-        // Styles
-        doc.setFillColor(183, 28, 28); // LGA Red
-        doc.rect(0, 0, 210, 40, 'F');
+        // Header Background
+        doc.setFillColor(...primaryColor);
+        doc.rect(0, 0, 210, 45, 'F');
         
+        // Header Text
         doc.setTextColor(255, 255, 255);
-        doc.setFontSize(22);
-        doc.text("LATTER GLORY ACADEMY", 105, 20, { align: 'center' });
-        doc.setFontSize(12);
-        doc.text("ADMISSION APPLICATION CONFIRMATION", 105, 30, { align: 'center' });
-
-        doc.setTextColor(0, 0, 0);
-        doc.setFontSize(14);
-        doc.setFont(undefined, 'bold');
-        doc.text("STUDENT DETAILS", 20, 60);
-        doc.setFont(undefined, 'normal');
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(26);
+        doc.text("LATTER GLORY ACADEMY", 105, 22, { align: 'center' });
+        
+        doc.setFont("helvetica", "normal");
         doc.setFontSize(10);
-        doc.text(`Name: ${data.student_name}`, 20, 70);
-        doc.text(`DOB: ${data.date_of_birth}`, 20, 75);
-        doc.text(`Gender: ${data.gender}`, 20, 80);
-        doc.text(`Class: ${data.applying_for}`, 20, 85);
-
+        doc.text("Kajola Area, Ogbomoso, Oyo State, Nigeria", 105, 30, { align: 'center' });
         doc.setFontSize(14);
-        doc.setFont(undefined, 'bold');
-        doc.text("PARENT / GUARDIAN", 20, 105);
-        doc.setFont(undefined, 'normal');
-        doc.setFontSize(10);
-        doc.text(`Parent Name: ${data.parent_name} (${data.relationship})`, 20, 115);
-        doc.text(`Phone: ${data.parent_phone}`, 20, 120);
-        doc.text(`Email: ${data.parent_email}`, 20, 125);
+        doc.text("ADMISSION APPLICATION RECEIPT", 105, 38, { align: 'center' });
 
-        doc.setFontSize(14);
-        doc.setFont(undefined, 'bold');
-        doc.text("ADDRESSES & MEDICAL", 20, 145);
-        doc.setFont(undefined, 'normal');
-        doc.setFontSize(10);
-        doc.text(`Address: ${data.home_address}, ${data.city}, ${data.state}`, 20, 155);
-        doc.text(`Medical Info: ${data.medical_info || 'None'}`, 20, 160);
+        // Content Styling
+        doc.setTextColor(40, 40, 40);
+        let y = 65;
 
-        // Passport Placeholder or Image if we want to be fancy (skipped for now for speed)
-        if (data.passport_url) {
-            doc.text("Passport uploaded to registry.", 150, 70);
-        }
+        // Section Helper
+        const drawSection = (title, fields) => {
+            doc.setFontSize(14);
+            doc.setFont("helvetica", "bold");
+            doc.setTextColor(...primaryColor);
+            doc.text(title, 20, y);
+            doc.setDrawColor(...primaryColor);
+            doc.line(20, y + 2, 60, y + 2);
+            
+            y += 12;
+            doc.setFontSize(11);
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(60, 60, 60);
 
+            fields.forEach(f => {
+                doc.setFont("helvetica", "bold");
+                doc.text(`${f.label}:`, 20, y);
+                doc.setFont("helvetica", "normal");
+                doc.text(`${f.value || 'N/A'}`, 65, y);
+                y += 8;
+            });
+            y += 10;
+        };
+
+        // Student Section
+        drawSection("STUDENT INFORMATION", [
+            { label: "Full Name", value: data.student_name },
+            { label: "Date of Birth", value: data.date_of_birth },
+            { label: "Gender", value: data.gender },
+            { label: "Applying For", value: data.applying_for },
+            { label: "Previous School", value: data.previous_school }
+        ]);
+
+        // Parent Section
+        drawSection("PARENT / GUARDIAN", [
+            { label: "Full Name", value: data.parent_name },
+            { label: "Relationship", value: data.relationship },
+            { label: "Phone Number", value: data.parent_phone },
+            { label: "Email Address", value: data.parent_email },
+            { label: "Occupation", value: data.occupation }
+        ]);
+
+        // Address Section
+        drawSection("RESIDENTIAL & MEDICAL", [
+            { label: "Address", value: `${data.home_address}, ${data.city}, ${data.state}` },
+            { label: "Medical Info", value: data.medical_info }
+        ]);
+
+        // Footer
+        doc.setDrawColor(200, 200, 200);
+        doc.line(20, 275, 190, 275);
         doc.setFontSize(8);
         doc.setTextColor(150, 150, 150);
-        doc.text(`Generated on: ${new Date().toLocaleString()}`, 20, 280);
-        doc.text(`Application ID: ${Math.random().toString(36).substr(2, 9).toUpperCase()}`, 20, 285);
+        const dateStr = new Date().toLocaleString();
+        doc.text(`This is an acknowledgement receipt. Generated on: ${dateStr}`, 105, 282, { align: 'center' });
+        doc.text("Latter Glory Academy © 2026 | Excellence in Education", 105, 287, { align: 'center' });
 
-        doc.save(`Admission_${data.student_name.replace(/\s+/g, '_')}.pdf`);
+        // Application ID Stamp
+        const appId = Math.random().toString(36).substr(2, 9).toUpperCase();
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(...primaryColor);
+        doc.text(`APP ID: LGA-${appId}`, 150, 60);
+
+        doc.save(`LGA_Admission_${data.student_name.replace(/\s+/g, '_')}.pdf`);
     }
 });

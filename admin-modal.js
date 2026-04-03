@@ -306,7 +306,8 @@ async function submitPost() {
 
         const post = {
             title, content, category, image_url: imageUrl,
-            author: currentStaff.name,
+            author_id: currentStaff.id, // Persistent link to profile (UUID)
+            author: currentStaff.name,    // Redundant name for fast fallback
             status: (['super', 'admin'].includes(currentStaff.role)) ? 'published' : 'pending',
             seo_metadata: seo,
             created_at: new Date().toISOString(),
@@ -338,7 +339,13 @@ window.closeEditor = function() {
 
 window.logAudit = async function(user, action, details) {
     try {
-        await getSupabase().from('audit_logs').insert([{ user_email: user, action, details, created_at: new Date().toISOString() }]);
+        await getSupabase().from('audit_logs').insert([{ 
+            user_email: user, 
+            action, 
+            details, 
+            created_at: new Date().toISOString(),
+            author_id: currentStaff ? currentStaff.id : null // Add author UUID if possible
+        }]);
     } catch(e) {}
 };
 
@@ -460,4 +467,124 @@ window.deleteAnyPost = async function(id) {
         showToast('Deleted');
         openManageAllPosts();
     } catch(e) {}
+};
+
+// --- NEW DASHBOARD FUNCTIONS (CONSOLIDATED) ---
+
+window.openReviewQueue = async function() {
+    try {
+        const { data: pending } = await getSupabase().from('posts').select('*').eq('status', 'pending').order('created_at', { ascending: false });
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay';
+        modal.innerHTML = `
+            <div class="modal-container" style="max-width:800px;">
+                <button class="modal-close" onclick="this.closest('.modal-overlay').remove()"><i class="bi bi-x-lg"></i></button>
+                <div class="modal-header"><h2>Review Queue</h2></div>
+                <div class="modal-body">
+                    ${!pending || pending.length === 0 ? '<p style="text-align:center; padding:40px; color:var(--text-muted);">No pending posts to review.</p>' : `
+                        <div style="display:grid; gap:15px;">
+                            ${pending.map(p => `
+                                <div class="dashboard-card" style="display:flex; justify-content:space-between; align-items:center; text-align:left; padding:20px;">
+                                    <div style="flex:1;">
+                                        <h4 style="font-size:1.1rem; margin-bottom:5px;">${p.title}</h4>
+                                        <p style="font-size:0.85rem; color:var(--text-muted);">By ${p.author} • ${new Date(p.created_at).toLocaleDateString()}</p>
+                                    </div>
+                                    <div style="display:flex; gap:10px;">
+                                        <button class="btn-primary btn-sm" style="background:#4CAF50;" onclick="approvePost(${p.id})">Approve</button>
+                                        <button class="btn-danger btn-sm" onclick="rejectPost(${p.id})">Reject</button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `}
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    } catch(e) { 
+        showToast('Error loading queue', 'error');
+    }
+};
+
+window.approvePost = async function(id) {
+    try {
+        await getSupabase().from('posts').update({ status: 'published' }).eq('id', id);
+        showToast('Post Published! ✅');
+        document.querySelectorAll('.modal-overlay').forEach(m => m.remove());
+        openReviewQueue();
+        if (window.initBlog) window.initBlog();
+    } catch(e) { showToast('Error approving', 'error'); }
+};
+
+window.rejectPost = async function(id) {
+    if(!confirm('Reject this post?')) return;
+    try {
+        await getSupabase().from('posts').update({ status: 'rejected' }).eq('id', id);
+        showToast('Post Rejected');
+        document.querySelectorAll('.modal-overlay').forEach(m => m.remove());
+        openReviewQueue();
+    } catch(e) { showToast('Error rejecting', 'error'); }
+};
+
+window.openUserManagement = async function() {
+    if (currentStaff.role !== 'super' && currentStaff.role !== 'admin') {
+        showToast('Unauthorized access', 'error');
+        return;
+    }
+    try {
+        const { data: users } = await getSupabase().from('profiles').select('*').order('role');
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay';
+        modal.innerHTML = `
+            <div class="modal-container" style="max-width:700px;">
+                <button class="modal-close" onclick="this.closest('.modal-overlay').remove()"><i class="bi bi-x-lg"></i></button>
+                <div class="modal-header"><h2>Staff Management</h2></div>
+                <div class="modal-body">
+                    <table style="width:100%; border-collapse:collapse; text-align:left;">
+                        <thead>
+                            <tr style="border-bottom:1px solid var(--glass-border);">
+                                <th style="padding:15px 10px;">Staff</th>
+                                <th style="padding:15px 10px;">Role</th>
+                                <th style="padding:15px 10px;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${users.map(u => `
+                                <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                                    <td style="padding:15px 10px;">
+                                        <div style="display:flex; align-items:center; gap:10px;">
+                                            <img src="${u.avatar || 'latter-glory-logo.webp'}" style="width:30px; height:30px; border-radius:50%;">
+                                            <div>
+                                                <div style="font-weight:700;">${u.name}</div>
+                                                <div style="font-size:0.75rem; color:var(--text-muted);">${u.email}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td style="padding:15px 10px;">
+                                        <span class="user-role" style="font-size:0.7rem;">${u.role.toUpperCase()}</span>
+                                    </td>
+                                    <td style="padding:15px 10px;">
+                                        <select onchange="updateUserRole('${u.id}', this.value)" style="background:var(--bg-base); color:white; border:1px solid var(--glass-border); padding:5px; border-radius:5px;">
+                                            <option value="staff" ${u.role === 'staff'?'selected':''}>Staff</option>
+                                            <option value="editor" ${u.role === 'editor'?'selected':''}>Editor</option>
+                                            <option value="admin" ${u.role === 'admin'?'selected':''}>Admin</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    } catch(e) { showToast('Error loading users', 'error'); }
+};
+
+window.updateUserRole = async function(userId, newRole) {
+    try {
+        await getSupabase().from('profiles').update({ role: newRole }).eq('id', userId);
+        showToast(`Role updated to ${newRole} ✅`);
+        logAudit(currentStaff.name, 'User Management', `Updated ${userId} to ${newRole}`);
+    } catch(e) { showToast('Update failed', 'error'); }
 };

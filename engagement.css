@@ -1,0 +1,207 @@
+/* 
+   LGA Engagement Layer - Cinematic Modals & Popups
+   Glassmorphism + "Apple-inspired" Aesthetics
+*/
+
+/* 1. FEATURED POST MODAL */
+.engagement-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+    padding: 20px;
+}
+
+.engagement-modal-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.featured-modal-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(60px) saturate(200%);
+    -webkit-backdrop-filter: blur(60px) saturate(200%);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 40px;
+    max-width: 900px;
+    width: 100%;
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+    box-shadow: 0 50px 100px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+    transform: scale(0.9) translateY(40px);
+    transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@media (max-width: 768px) {
+    .featured-modal-card { flex-direction: column; max-height: 95vh; }
+}
+
+.engagement-modal-overlay.show .featured-modal-card {
+    transform: scale(1) translateY(0);
+}
+
+.modal-img-container {
+    flex: 1.2;
+    position: relative;
+    overflow: hidden;
+    min-height: 400px;
+}
+
+.modal-img-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 10s ease;
+}
+
+.featured-modal-card:hover .modal-img-container img {
+    transform: scale(1.15);
+}
+
+.modal-text-container {
+    flex: 1;
+    padding: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: left;
+    background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01));
+}
+
+@media (max-width: 768px) {
+    .modal-text-container { padding: 30px; }
+}
+
+.modal-badge {
+    display: inline-block;
+    background: #b71c1c;
+    color: white;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 20px;
+    width: fit-content;
+}
+
+.modal-text-container h2 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 20px;
+    color: white;
+    letter-spacing: -1px;
+}
+
+.modal-text-container p {
+    color: rgba(255,255,255,0.7);
+    font-size: 1.05rem;
+    line-height: 1.6;
+    margin-bottom: 35px;
+}
+
+/* THE CLICK-BAIT BUTTON */
+.modal-cta-btn {
+    background: linear-gradient(135deg, #b71c1c, #d32f2f);
+    color: white;
+    border: none;
+    padding: 18px 35px;
+    border-radius: 100px;
+    font-weight: 800;
+    font-size: 1.1rem;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    width: fit-content;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(183, 28, 28, 0.4);
+    animation: pulse-glow 3s infinite;
+}
+
+@keyframes pulse-glow {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(183, 28, 28, 0.7); }
+    70% { transform: scale(1.05); box-shadow: 0 0 0 20px rgba(183, 28, 28, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(183, 28, 28, 0); }
+}
+
+.close-engagement {
+    position: absolute;
+    top: 30px;
+    right: 30px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: white;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.3s;
+    z-index: 10;
+}
+
+.close-engagement:hover { background: rgba(255,255,255,0.2); transform: rotate(90deg); }
+
+/* 2. PREMIUM COOKIE BANNER */
+.cookie-overlay {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(150px);
+    width: calc(100% - 40px);
+    max-width: 600px;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 24px;
+    padding: 24px;
+    z-index: 11000;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    opacity: 0;
+}
+
+.cookie-overlay.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+.cookie-icon { font-size: 2rem; color: #b71c1c; }
+
+.cookie-content { flex: 1; }
+.cookie-content p { color: rgba(255,255,255,0.8); font-size: 0.9rem; line-height: 1.4; margin: 0; }
+
+.cookie-actions { display: flex; gap: 12px; }
+
+.btn-cookie {
+    background: rgba(255,255,255,0.1);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.3s;
+    white-space: nowrap;
+}
+
+.btn-cookie.primary { background: white; color: black; }
+.btn-cookie:hover { transform: translateY(-2px); }
