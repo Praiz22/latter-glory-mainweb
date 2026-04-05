@@ -1,0 +1,12 @@
+{
+  "name": "latter-glory-blog-engine",
+  "version": "1.0.0",
+  "description": "Supabase-driven sitemap generator for LGA",
+  "main": "index.js",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0"
+  },
+  "keywords": [],
+  "author": "Antigravity",
+  "license": "MIT"
+}
