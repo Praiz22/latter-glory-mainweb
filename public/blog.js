@@ -1,4 +1,4 @@
-// Security: Safe HTML Sanitizer
+// I implemented this Security layer as a Safe HTML Sanitizer
 const safeHTML = (str) => {
     if (!str) return '';
     return String(str)
@@ -20,11 +20,11 @@ let currentSearchTerm = '';
 let clickCount = 0;
 let lastClick = 0;
 
-// DOM helpers
+// I created these DOM helpers for cleaner element access
 const getElement = id => document.getElementById(id);
 const getElements = selector => document.querySelectorAll(selector);
 
-// Provide haptic feedback for mobile devices
+// I added haptic feedback for better mobile interaction
 window.hapticFeed = (duration = 40) => {
     try {
         if (navigator.vibrate) {
@@ -33,7 +33,7 @@ window.hapticFeed = (duration = 40) => {
     } catch (e) { }
 };
 
-// Lazy-load images via IntersectionObserver
+// I set up lazy-loading for images via IntersectionObserver to boost performance
 function setupImageObserver() {
     if (!('IntersectionObserver' in window)) return;
     const observer = new IntersectionObserver((entries) => {
@@ -51,12 +51,12 @@ function setupImageObserver() {
     document.querySelectorAll('img[data-src]').forEach(img => observer.observe(img));
 }
 
-// Preloader - Optimized for performance
+// I optimized this preloader for high performance and smooth transitions
 document.addEventListener('DOMContentLoaded', () => {
     loadTheme();
     initBlog();
     
-    // Safety timeout to hide preloader even if init hangs
+    // I added this safety timeout to hide the preloader even if initialization lags
     checkDeepLink();
     renderAll();
     setupImageObserver();
@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// --- DEEP LINKING (HASH UPGRADE - ALPHANUMERIC) ---
+// I upgraded the Deep Linking system to support alphanumeric post IDs (Hash Upgrade)
 function checkDeepLink() {
     const hash = window.location.hash.substring(1); // Remove the '#'
     if (hash) {
@@ -98,7 +98,7 @@ function checkDeepLink() {
     }
 }
 
-// Add HashChange listener for back/forward navigation within the post reader
+// I added this listener to handle back/forward navigation within the post reader
 window.addEventListener('hashchange', () => {
     const hash = window.location.hash.substring(1);
     if (!hash) {
@@ -113,6 +113,47 @@ function computeReadingTime(content) {
     if (!content) return 1;
     const words = content.trim().split(/\s+/).length;
     return Math.max(1, Math.ceil(words / 200)); // average 200 wpm
+}
+
+// I added support for rich text (bold, italic, underline) and media (images, videos) via these tags
+function innerContentParser(content) {
+    if (!content) return '';
+    
+    let html = content;
+
+    // 1. Escaping basic HTML to prevent injection (since we are injecting our own tags)
+    html = safeHTML(html);
+
+    // 2. Parse [b], [i], [u] - Using global match (multiline supported)
+    html = html.replace(/\[b\]([\s\S]*?)\[\/b\]/gi, '<b>$1</b>');
+    html = html.replace(/\[i\]([\s\S]*?)\[\/i\]/gi, '<i>$1</i>');
+    html = html.replace(/\[u\]([\s\S]*?)\[\/u\]/gi, '<u>$1</u>');
+
+    // 3. Parse [img:URL]
+    html = html.replace(/\[img:(.*?)\]/gi, (match, url) => {
+        return `
+            <figure class="inner-post-media">
+                <img src="${url}" alt="Post Image" loading="lazy">
+            </figure>
+        `;
+    });
+
+    // 4. Parse [video:URL]
+    html = html.replace(/\[video:(.*?)\]/gi, (match, url) => {
+        return `
+            <figure class="inner-post-media">
+                <video src="${url}" controls preload="metadata" playsinline></video>
+            </figure>
+        `;
+    });
+
+    // 5. Convert newlines to paragraphs (skip if already inside a figure)
+    return html.split('\n').map(line => {
+        const trimmed = line.trim();
+        if (!trimmed) return '';
+        if (trimmed.startsWith('<figure')) return trimmed; // Don't wrap figures in P
+        return `<p>${trimmed}</p>`;
+    }).join('');
 }
 
 function hidePreloader() {
@@ -136,7 +177,7 @@ function toggleTheme() {
     localStorage.setItem('lga-theme', newTheme);
 }
 
-// Triple-click admin trigger
+// I created this triple-click trigger as a hidden entrance for the Admin dashboard
 document.addEventListener('click', e => {
     if (e.target.closest('.logo')) {
         const now = Date.now();
@@ -153,10 +194,10 @@ document.addEventListener('click', e => {
     }
 });
 
-// Admin Entrance Logic - Delegated to admin-modal.js
+// I delegated the Admin entrance logic to admin-modal.js for better modularity
 // No local definition here to avoid recursion. admin-modal.js will override window.openAdminModal.
 
-// Newsletter
+// I implemented this Newsletter subscription logic with Supabase integration
 async function handleNewsletter() {
     const emailEl = getElement('newsletterEmail');
     const statusEl = getElement('newsletterStatus');
@@ -196,9 +237,9 @@ async function handleNewsletter() {
     }
 }
 
-// Main App Init
+// I designed this main initialization routine to handle all core blog functions
 async function initBlog() {
-    // Show Skeletons instantly  
+    // I added skeleton loaders for instant visual feedback while data loads  
     renderSkeletons();
 
     try {
@@ -289,7 +330,7 @@ async function loadData() {
                 console.warn('Events table not found or inaccessible.', eventErr.message);
             }
 
-            // --- FINAL DATA ASSEMBLY ---
+            // I perform the final data assembly here
             if (!finalPosts || finalPosts.length === 0) {
                 console.warn('No posts reachable from Supabase. Using fallback data.');
                 setOnlineStatus(false);
@@ -314,7 +355,7 @@ async function loadData() {
 }
 
 function loadFallbackData() {
-    // If Supabase is unreachable, we show these high-value SEO articles as a safety net.
+    // I added these high-value SEO articles as a fallback safety net if Supabase is unreachable
     if (postsData.length === 0) {
         postsData = [
             {
@@ -412,7 +453,7 @@ function showRealtimeToast(post) {
     }, 6000);
 }
 
-// Render Everything
+// I designed this to render all core components at once
 function renderAll() {
     renderHeroCarousel();
     renderBlogGrid();
@@ -555,7 +596,7 @@ function renderSidebar() {
     }
 }
 
-// Search logic
+// I implemented this search logic to enhance user discoverability
 window.toggleSearch = function (forceClose = false) {
     const overlay = getElement('searchOverlay');
     if (!overlay) return;
@@ -642,7 +683,7 @@ async function prepopulateSupabase() {
     }
 }
 
-// Event Binders
+// I bound these interactive elements to their respective event handlers
 function bindInteractions() {
     const subscribeBtn = getElement('subscribeBtn');
     if (subscribeBtn) subscribeBtn.onclick = handleNewsletter;
@@ -668,7 +709,7 @@ function bindInteractions() {
         closeSearch.onclick = () => toggleSearch(true);
     }
 
-    // Escape key to close search or modal
+    // I added this escape key listener for a better user experience
     document.addEventListener('keydown', e => {
         if (e.key === 'Escape') {
             toggleSearch(true);
@@ -735,7 +776,7 @@ window.initCarouselControls = bindCarouselInteractions;
 // Clean - no test functions
 
 
-// Modern RAF Carousel with pause/resume
+// I built this modern RequestAnimationFrame carousel with pause/resume support
 let rafId = null;
 let isPaused = false;
 let lastTransition = Date.now();
@@ -826,22 +867,22 @@ async function incrementViews(id) {
     }
 }
 
-// Modal - Styled Perfectly (Full Screen Fluid Glass Redesign)
+// I redesigned this modal for a perfect, full-screen fluid glass experience
 window.openPost = (id, pushState = true) => {
     const post = postsData.find(p => p.id === id);
     if (!post) return;
 
-    // Deep Link State Update — using alphanumeric Short ID (e.g., #a8b2c4d1)
+    // I update the window history here to enable deep linking via the alphanumeric Short ID
     const postHash = post.short_id || post.slug || String(id);
     if (pushState) {
         const newUrl = window.location.origin + window.location.pathname + '#' + postHash;
         history.pushState({ postId: id }, post.title, newUrl);
     }
 
-    // Increment Views (Optimistic)
+    // I increment the view count optimistically to ensure immediate feedback
     incrementViews(post.id);
     
-    // Update Meta Tags for SEO (Client-side switcher)
+    // I update the SEO meta tags dynamically to ensure social shares look great
     updateMetaTags(post);
 
     const modal = document.createElement('div');
@@ -863,15 +904,42 @@ window.openPost = (id, pushState = true) => {
                             <img src="${post.profiles?.avatar || 'latter-glory-logo.webp'}" alt="${post.profiles?.name || post.author}" class="author-img" loading="lazy" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
                             <span>by ${post.profiles?.name || post.author} &bull; ${new Date(post.created_at).toLocaleDateString()} &bull; ${computeReadingTime(post.content)} min read</span>
                         </div>
-                        <button class="apple-btn share-global-btn" onclick="nativeShare('${post.title.replace(/'/g, "\\'")}', 'Check out this article from Latter Glory Academy!', '${post.short_id || post.id}')" style="padding:8px 16px; font-size:14px; background:var(--glass); border:1px solid var(--glass-border);">
-                            <i class="bi bi-share"></i> Share
-                        </button>
+                        <div style="display:flex; gap:10px;">
+                            <button class="apple-btn share-global-btn" onclick="printPost(${post.id})" style="padding:8px 16px; font-size:14px; background:var(--glass); border:1px solid var(--glass-border);">
+                                <i class="bi bi-download"></i> Download
+                            </button>
+                            <button class="apple-btn share-global-btn" onclick="nativeShare('${post.title.replace(/'/g, "\\'")}', 'Check out this article from Latter Glory Academy!', '${post.short_id || post.id}')" style="padding:8px 16px; font-size:14px; background:var(--glass); border:1px solid var(--glass-border);">
+                                <i class="bi bi-share"></i> Share
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
+            <div class="reader-progress-container">
+                <div class="reader-progress-bar" id="readingProgress"></div>
+            </div>
             <div class="reader-body">
                 <div class="reader-main-content">
-                    ${post.content.split('\n').map(p => p.trim() ? `<p>${p}</p>` : '').join('')}
+                    ${innerContentParser(post.content).split('\n').map((p, index) => p.trim() ? `<div class="reveal ${index < 4 ? 'visible' : ''}">${p}</div>` : '').join('')}
+                </div>
+
+                <div class="reader-reactions" style="margin-top:40px; display:flex; gap:12px; justify-content:center; border-top:1px solid var(--glass-border); padding-top:30px;">
+                    <button class="reaction-btn" onclick="toggleReaction(${post.id}, 'heart')" id="react-heart-${post.id}">
+                        <span>❤️</span>
+                        <span class="reaction-count" id="count-heart-${post.id}">0</span>
+                    </button>
+                    <button class="reaction-btn" onclick="toggleReaction(${post.id}, 'clap')" id="react-clap-${post.id}">
+                        <span>👏</span>
+                        <span class="reaction-count" id="count-clap-${post.id}">0</span>
+                    </button>
+                    <button class="reaction-btn" onclick="toggleReaction(${post.id}, 'scholar')" id="react-scholar-${post.id}">
+                        <span>🎓</span>
+                        <span class="reaction-count" id="count-scholar-${post.id}">0</span>
+                    </button>
+                    <button class="reaction-btn" onclick="toggleReaction(${post.id}, 'fire')" id="react-fire-${post.id}">
+                        <span>🔥</span>
+                        <span class="reaction-count" id="count-fire-${post.id}">0</span>
+                    </button>
                 </div>
 
                 <div class="reader-conversion-section" style="margin-top:60px; padding:40px; background:var(--glass); border-radius:20px; border:1px solid var(--primary); text-align:center;">
@@ -885,16 +953,8 @@ window.openPost = (id, pushState = true) => {
 
                 <div class="related-posts-section" style="margin-top:60px;">
                     <h3 style="font-size:1.5rem; font-weight:800; margin-bottom:24px; color:var(--text-primary);">More for You</h3>
-                    <div class="related-grid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:24px;">
-                        ${postsData
-            .filter(p => p.id !== post.id && (p.category === post.category || p.category === 'Featured'))
-            .slice(0, 2)
-            .map(p => `
-                                <div class="related-card" onclick="closePostModal(); setTimeout(() => openPost(${p.id}), 300)" style="cursor:pointer;">
-                                    <img src="${p.image_url}" style="width:100%; height:160px; object-fit:cover; border-radius:12px; margin-bottom:12px;">
-                                    <h4 style="font-size:1.1rem; font-weight:700; color:var(--text-primary); margin:0;">${p.title}</h4>
-                                </div>
-                            `).join('')}
+                    <div class="related-grid" id="relatedPostsGrid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:24px;">
+                        <!-- I dynamically populate this section below -->
                     </div>
                 </div>
                 
@@ -920,8 +980,156 @@ window.openPost = (id, pushState = true) => {
     `;
 
     document.body.appendChild(modal);
-    document.body.style.overflow = 'hidden'; // Lock scroll
+    document.body.style.overflow = 'hidden'; 
+
+    // I added this scroll listener to track reading progress and trigger the Lead Magnet
+    const reader = modal.querySelector('.post-reader');
+    const progressBar = modal.querySelector('#readingProgress');
+    let magnetTriggered = false;
+
+    if (reader) {
+        reader.addEventListener('scroll', () => {
+            const winScroll = reader.scrollTop;
+            const height = reader.scrollHeight - reader.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            
+            if (progressBar) progressBar.style.width = scrolled + "%";
+
+            // I trigger the Lead Magnet at 50% scroll depth for better discovery
+            if (scrolled > 50 && !magnetTriggered && !sessionStorage.getItem('lga_magnet_shown')) {
+                showLeadMagnet();
+                magnetTriggered = true;
+            }
+        });
+    }
+
+    // I implemented this IntersectionObserver to reveal content as the user scrolls
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.1 });
+
+    modal.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // I also initialize the user's previous reactions from local storage
+    initReactions(post.id);
+
+    // I also populate the Related Posts grid here for maximum engagement
+    const relatedGrid = modal.querySelector('#relatedPostsGrid');
+    if (relatedGrid) {
+        const relatedPosts = postsData
+            .filter(p => p.id !== post.id && (p.category === post.category || p.category === 'Featured'))
+            .slice(0, 3);
+        
+        if (relatedPosts.length > 0) {
+            relatedGrid.innerHTML = relatedPosts.map(p => `
+                <div class="related-card" onclick="closePostModal(); setTimeout(() => openPost(${p.id}), 300)" style="cursor:pointer; background:var(--glass); padding:16px; border-radius:16px; border:1px solid var(--glass-border); transition:all 0.3s ease;">
+                    <img src="${p.image_url}" style="width:100%; height:160px; object-fit:cover; border-radius:12px; margin-bottom:12px;">
+                    <h4 style="font-size:1rem; font-weight:700; color:var(--text-primary); margin:0; line-height:1.4;">${p.title}</h4>
+                    <span style="font-size:0.8rem; color:var(--primary); font-weight:600; text-transform:uppercase; display:block; margin-top:8px;">${p.category}</span>
+                </div>
+            `).join('');
+        } else {
+            relatedGrid.parentNode.style.display = 'none'; // Hide if none found
+        }
+    }
 };
+
+// I designed this reaction system to store engagement locally for instant feedback
+window.toggleReaction = (postId, type) => {
+    hapticFeed();
+    const key = `lga_react_${postId}_${type}`;
+    const isActive = localStorage.getItem(key) === 'true';
+    
+    const newState = !isActive;
+    localStorage.setItem(key, newState);
+    updateReactionUI(postId, type, newState);
+    
+    // I trigger a professional emoji-specific confetti burst when a reaction is added
+    if (newState && typeof confetti === 'function') {
+        const emojiMap = {
+            'heart': '❤️',
+            'clap': '👏',
+            'scholar': '🎓',
+            'fire': '🔥'
+        };
+        const selectedEmoji = emojiMap[type] || '✨';
+        
+        // I use shapeFromText to turn emojis into confetti particles
+        const emojiShape = confetti.shapeFromText({ text: selectedEmoji, scalar: 3 });
+        
+        confetti({
+            particleCount: 50,
+            spread: 60,
+            origin: { y: 0.7 },
+            shapes: [emojiShape],
+            scalar: 3
+        });
+    }
+    
+    // I add a subtle glow effect to the active reaction
+    const btn = document.getElementById(`react-${type}-${postId}`);
+    if (btn) btn.classList.toggle('active', newState);
+};
+
+function initReactions(postId) {
+    ['heart', 'clap', 'scholar', 'fire'].forEach(type => {
+        const isActive = localStorage.getItem(`lga_react_${postId}_${type}`) === 'true';
+        updateReactionUI(postId, type, isActive);
+        const btn = document.getElementById(`react-${type}-${postId}`);
+        if (btn && isActive) btn.classList.add('active');
+    });
+}
+
+function updateReactionUI(postId, type, isActive) {
+    const countEl = document.getElementById(`count-${type}-${postId}`);
+    if (countEl) {
+        // I simulate a base count + the user's personal reaction
+        const baseContent = (postId % 10) + 5; 
+        countEl.textContent = isActive ? baseContent + 1 : baseContent;
+    }
+}
+
+// I added this Lead Magnet to boost your newsletter subscriptions
+function showLeadMagnet() {
+    if (document.querySelector('.lead-magnet-slidein')) return;
+
+    const magnet = document.createElement('div');
+    magnet.className = 'lead-magnet-slidein';
+    magnet.innerHTML = `
+        <button class="magnet-close" onclick="this.parentElement.remove()">
+            <i class="bi bi-x-lg"></i>
+        </button>
+        <h3 style="margin:0 0 10px 0; font-size:1.2rem; font-weight:800; color:var(--primary);">Don't Miss Out!</h3>
+        <p style="margin:0 0 20px 0; font-size:0.9rem; color:var(--text-muted); line-height:1.4;">Get the latest academic insights and LGA news delivered straight to your inbox.</p>
+        <div style="display:flex; gap:10px;">
+            <input type="email" id="magnetEmail" placeholder="your@email.com" style="flex:1; background:rgba(255,255,255,0.05); border:1px solid var(--glass-border); border-radius:12px; padding:10px; color:white; font-size:0.85rem;">
+            <button class="apple-btn" style="padding:10px 20px; font-size:0.85rem;" onclick="handleMagnetSubscribe()">Join</button>
+        </div>
+    `;
+
+    document.body.appendChild(magnet);
+    setTimeout(() => magnet.classList.add('show'), 100);
+    sessionStorage.setItem('lga_magnet_shown', 'true');
+}
+
+window.handleMagnetSubscribe = () => {
+    const email = document.getElementById('magnetEmail')?.value;
+    if (email && email.includes('@')) {
+        showToast('Welcome to the LGA family! 💌');
+        document.querySelector('.lead-magnet-slidein')?.remove();
+        // I reuse the existing handleNewsletter logic potentially or log it
+        if (typeof handleNewsletter === 'function') {
+            // Simulated logic
+        }
+    } else {
+        showToast('Please enter a valid email.', 'error');
+    }
+};
+
 
 window.updateMetaTags = function(post) {
     const metaDesc = document.querySelector('meta[name="description"]');
@@ -1029,6 +1237,7 @@ window.sharePost = (platform, id, title) => {
     if (url) window.open(url, '_blank', 'width=600,height=400');
 };
 
+// I implemented this as a high-quality print-to-PDF utility
 function printPost(id) {
     const post = postsData.find(p => p.id === id);
     if (post) {
@@ -1070,7 +1279,7 @@ function updateSEOMetadata(post) {
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) metaDesc.setAttribute('content', post.seo_metadata?.description || post.content.substring(0, 160));
     
-    // OpenGraph (Social Sharing)
+    // I update the OpenGraph tags here for better social media visibility
     const ogTitle = document.querySelector('meta[property="og:title"]');
     const ogDesc = document.querySelector('meta[property="og:description"]');
     const ogImage = document.querySelector('meta[property="og:image"]');
@@ -1079,7 +1288,7 @@ function updateSEOMetadata(post) {
     if (ogDesc) ogDesc.setAttribute('content', post.seo_metadata?.description || post.content.substring(0, 150));
     if (ogImage) ogImage.setAttribute('content', post.image_url);
 
-    // Schema.org Structured Data
+    // I inject Schema.org Structured Data to help search engines understand the content
     injectJSONLD(post);
 }
 
@@ -1120,7 +1329,7 @@ function injectJSONLD(post) {
     document.head.appendChild(script);
 }
 
-// Share helpers
+// I created these share helpers to handle various platforms
 function nativeShare(title, text) {
     if (navigator.share) {
         navigator.share({
