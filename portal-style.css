@@ -1,276 +1,346 @@
+/* 
+   LGA Student Portal - Professional Glass Dashboard
+   Theme: Modern Glassmorphism, Mobile-First
+   I designed this system to match the blog's premium editorial feel.
+*/
+
 :root {
-  --deep-red: #b71c1c;
-  --accent: #b71c1c;
-  --black: #181818;
-  --gray: #f9f9f9;
-  --mid-gray: #dedede;
-  --white: #fff;
+    --primary: #b71c1c;
+    --primary-light: #f05545;
+    --bg-base: #0f172a; /* Deep Navy/Indigo */
+    --glass: rgba(255, 255, 255, 0.03);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-heavy: rgba(255, 255, 255, 0.08);
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --sidebar-width: 260px;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* --- BODY & BACKGROUND --- */
-body, body.portal-bg {
-  font-family: 'Inter', 'Open Sans', Arial, sans-serif;
-  background: var(--gray);
-  color: var(--black);
-  margin: 0;
-  min-height: 100vh;
-  position: relative;
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: 'Outfit', 'Inter', sans-serif;
+    background: var(--bg-base);
+    color: var(--text-main);
+    min-height: 100vh;
+    overflow-x: hidden;
+    background-image: 
+        radial-gradient(at 0% 0%, rgba(183, 28, 28, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(30, 41, 59, 0.4) 0px, transparent 50%);
 }
 
-.bg-logo {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  z-index: 0;
-  background: url('https://placehold.co/600x600?text=Latter+Glory+Logo') no-repeat center center fixed;
-  background-size: 55vh 55vh;
-  opacity: 0.07;
-  filter: blur(0.5px) grayscale(60%);
-  pointer-events: none;
+/* Layout Structure */
+.portal-wrapper {
+    display: flex;
+    min-height: 100vh;
 }
 
-/* --- NAVBAR --- */
-.navbar {
-  background: var(--white);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
-  border-bottom: 1px solid #eee;
-}
-.navbar-brand {
-  font-size: 1.4rem;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.navbar-brand img {
-  height: 32px;
-  margin-right: 6px;
-}
-.navbar-brand .lg-red {
-  color: var(--deep-red);
-  font-weight: 600;
-  letter-spacing: 0.5px;
-}
-.navbar-brand .lg-academy {
-  color: var(--black);
-  font-weight: 700;
-  letter-spacing: 0.5px;
+/* Sidebar Styling */
+.portal-sidebar {
+    width: var(--sidebar-width);
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(20px);
+    border-right: 1px solid var(--glass-border);
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+    position: fixed;
+    height: 100vh;
+    z-index: 1000;
+    transition: var(--transition);
 }
 
-/* --- BUTTONS --- */
-.btn-brand {
-  background: var(--deep-red) !important;
-  border: none !important;
-  color: var(--white) !important;
-  font-weight: 600;
-  border-radius: 6px;
-  transition: background 0.18s;
-  box-shadow: none !important;
-}
-.btn-brand:hover, .btn-brand:focus {
-  background: #9d1919 !important;
-  color: var(--white) !important;
+.sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 40px;
+    text-decoration: none;
 }
 
-/* --- FOOTER --- */
-footer {
-  background: transparent;
-  color: var(--black);
-  padding: 1.3rem 0 0.7rem 0;
-  text-align: center;
-  font-weight: 600;
-  font-size: 1rem;
-  border-top: 1px solid #edecec;
+.sidebar-logo img {
+    width: 40px;
+    height: 40px;
 }
 
-/* --- TABS & CONTENT --- */
-.tab-content section,
-.portal-tab-content {
-  background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  border: 1px solid #f2f2f2;
-  padding: 2rem 1.3rem 1.4rem 1.3rem;
-  margin-bottom: 2.3rem;
+.sidebar-logo span {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: white;
+    letter-spacing: -0.5px;
 }
 
-.tab-title {
-  font-size: 1.20rem;
-  font-weight: 700;
-  color: var(--deep-red);
-  margin-bottom: 1.2rem;
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  background: none !important;
-  border: none !important;
-  padding: 0;
-  box-shadow: none;
+.nav-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex: 1;
 }
 
-/* --- Minimal Tabs with underline style --- */
-#tabNav .nav-link,
-.portal-tabs .nav-link {
-  color: var(--black) !important;
-  font-weight: 600;
-  font-size: 1.06rem;
-  background: none !important;
-  border: none;
-  border-bottom: 2.5px solid transparent;
-  border-radius: 0;
-  margin-bottom: -2.5px;
-  transition: border-bottom 0.18s, color 0.18s;
-  padding-bottom: 2px;
-}
-#tabNav .nav-link.active,
-#tabNav .nav-link:focus,
-.portal-tabs .nav-link.active,
-.portal-tabs .nav-link:focus {
-  color: var(--deep-red) !important;
-  border-bottom: 2.5px solid var(--deep-red);
-  background: none !important;
-}
-#tabNav .nav-link:hover,
-.portal-tabs .nav-link:hover {
-  color: #7d1212 !important;
+.nav-item {
+    margin-bottom: 8px;
 }
 
-/* --- CARDS --- */
-.card, #galleryContent .card, #galleryPreview .card, #portalSection .card {
-  border: 1px solid var(--mid-gray);
-  box-shadow: 0 2px 9px rgba(0,0,0,0.04);
-  border-radius: 10px;
-  background: #fff;
-  transition: box-shadow 0.2s;
-}
-.card:hover, #galleryContent .card:hover, #galleryPreview .card:hover, #portalSection .card:hover {
-  box-shadow: 0 6px 22px rgba(183,28,28,0.06);
-}
-
-/* --- GALLERY --- */
-#galleryContent img, #galleryPreview img {
-  width: 100%;
-  height: 145px;
-  object-fit: cover;
-  border-radius: 0 0 10px 10px;
+.nav-link-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    color: var(--text-muted);
+    text-decoration: none;
+    border-radius: 12px;
+    font-weight: 500;
+    transition: var(--transition);
+    border: 1px solid transparent;
 }
 
-/* --- ASSIGNMENTS --- */
-#assignments-list .card,
-#assignmentList .card {
-  border-left: 3px solid var(--deep-red);
-  border-radius: 8px;
-  background: #fff;
-  margin-bottom: 1.3rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-  transition: border-color 0.2s;
-}
-#assignments-list .card.closed,
-#assignmentList .card.closed {
-  border-left-color: #bbb;
-  opacity: 0.7;
-}
-.assignment-status {
-  font-weight: 700;
-  margin-left: 0.8rem;
-  font-size: 1.02rem;
-}
-.assignment-status .text-success { color: #27ae60 !important; }
-.assignment-status .text-danger { color: #b71c1c !important; }
-.assignment-status .text-warning { color: #f39c12 !important; }
-
-/* --- PROFILE --- */
-#profileContent {
-  max-width: 480px;
-}
-#profileContent .profile-avatar,
-#studentAvatar {
-  width: 86px;
-  height: 86px;
-  object-fit: cover;
-  border-radius: 50%;
-  border: 3px solid var(--deep-red);
-  margin-bottom: 1rem;
+.nav-link-btn i {
+    font-size: 1.25rem;
 }
 
-/* --- Toasts --- */
-#mainToast,
-.toast,
-#toast-container .toast {
-  min-width: 250px;
-  font-size: 1rem;
-  opacity: 0.97;
-  background: var(--deep-red);
-  color: #fff;
-  border-radius: 7px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.11);
-}
-.toast.hide {
-  opacity: 0;
-  transition: opacity 0.5s;
+.nav-link-btn:hover, .nav-link-btn.active {
+    background: var(--glass-heavy);
+    color: white;
+    border-color: var(--glass-border);
 }
 
-/* --- Centered Section for Login --- */
-.portal-center-section {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  z-index: 2;
-  position: relative;
+.nav-link-btn.active {
+    background: rgba(183, 28, 28, 0.1);
+    color: var(--primary-light);
+    border-color: rgba(183, 28, 28, 0.2);
 }
 
-/* --- Portal Section (main box) --- */
-#portalSection {
-  background: rgba(255,255,255,0.96);
-  border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.08);
-  margin-top: 32px;
-  z-index: 2;
-  position: relative;
+/* Main Content Area */
+.portal-main {
+    flex: 1;
+    margin-left: var(--sidebar-width);
+    padding: 32px;
+    max-width: 1400px;
+    transition: var(--transition);
 }
 
-/* --- Responsive tweaks --- */
+.content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+}
+
+.user-profile-badge {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    padding: 6px 16px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.user-profile-badge:hover {
+    background: var(--glass-heavy);
+}
+
+.user-profile-badge img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid var(--primary);
+}
+
+/* Dashboard Cards */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 24px;
+    margin-bottom: 40px;
+}
+
+.stat-card {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    padding: 24px;
+    transition: var(--transition);
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    background: var(--glass-heavy);
+}
+
+.stat-card .icon-box {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: rgba(183, 28, 28, 0.1);
+    color: var(--primary-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+}
+
+.stat-card .value {
+    font-size: 1.75rem;
+    font-weight: 800;
+}
+
+.stat-card .label {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+/* Assignments List */
+.assignments-section {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    padding: 32px;
+}
+
+.assignment-item {
+    background: var(--glass-heavy);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: var(--transition);
+}
+
+.assignment-item:hover {
+    border-color: var(--primary);
+}
+
+.assignment-info h4 { margin: 0 0 4px 0; }
+.assignment-info p { margin: 0; color: var(--text-muted); font-size: 0.85rem; }
+
+/* Chat Module Layout */
+.chat-container {
+    height: 600px;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    display: flex;
+    overflow: hidden;
+}
+
+.chat-sidebar {
+    width: 240px;
+    border-right: 1px solid var(--glass-border);
+    padding: 20px;
+    background: rgba(255,255,255,0.01);
+}
+
+.chat-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.chat-input-area {
+    padding: 20px;
+    border-top: 1px solid var(--glass-border);
+    display: flex;
+    gap: 12px;
+}
+
+.chat-input {
+    flex: 1;
+    background: var(--glass-heavy);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 12px 16px;
+    color: white;
+}
+
+.chat-input:focus { outline: none; border-color: var(--primary); }
+
+.online-dot {
+    width: 8px;
+    height: 8px;
+    background: #4caf50;
+    border-radius: 50%;
+    margin-left: auto;
+}
+
+/* Scrollbar Customization */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-base); }
+::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+/* Mobile Adaptations */
 @media (max-width: 991px) {
-  .tab-content section,
-  .portal-tab-content {
-    padding: 1rem 0.4rem 1rem 0.4rem;
-  }
-  .navbar-brand img {
-    height: 26px;
-  }
-}
-@media (max-width: 600px) {
-  .tab-title {
-    font-size: 1.0rem;
-    margin-bottom: .6rem;
-  }
-  #galleryContent img, #galleryPreview img {
-    height: 80px;
-  }
-  .tab-content section,
-  .portal-tab-content {
-    padding: 0.5rem 0.1rem 0.6rem 0.1rem;
-  }
-  #portalSection, .portal-center-section {
-    margin-top: 0;
-    border-radius: 0;
-    box-shadow: none;
-  }
-  .bg-logo {
-    background-size: 80vw 80vw;
-  }
+    .portal-sidebar {
+        transform: translateX(-100%);
+    }
+    
+    .portal-sidebar.show {
+        transform: translateX(0);
+    }
+    
+    .portal-main {
+        margin-left: 0;
+        padding: 20px;
+    }
+    
+    .mobile-nav-toggle {
+        display: block;
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        color: white;
+        padding: 10px;
+        border-radius: 10px;
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 1001;
+    }
+    
+    /* Bottom Navigation for Mobile */
+    .mobile-bottom-nav {
+        display: flex;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(15, 23, 42, 0.9);
+        backdrop-filter: blur(20px);
+        border-top: 1px solid var(--glass-border);
+        padding: 12px;
+        justify-content: space-around;
+        z-index: 1000;
+    }
+    
+    .mobile-nav-item {
+        color: var(--text-muted);
+        text-decoration: none;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-size: 0.7rem;
+    }
+    
+    .mobile-nav-item i { font-size: 1.5rem; margin-bottom: 4px; }
+    .mobile-nav-item.active { color: var(--primary-light); }
 }
 
-/* --- Glassmorphism Card Option --- */
-.glassmorphism {
-  background: rgba(255,255,255,0.85) !important;
-  box-shadow: 0 8px 32px 0 rgba(31,38,135,0.09);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border-radius: 14px;
-  border: 1px solid rgba(255,255,255,0.18);
+@media (min-width: 992px) {
+    .mobile-bottom-nav, .mobile-nav-toggle {
+        display: none;
+    }
 }
-
-/* --- Minimal scrollbar --- */
-::-webkit-scrollbar { width: 6px; background: #f2f2f2; }
-::-webkit-scrollbar-thumb { background: #ccc; border-radius: 7px; }

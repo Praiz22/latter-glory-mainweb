@@ -1,10 +1,10 @@
-/* Supabase Configuration Layer (Secured) */
+/* I secured this Supabase Configuration Layer for safe backend communication */
 const SUPABASE_URL = (window.ENV_CONFIG && window.ENV_CONFIG.SUPABASE_URL) || '';
 const SUPABASE_ANON_KEY = (window.ENV_CONFIG && window.ENV_CONFIG.SUPABASE_ANON_KEY) || '';
 
 let supabaseInitFailed = false;
 
-// Initialize Supabase client
+// I initialized the Supabase client here as the main communication bridge
 (function () {
     const checkSupabase = () => {
         const supabaseLib = window.supabase;
