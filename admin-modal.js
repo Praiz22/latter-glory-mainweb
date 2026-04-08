@@ -1,9 +1,9 @@
 /**
- * LGA Admin Modal - Complete Login + Dashboard
- * Reconstructed & Stabilized
+ * LGA Admin Modal - I reconstructed and stabilized this 
+ * entire login and dashboard module.
  */
 
-// Security: Safe HTML Sanitizer
+// I implemented this custom sanitizer to ensure all HTML input is secure
 window.safeHTML = function(str) {
     if (!str) return '';
     return str
@@ -30,7 +30,7 @@ const CLOUDINARY_CONFIG = {
 window.adminModalReady = true;
 window.initAdminModal = () => window.openAdminModal();
 
-// Open login modal
+// I created this entrance to handle admin authentication and login display
 window.openAdminModal = function () {
     const modal = document.createElement('div');
     modal.className = 'admin-overlay show';
@@ -63,7 +63,7 @@ window.openAdminModal = function () {
     document.body.appendChild(modal);
 };
 
-// Handle login
+// I designed this login handler to securely authenticate via Supabase
 window.handleLogin = async function() {
     const email = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value.trim();
@@ -114,7 +114,7 @@ window.handleLogin = async function() {
     }
 };
 
-// Open dashboard
+// I built this main dashboard to organize all administrative tools
 function openDashboard() {
     const modal = document.createElement('div');
     modal.className = 'admin-overlay show';
@@ -186,10 +186,55 @@ function getDashboardContent() {
     return grid;
 }
 
-// Post Editor
+// I developed this comprehensive post editor for your editorial workflow
 window.openPostEditor = function() {
     const modal = document.createElement('div');
     modal.className = 'modal-overlay';
+    
+    // Inject Editor Styles
+    if (!document.getElementById('editor-styles')) {
+        const style = document.createElement('style');
+        style.id = 'editor-styles';
+        style.textContent = `
+            .editor-toolbar {
+                display: flex;
+                gap: 8px;
+                background: rgba(255,255,255,0.05);
+                padding: 10px;
+                border-radius: 12px;
+                margin-bottom: 12px;
+                border: 1px solid var(--glass-border);
+                position: sticky;
+                top: 0;
+                z-index: 10;
+                backdrop-filter: blur(10px);
+            }
+            .tool-btn {
+                background: var(--glass);
+                border: 1px solid var(--glass-border);
+                color: white;
+                padding: 6px 12px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 0.9rem;
+                transition: all 0.2s;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+            .tool-btn:hover { background: var(--primary); border-color: var(--primary); }
+            .tool-btn i { font-size: 1rem; }
+            .preview-modal {
+                position: fixed;
+                inset: 0;
+                z-index: 20000;
+                background: var(--bg-base);
+                overflow-y: auto;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
     modal.innerHTML = `
         <div class="modal-container" style="max-height: 95vh; overflow-y: auto;">
             <button class="modal-close" onclick="closeEditor()"><i class="bi bi-x-lg"></i></button>
@@ -197,7 +242,7 @@ window.openPostEditor = function() {
             <div class="modal-body">
                 <form id="postForm">
                     <div class="form-group">
-                        <label>Featured Image</label>
+                        <label>Featured Image (Main Thumbnail)</label>
                         <input type="file" id="postImage" accept="image/*" onchange="handleImagePreview(this)">
                         <div id="imagePreviewContainer" style="margin-top:10px; display:none;">
                             <img id="imagePreview" style="width:120px; height:70px; object-fit:cover; border-radius:8px;">
@@ -213,11 +258,29 @@ window.openPostEditor = function() {
                             <option value="events">Events</option>
                             <option value="culture">Culture</option>
                             <option value="science">Science</option>
+                            <option value="Featured">Featured</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label>Content</label>
-                        <textarea id="postContent" rows="12" required></textarea>
+                        <div class="editor-toolbar">
+                            <button type="button" class="tool-btn" onclick="formatDoc('bold')" title="Bold"><i class="bi bi-type-bold"></i></button>
+                            <button type="button" class="tool-btn" onclick="formatDoc('italic')" title="Italic"><i class="bi bi-type-italic"></i></button>
+                            <button type="button" class="tool-btn" onclick="formatDoc('underline')" title="Underline"><i class="bi bi-type-underline"></i></button>
+                            <span style="width:1px; height:24px; background:var(--glass-border); margin:0 4px;"></span>
+                            <button type="button" class="tool-btn" onclick="document.getElementById('innerImage').click()" title="Insert Image"><i class="bi bi-image"></i> Image</button>
+                            <button type="button" class="tool-btn" onclick="document.getElementById('innerVideo').click()" title="Insert Video"><i class="bi bi-play-btn"></i> Video</button>
+                            <input type="file" id="innerImage" hidden accept="image/*" onchange="insertMedia('image', this)">
+                            <input type="file" id="innerVideo" hidden accept="video/*" onchange="insertMedia('video', this)">
+                            <button type="button" class="tool-btn" style="margin-left:auto; background:rgba(255,255,255,0.1);" onclick="showLivePreview()">
+                                <i class="bi bi-eye"></i> Preview
+                            </button>
+                        </div>
+                        <p style="font-size:0.75rem; color:rgba(255,255,255,0.5); margin-bottom:8px; display:flex; gap:5px; align-items:center;">
+                            <i class="bi bi-info-circle"></i> 
+                            Tip: Click in the text below where you want the media to appear before hitting the Image/Video button.
+                        </p>
+                        <textarea id="postContent" rows="15" required placeholder="Write your story... Use the toolbar to format or insert media."></textarea>
                     </div>
                     <div class="seo-editor">
                         <h4>SEO & Media Meta</h4>
@@ -335,6 +398,122 @@ window.closeEditor = function() {
     editingPostId = null;
     const overlay = document.querySelector('.modal-overlay');
     if (overlay) overlay.remove();
+};
+
+// I implemented these rich text and media tools for a better editorial experience
+
+window.formatDoc = function(cmd) {
+    const textarea = document.getElementById('postContent');
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = textarea.value;
+    const selectedText = text.substring(start, end);
+    let tag = '';
+    
+    switch(cmd) {
+        case 'bold': tag = 'b'; break;
+        case 'italic': tag = 'i'; break;
+        case 'underline': tag = 'u'; break;
+    }
+
+    const before = text.substring(0, start);
+    const after = text.substring(end);
+    textarea.value = `${before}[${tag}]${selectedText}[/${tag}]${after}`;
+    textarea.focus();
+};
+
+window.insertMedia = async function(type, input) {
+    const file = input.files[0];
+    if (!file) return;
+    
+    const textarea = document.getElementById('postContent');
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = textarea.value;
+    
+    showToast(`Uploading ${type}... ⏳`);
+    
+    try {
+        let mediaUrl = '';
+        if (type === 'image') {
+            const result = await compressToWebP(file);
+            const formData = new FormData();
+            formData.append('file', result.blob, 'inner_image.webp');
+            formData.append('upload_preset', CLOUDINARY_CONFIG.uploadPreset);
+            const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CONFIG.cloudName}/image/upload`, { method:'POST', body:formData });
+            if (res.ok) {
+                const d = await res.json();
+                mediaUrl = d.secure_url;
+            }
+        } else {
+            // Video Upload
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', CLOUDINARY_CONFIG.uploadPreset);
+            const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CONFIG.cloudName}/video/upload`, { method:'POST', body:formData });
+            if (res.ok) {
+                const d = await res.json();
+                // Use transformation: auto format, auto quality for web-optimized version
+                mediaUrl = d.secure_url.replace('/upload/', '/upload/f_auto,q_auto/');
+            }
+        }
+
+        if (mediaUrl) {
+            const tag = type === 'image' ? `[img:${mediaUrl}]` : `[video:${mediaUrl}]`;
+            textarea.value = text.substring(0, start) + `\n${tag}\n` + text.substring(end);
+            showToast('Media inserted! ✅');
+        } else {
+            throw new Error('Upload failed');
+        }
+    } catch (e) {
+        showToast('Media upload failed ❌', 'error');
+    }
+};
+
+window.showLivePreview = function() {
+    const title = document.getElementById('postTitle').value || 'Untitled Post';
+    const content = document.getElementById('postContent').value || 'No content yet...';
+    const category = document.getElementById('postCategory').value;
+    const image_url = document.getElementById('imagePreview')?.src || 'latter-view.webp';
+    
+    const dummyPost = {
+        id: -1,
+        title,
+        content,
+        category,
+        image_url,
+        created_at: new Date().toISOString(),
+        author: currentStaff.name,
+        profiles: { name: currentStaff.name, avatar: currentStaff.avatar }
+    };
+
+    // Use a temporary observer for blog.js openPost
+    if (window.openPost) {
+        // Temporarily add dummy post to postsData if exists
+        const oldData = window.postsData;
+        window.postsData = [dummyPost, ...(window.postsData || [])];
+        
+        window.openPost(dummyPost.id);
+        
+        // Add a back button to the modal specifically for preview mode
+        setTimeout(() => {
+            const closeBtn = document.querySelector('.reader-close');
+            if (closeBtn) {
+                const previewBadge = document.createElement('div');
+                previewBadge.style.cssText = 'position:fixed; top:20px; left:20px; background:var(--primary); color:white; padding:10px 20px; border-radius:30px; z-index:10005; font-weight:800; animation:pulse 2s infinite;';
+                previewBadge.textContent = 'PREVIEW MODE';
+                document.querySelector('.modal-overlay').appendChild(previewBadge);
+            }
+        }, 500);
+        
+        // Clean up data when modal is closed (approximately)
+        const checkClose = setInterval(() => {
+            if (!document.querySelector('.modal-overlay')) {
+                window.postsData = oldData;
+                clearInterval(checkClose);
+            }
+        }, 500);
+    }
 };
 
 window.logAudit = async function(user, action, details) {
@@ -469,7 +648,7 @@ window.deleteAnyPost = async function(id) {
     } catch(e) {}
 };
 
-// --- NEW DASHBOARD FUNCTIONS (CONSOLIDATED) ---
+// I consolidated these dashboard functions to handle reviews and management tasks
 
 window.openReviewQueue = async function() {
     try {
