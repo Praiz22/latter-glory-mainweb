@@ -1,6 +1,5 @@
-// LATTER GLORY: LOCAL CONFIGURATION (Git-Ignored)
-// This file is used for local development ONLY.
-// Netlify will automatically generate a production version during deployment.
+// I created this local configuration for LGA to handle environment vars safely
+// I use this file for local development; Netlify handles production secrets.
 
 window.ENV_CONFIG = {
     SUPABASE_URL: 'https://bavxclrpfhxmjebdimkk.supabase.co',
