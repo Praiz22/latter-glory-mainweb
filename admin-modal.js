@@ -170,6 +170,14 @@ function getDashboardContent() {
                 <h4><i class="bi bi-envelope-paper"></i> Newsletter</h4>
                 <p>Broadcast messages to subscribers</p>
             </div>
+            <div class="dashboard-card" onclick="openUpdatesManager()">
+                <h4><i class="bi bi-megaphone"></i> School Updates</h4>
+                <p>Manage announcements and events</p>
+            </div>
+            <div class="dashboard-card" onclick="openPushBroadcaster()">
+                <h4><i class="bi bi-bell"></i> Web Push</h4>
+                <p>Send instant browser notifications</p>
+            </div>
             <div class="dashboard-card" onclick="openManageAllPosts()">
                 <h4><i class="bi bi-file-earmark-post"></i> All Content</h4>
                 <p>Manage all blog entries</p>
@@ -767,3 +775,188 @@ window.updateUserRole = async function(userId, newRole) {
         logAudit(currentStaff.name, 'User Management', `Updated ${userId} to ${newRole}`);
     } catch(e) { showToast('Update failed', 'error'); }
 };
+
+window.openUpdatesManager = async function() {
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+        <div class="modal-container" style="max-width:800px;">
+            <button class="modal-close" onclick="this.closest('.modal-overlay').remove()"><i class="bi bi-x-lg"></i></button>
+            <div class="modal-header"><h2>School Updates Manager</h2></div>
+            <div class="modal-body">
+                <div style="display:flex; gap:15px; margin-bottom:30px;">
+                    <button class="btn-primary" onclick="showNotificationForm()">+ New Announcement</button>
+                    <button class="btn-outline" onclick="showEventForm()">+ New Event</button>
+                </div>
+                <div id="updatesList">
+                    <p style="text-align:center; padding:20px;">Loading updates...</p>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    loadUpdatesList();
+};
+
+async function loadUpdatesList() {
+    const container = document.getElementById('updatesList');
+    if (!container) return;
+    try {
+        const { data: notes } = await getSupabase().from('school_notifications').select('*').order('publish_date', { ascending: false });
+        const { data: events } = await getSupabase().from('events').select('*').order('event_date', { ascending: false });
+        
+        const combined = [...(notes||[]).map(n=>({...n, type:'Note'})), ...(events||[]).map(e=>({...e, type:'Event'}))]
+            .sort((a,b) => new Date(b.publish_date || b.event_date) - new Date(a.publish_date || a.event_date));
+
+        container.innerHTML = combined.map(u => `
+            <div class="dashboard-card" style="display:flex; justify-content:space-between; align-items:center; padding:15px; text-align:left; margin-bottom:10px;">
+                <div>
+                    <span class="user-role" style="font-size:0.65rem;">${u.type.toUpperCase()}</span>
+                    <h4 style="font-size:1rem; margin:5px 0;">${u.title}</h4>
+                    <p style="font-size:0.8rem; color:var(--text-muted);">${new Date(u.publish_date || u.event_date).toLocaleDateString()}</p>
+                </div>
+                <button class="btn-danger btn-sm" onclick="deleteUpdate('${u.type}', ${u.id})">Delete</button>
+            </div>
+        `).join('') || '<p>No updates found.</p>';
+    } catch(e) { container.innerHTML = '<p>Error loading updates.</p>'; }
+}
+
+window.deleteUpdate = async function(type, id) {
+    if (!confirm('Delete this item?')) return;
+    try {
+        const table = type === 'Note' ? 'school_notifications' : 'events';
+        await getSupabase().from(table).delete().eq('id', id);
+        showToast('Deleted! ✅');
+        loadUpdatesList();
+        if (window.initBlog) window.initBlog();
+    } catch(e) { showToast('Delete failed', 'error'); }
+};
+
+window.showNotificationForm = function() {
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.style.zIndex = '10006';
+    modal.innerHTML = `
+        <div class="modal-container" style="max-width:500px;">
+            <button class="modal-close" onclick="this.closest('.modal-overlay').remove()"><i class="bi bi-x-lg"></i></button>
+            <div class="modal-header"><h2>New Announcement</h2></div>
+            <div class="modal-body">
+                <form id="noteForm">
+                    <div class="form-group"><label>Title</label><input type="text" id="nt" required></div>
+                    <div class="form-group"><label>Message</label><textarea id="nm" rows="4" required></textarea></div>
+                    <div class="form-group"><label>Category</label><input type="text" id="nc" placeholder="General, Exam, Holiday..."></div>
+                    <div class="form-group"><label>Publish Date</label><input type="datetime-local" id="np" required></div>
+                    <button type="submit" class="btn-primary" style="width:100%;">Publish</button>
+                </form>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    document.getElementById('noteForm').onsubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const payload = {
+                title: document.getElementById('nt').value,
+                message: document.getElementById('nm').value,
+                category: document.getElementById('nc').value || 'General',
+                publish_date: new Date(document.getElementById('np').value).toISOString()
+            };
+            await getSupabase().from('school_notifications').insert([payload]);
+            showToast('Announcement Published! ✅');
+            modal.remove();
+            loadUpdatesList();
+            if (window.initBlog) window.initBlog();
+        } catch(e) { showToast('Failed to publish', 'error'); }
+    };
+};
+
+window.showEventForm = function() {
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.style.zIndex = '10006';
+    modal.innerHTML = `
+        <div class="modal-container" style="max-width:500px;">
+            <button class="modal-close" onclick="this.closest('.modal-overlay').remove()"><i class="bi bi-x-lg"></i></button>
+            <div class="modal-header"><h2>New School Event</h2></div>
+            <div class="modal-body">
+                <form id="eventFormAdmin">
+                    <div class="form-group"><label>Event Title</label><input type="text" id="et" required></div>
+                    <div class="form-group"><label>Description</label><textarea id="ed" rows="3" required></textarea></div>
+                    <div class="form-group"><label>Event Date</label><input type="datetime-local" id="ee" required></div>
+                    <div class="form-group"><label>Image URL (Optional)</label><input type="url" id="ei" placeholder="https://..."></div>
+                    <button type="submit" class="btn-primary" style="width:100%;">Create Event</button>
+                </form>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    document.getElementById('eventFormAdmin').onsubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const payload = {
+                title: document.getElementById('et').value,
+                description: document.getElementById('ed').value,
+                event_date: new Date(document.getElementById('ee').value).toISOString(),
+                image: document.getElementById('ei').value || 'career-day.webp'
+            };
+            await getSupabase().from('events').insert([payload]);
+            showToast('Event Created! 📅');
+            modal.remove();
+            loadUpdatesList();
+            if (window.initBlog) window.initBlog();
+        } catch(e) { showToast('Failed to create event', 'error'); }
+    };
+};
+
+window.openPushBroadcaster = function() {
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+        <div class="modal-container" style="max-width:550px;">
+            <button class="modal-close" onclick="this.closest('.modal-overlay').remove()"><i class="bi bi-x-lg"></i></button>
+            <div class="modal-header"><h2>Real-time Push Broadcast</h2></div>
+            <div class="modal-body">
+                <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:20px;">This will send an instant browser notification to all users who have allowed notifications on their devices.</p>
+                <form id="pushForm">
+                    <div class="form-group"><label>Notification Title</label><input type="text" id="pt" placeholder="e.g. New School Fee Update" required></div>
+                    <div class="form-group"><label>Message Body</label><textarea id="pb" rows="3" placeholder="Click to read the full announcement..." required></textarea></div>
+                    <div class="form-group"><label>Click Action URL</label><input type="url" id="pu" value="https://www.latterglory.com.ng/blog.html"></div>
+                    <div class="form-group"><label>Admin Secret</label><input type="password" id="ps" placeholder="Enter Push Secret Key" required></div>
+                    <button type="submit" class="btn-primary" id="pbtn" style="width:100%;"><i class="bi bi-send-fill"></i> Send Broadcast Now</button>
+                </form>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    document.getElementById('pushForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('pbtn');
+        btn.disabled = true;
+        btn.textContent = 'Broadcasting...';
+        
+        try {
+            const res = await fetch('/.netlify/functions/send-push', {
+                method: 'POST',
+                body: JSON.stringify({
+                    title: document.getElementById('pt').value,
+                    body: document.getElementById('pb').value,
+                    url: document.getElementById('pu').value,
+                    password: document.getElementById('ps').value
+                })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                showToast(`Success! Sent to ${data.success} devices. 🚀`);
+                modal.remove();
+            } else {
+                throw new Error(data.error || 'Broadcast failed');
+            }
+        } catch(e) {
+            showToast(e.message, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Send Broadcast Now';
+        }
+    };
+};
+

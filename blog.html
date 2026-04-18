@@ -15,18 +15,19 @@
     <meta property="og:description" content="Discover the latest news, academic insights, and success stories from Latter Glory Academy.">
     <meta property="og:url" content="https://www.latterglory.com.ng/blog.html">
     <meta property="og:site_name" content="Latter Glory Academy">
-    <meta property="og:image" content="https://www.latterglory.com.ng/latter-glory-logo.webp">
+    <meta property="og:image" content="https://www.latterglory.com.ng/latter-glory-logo.svg">
     
     <!-- Twitter/X -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="LGA Blog | Academic Excellence & School Culture">
     <meta name="twitter:description" content="Join the conversation at Latter Glory Academy.">
-    <meta name="twitter:image" content="https://www.latterglory.com.ng/latter-glory-logo.webp">
+    <meta name="twitter:image" content="https://www.latterglory.com.ng/latter-glory-logo.svg">
 
     <title>Blog | Latter Glory Academy - Insights & Excellence</title>
     
     <!-- Favicon -->
-    <link rel="icon" type="image/webp" href="latter-glory-logo.webp">
+    <link rel="icon" type="image/svg+xml" href="latter-glory-logo.svg">
+    <link rel="manifest" href="manifest.json">
     <link rel="canonical" href="https://www.latterglory.com.ng/blog.html">
 
     <!-- Schema.org JSON-LD -->
@@ -41,7 +42,7 @@
         "name": "Latter Glory Academy",
         "logo": {
           "@type": "ImageObject",
-          "url": "https://www.latterglory.com.ng/latter-glory-logo.webp"
+          "url": "https://www.latterglory.com.ng/latter-glory-logo.svg"
         }
       }
     }
@@ -69,7 +70,7 @@
 
     <nav>
         <div class="logo">
-            <img src="latter-glory-logo.webp" alt="LGA">
+            <img src="latter-glory-logo.svg" alt="LGA">
             <span>LGA</span>
         </div>
         <div class="nav-links">
@@ -128,7 +129,16 @@
             </div>
         </aside>
     </div>
-        <div class="newsletter-card-modern">
+    <section class="school-updates-section">
+        <div class="content-wrapper">
+            <h2 class="section-title"><i class="bi bi-megaphone"></i> School Notifications & Events</h2>
+            <div class="updates-grid" id="schoolUpdatesGrid">
+                <!-- Data populated via blog.js -->
+            </div>
+        </div>
+    </section>
+
+    <div class="newsletter-card-modern">
             <h4><i class="bi bi-envelope-paper-heart" style="color:var(--primary); margin-right:10px;"></i>Stay with the Glory </h4>
             <p style="color:rgba(255,255,255,0.6); font-size:1rem;">Get the latest insights and news from Latter Glory Academy.</p>
             <div class="newsletter-form-container">
