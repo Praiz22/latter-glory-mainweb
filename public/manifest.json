@@ -1,0 +1,30 @@
+{
+  "name": "Latter Glory Academy",
+  "short_name": "LGA",
+  "description": "Building Tomorrow's Leaders - Official Blog and Portal",
+  "start_url": "/blog.html",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#9b87f5",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "latter-glory-logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Latest Blog Posts",
+      "url": "/blog.html",
+      "icons": [{ "src": "latter-glory-logo.svg", "sizes": "any" }]
+    },
+    {
+      "name": "Student Portal",
+      "url": "/portal.html",
+      "icons": [{ "src": "latter-glory-logo.svg", "sizes": "any" }]
+    }
+  ]
+}

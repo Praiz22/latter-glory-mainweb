@@ -1,0 +1,7 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="200" height="200" rx="40" fill="#09090B"/>
+  <path d="M100 40L140 160H60L100 40Z" fill="#ff5722" fill-opacity="0.2"/>
+  <path d="M100 60L130 150H70L100 60Z" fill="#ff5722"/>
+  <text x="100" y="175" font-family="Outfit, sans-serif" font-size="24" font-weight="800" fill="white" text-anchor="middle">LGA</text>
+  <circle cx="100" cy="90" r="15" fill="white" fill-opacity="0.1"/>
+</svg>

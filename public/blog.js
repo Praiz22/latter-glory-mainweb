@@ -12,6 +12,7 @@ const safeHTML = (str) => {
 
 let postsData = [];
 let eventsData = [];
+let notificationsData = [];
 
 
 let currentSlide = 0;
@@ -60,6 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
     checkDeepLink();
     renderAll();
     setupImageObserver();
+    registerServiceWorker();
     
     // Hide preloader if exists
     const preloader = document.getElementById('preloader');
@@ -138,11 +140,15 @@ function innerContentParser(content) {
         `;
     });
 
-    // 4. Parse [video:URL]
+    // 4. Parse [video:URL] - Enhanced for optimization and GIF behavior
     html = html.replace(/\[video:(.*?)\]/gi, (match, url) => {
+        const isGif = url.includes('.gif') || url.includes('f_auto') || url.includes('q_auto');
         return `
             <figure class="inner-post-media">
-                <video src="${url}" controls preload="metadata" playsinline></video>
+                <video src="${url}" 
+                    ${isGif ? 'autoplay loop muted playsinline' : 'controls'} 
+                    preload="metadata" 
+                    style="width: 100%; border-radius: 12px;"></video>
             </figure>
         `;
     });
@@ -209,10 +215,16 @@ async function handleNewsletter() {
         statusEl.style.color = 'var(--accent)';
 
         try {
-            const supabase = getSupabase();
-            if (supabase && supabase.from) {
-                const { error } = await supabase.from('newsletter_subscriptions').insert([{ email: email, status: 'active' }]);
-                if (error && error.code !== '23505') throw error; 
+            // I trust the backend Netlify function to handle both the database storage securely and the welcome email dispatch
+            const res = await fetch('/.netlify/functions/subscribe-email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.error || 'Subscription failed');
             }
 
             statusEl.textContent = 'Subscribed! Thank you.';
@@ -224,6 +236,7 @@ async function handleNewsletter() {
                 card.classList.add('success');
                 setTimeout(() => card.classList.remove('success'), 2000);
             }
+
         } catch (error) {
             console.error('Subscription error:', error);
             statusEl.textContent = 'An error occurred. Try again later.';
@@ -342,6 +355,16 @@ async function loadData() {
                     excerpt: p.content ? p.content.substring(0, 120) + '...' : 'Read more...'
                 }));
                 eventsData = finalEvents;
+
+                // 3. Try School Notifications
+                try {
+                    const { data: notes, error: nError } = await supabase
+                        .from('school_notifications')
+                        .select('*')
+                        .order('publish_date', { ascending: false })
+                        .limit(6);
+                    if (!nError) notificationsData = notes || [];
+                } catch (nErr) {}
             }
         } catch (e) {
             console.error('Supabase load exception:', e);
@@ -458,6 +481,34 @@ function renderAll() {
     renderHeroCarousel();
     renderBlogGrid();
     renderSidebar();
+    renderSchoolUpdates();
+}
+
+function renderSchoolUpdates() {
+    const grid = getElement('schoolUpdatesGrid');
+    if (!grid) return;
+
+    if (notificationsData.length === 0 && eventsData.length === 0) {
+        grid.innerHTML = '<p style="grid-column:1/-1; text-align:center; color:var(--text-muted); padding:40px;">No recent updates available.</p>';
+        return;
+    }
+
+    // Combine both for a unified grid if needed, or just show notifications
+    const displayData = [...notificationsData.map(n => ({...n, type: 'note'})), ...eventsData.map(e => ({...e, type: 'event'}))]
+        .sort((a, b) => new Date(b.publish_date || b.created_at || b.date) - new Date(a.publish_date || a.created_at || a.date))
+        .slice(0, 6);
+
+    grid.innerHTML = displayData.map(item => `
+        <div class="update-card" onmousedown="hapticFeed()">
+            <div class="update-badge">${item.type === 'note' ? (item.category || 'Announcement') : 'Upcoming Event'}</div>
+            <h3>${safeHTML(item.title)}</h3>
+            <p>${safeHTML(item.message || item.description || 'Join us for this exciting event at LGA!')}</p>
+            <div class="date">
+                <i class="bi bi-calendar3"></i>
+                ${new Date(item.publish_date || item.created_at || item.date).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}
+            </div>
+        </div>
+    `).join('');
 }
 
 function renderHeroCarousel() {
@@ -489,7 +540,7 @@ function renderHeroCarousel() {
             ${topPosts.map((post, index) => `
                 <div class="hero-slide ${index === 0 ? 'active' : ''}" data-index="${index}">
                     <div class="slide-media">
-                        <img src="${post.image_url || 'latter-glory-logo.webp'}" alt="${safeHTML(post.title)}" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover;">
+                        <img src="${post.image_url || 'latter-glory-logo.svg'}" alt="${safeHTML(post.title)}" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover;">
                     </div>
                     <div class="slide-content">
                         <span class="slide-category">${post.category}</span>
@@ -858,9 +909,14 @@ async function incrementViews(id) {
     try {
         const supabase = getSupabase();
         if (!supabase) return;
-        const post = postsData.find(p => p.id === id);
-        if (post) {
-            await supabase.from('posts').update({ views: post.views }).eq('id', id);
+        
+        // I increment the view count atomically on the server
+        const { data, error } = await supabase.rpc('increment_view_count', { post_id: id });
+        
+        if (!error) {
+            // I also update the local data so the UI reflects the change immediately
+            const post = postsData.find(p => p.id === id);
+            if (post) post.views = (post.views || 0) + 1;
         }
     } catch (e) {
         console.warn('View sync failed');
@@ -901,7 +957,7 @@ window.openPost = (id, pushState = true) => {
                     <h1 class="post-title">${post.title}</h1>
                     <div class="post-meta" style="display:flex; justify-content:space-between; align-items:center;">
                         <div style="display:flex; align-items:center; gap:12px;">
-                            <img src="${post.profiles?.avatar || 'latter-glory-logo.webp'}" alt="${post.profiles?.name || post.author}" class="author-img" loading="lazy" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
+                            <img src="${post.profiles?.avatar || 'latter-glory-logo.svg'}" alt="${post.profiles?.name || post.author}" class="author-img" loading="lazy" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
                             <span>by ${post.profiles?.name || post.author} &bull; ${new Date(post.created_at).toLocaleDateString()} &bull; ${computeReadingTime(post.content)} min read</span>
                         </div>
                         <div style="display:flex; gap:10px;">
@@ -1165,7 +1221,7 @@ window.resetMetaTags = function() {
     if (metaDesc) metaDesc.setAttribute('content', desc);
     if (ogTitle) ogTitle.setAttribute('content', title);
     if (ogDesc) ogDesc.setAttribute('content', desc);
-    if (ogImage) ogImage.setAttribute('content', 'https://www.latterglory.com.ng/latter-glory-logo.webp');
+    if (ogImage) ogImage.setAttribute('content', 'https://www.latterglory.com.ng/latter-glory-logo.svg');
     
     document.title = title;
 };
@@ -1314,7 +1370,7 @@ function injectJSONLD(post) {
             "url": "https://www.latterglory.com.ng",
             "logo": {
                 "@type": "ImageObject",
-                "url": "https://www.latterglory.com.ng/latter-glory-logo.webp",
+                "url": "https://www.latterglory.com.ng/latter-glory-logo.svg",
                 "width": 112,
                 "height": 112
             }
@@ -1340,6 +1396,106 @@ function nativeShare(title, text) {
     } else {
         showToast('Native share not supported on this device.');
     }
+}
+
+// I implemented this to register the service worker for PWA and Push Notifications
+function registerServiceWorker() {
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js')
+                .then(reg => {
+                    console.log('✅ Service Worker Registered');
+                    initPushManager(reg);
+                })
+                .catch(err => console.error('❌ SW Registration Failed', err));
+        });
+    }
+}
+
+async function initPushManager(registration) {
+    try {
+        const supabase = getSupabase();
+        if (!supabase) return;
+
+        // Check if user is already subscribed
+        const subscription = await registration.pushManager.getSubscription();
+        
+        if (!subscription) {
+            // I show the modern prompt UI after a short delay
+            setTimeout(() => showPushPrompt(registration), 5000);
+        }
+    } catch (e) {
+        console.warn('Push Manager init failed', e);
+    }
+}
+
+function showPushPrompt(registration) {
+    // Only show if haven't asked this session
+    if (sessionStorage.getItem('lga_push_prompt_shown')) return;
+
+    const banner = document.createElement('div');
+    banner.className = 'pwa-install-banner'; // Reuse install banner styling
+    banner.innerHTML = `
+        <i class="bi bi-bell-fill" style="color:var(--primary); font-size:1.5rem;"></i>
+        <div style="flex:1">
+            <div style="font-weight:800; font-size:0.9rem; color:white;">Enable Notifications</div>
+            <div style="font-size:0.75rem; color:var(--text-muted);">Get real-time LGA news and updates</div>
+        </div>
+        <button class="apple-btn" id="allowPush" style="padding:8px 20px; font-size:0.8rem;">Allow</button>
+        <button style="background:none; border:none; color:var(--text-muted); cursor:pointer;" onclick="this.parentElement.classList.remove('show'); setTimeout(()=>this.parentElement.remove(), 600)">Later</button>
+    `;
+    document.body.appendChild(banner);
+    setTimeout(() => banner.classList.add('show'), 100);
+    sessionStorage.setItem('lga_push_prompt_shown', 'true');
+
+    document.getElementById('allowPush').onclick = async () => {
+        banner.classList.remove('show');
+        const status = await Notification.requestPermission();
+        if (status === 'granted') {
+            subscribeUser(registration);
+        }
+    };
+}
+
+async function subscribeUser(registration) {
+    try {
+        // VAPID Public Key - I will provide this to the user to put in config.js
+        const publicKey = window.ENV_CONFIG.VAPID_PUBLIC_KEY;
+        if (!publicKey) {
+            console.warn('VAPID Public Key missing from ENV_CONFIG');
+            return;
+        }
+
+        const subscription = await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(publicKey)
+        });
+
+        const response = await fetch('/.netlify/functions/save-push-subscription', {
+            method: 'POST',
+            body: JSON.stringify({
+                subscription: subscription,
+                userAgent: navigator.userAgent
+            })
+        });
+
+        if (!response.ok) throw new Error('Failed to save subscription on server');
+
+        showToast('Notifications enabled! 🔔');
+    } catch (e) {
+        console.error('Failed to subscribe user', e);
+    }
+}
+
+function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
 }
 
 // Perfect!
